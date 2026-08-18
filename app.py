@@ -61,7 +61,9 @@ if opcion == "Cargar Evaluación":
         "Código Único del Examen", placeholder="Ej: MAT-2026-X8K9"
     ).strip()
 
-  materia = st.selectbox("Materia", ["Matemática", "Lengua"])
+  materia = st.selectbox(
+      "Materia", ["Matemática", "Lengua", "Tecnología de la Representación"]
+  )
 
   st.subheader("Rúbrica de Evaluación")
   c1 = st.radio(
@@ -221,7 +223,7 @@ elif opcion == "Generar Códigos Únicos":
           "Escuela / Institución", value=escuela_defecto
       )
 
-    prefijo = st.selectbox("Materia de la Evaluación", ["MAT", "LEN"])
+    prefijo = st.selectbox("Materia de la Evaluación", ["MAT", "LEN", "TDR"])
 
     if st.button("Generar y Asignar Código Único", type="primary"):
       if not dni_input or not nombre_estudiante or not escuela_estudiante:
@@ -230,7 +232,13 @@ elif opcion == "Generar Códigos Únicos":
         aleatorio = "".join(random.choices(CARACTERES_SEGUROS, k=4))
         codigo_generado = f"{prefijo}-2026-{aleatorio}"
         fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        materia_nombre = "Matemática" if prefijo == "MAT" else "Lengua"
+
+        mapa_materias = {
+            "MAT": "Matemática",
+            "LEN": "Lengua",
+            "TDR": "Tecnología de la Representación",
+        }
+        materia_nombre = mapa_materias.get(prefijo, prefijo)
 
         payload_codigo = {
             "action": "guardar_codigo",
