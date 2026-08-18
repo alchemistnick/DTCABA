@@ -199,7 +199,7 @@ st.markdown(
 st.markdown(
     """
     <div class="app-header">
-        <h1>📝 Plataforma de Evaluaciones Técnicas</h1>
+        <h1>📝 Desafíos Técnicos </h1>
         <p>Dirección de Educación Técnica · CABA 2026</p>
     </div>
     """,
