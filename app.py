@@ -46,7 +46,7 @@ def buscar_estudiantes_por_dni(dni_búsqueda):
 
 
 # ---------------------------------------------------------
-# 1. CARGAR EVALUACIÓN (EVALUACIÓN A CIEGAS / ANÓNIMA)
+# 1. CARGAR EVALUACIÓN (RÚBRICA DINÁMICA POR MATERIA)
 # ---------------------------------------------------------
 if opcion == "Cargar Evaluación":
   st.header("Carga de Evaluación")
@@ -62,19 +62,74 @@ if opcion == "Cargar Evaluación":
     ).strip()
 
   materia = st.selectbox(
-      "Materia", ["Matemática", "Lengua", "Tecnología de la Representación"]
+      "Materia",
+      [
+          "Matemática",
+          "Lengua",
+          "Tecnología de la Representación Nivel 1",
+          "Tecnología de la Representación Nivel 2",
+      ],
   )
 
-  st.subheader("Rúbrica de Evaluación")
-  c1 = st.radio(
-      "Criterio 1: Razonamiento / Comprensión", [1, 2, 3, 4], horizontal=True
-  )
-  c2 = st.radio(
-      "Criterio 2: Coherencia / Resolución", [1, 2, 3, 4], horizontal=True
-  )
-  c3 = st.radio(
-      "Criterio 3: Dominio Técnico / Gramática", [1, 2, 3, 4], horizontal=True
-  )
+  st.subheader(f"Rúbrica de Evaluación: {materia}")
+
+  # Definición adaptativa de criterios según la materia elegida
+  if materia == "Matemática":
+    label_c1 = (
+        "Criterio 1: Planteo y Razonamiento (Estrategias de resolución y"
+        " lógica)"
+    )
+    label_c2 = (
+        "Criterio 2: Operatoria y Precisión (Cálculos y desarrollo algebraico)"
+    )
+    label_c3 = (
+        "Criterio 3: Interpretación de Resultados (Conclusiones y respuestas"
+        " contextualizadas)"
+    )
+
+  elif materia == "Lengua":
+    label_c1 = (
+        "Criterio 1: Comprensión Lectora y Coherencia (Análisis y sentido del"
+        " texto)"
+    )
+    label_c2 = (
+        "Criterio 2: Cohesión y Estructuración (Organización de párrafos y"
+        " conectores)"
+    )
+    label_c3 = (
+        "Criterio 3: Ortografía y Gramática (Normativa, puntuación y vocabulario)"
+    )
+
+  elif materia == "Tecnología de la Representación Nivel 1":
+    label_c1 = (
+        "Criterio 1: Normalización Básica (Uso de líneas, acotación y escalas)"
+    )
+    label_c2 = (
+        "Criterio 2: Proyección y Visualización Ortogonal (Vistas principales y"
+        " trazado)"
+    )
+    label_c3 = (
+        "Criterio 3: Prolijidad y Calidad Gráfica (Legibilidad y presentación"
+        " técnica)"
+    )
+
+  else:  # Tecnología de la Representación Nivel 2
+    label_c1 = (
+        "Criterio 1: Modelado / Vistas Complejas (Cortes, secciones y detalles)"
+    )
+    label_c2 = (
+        "Criterio 2: Aplicación Avanzada de Normas (Tolerancias, simbología y"
+        " especificaciones)"
+    )
+    label_c3 = (
+        "Criterio 3: Interpretación y Resolución de Conjuntos (Planos de"
+        " despiece o ensamble)"
+    )
+
+  # Renderizado dinámico de la rúbrica
+  c1 = st.radio(label_c1, [1, 2, 3, 4], horizontal=True)
+  c2 = st.radio(label_c2, [1, 2, 3, 4], horizontal=True)
+  c3 = st.radio(label_c3, [1, 2, 3, 4], horizontal=True)
 
   if st.button("Guardar en Google Sheets", type="primary"):
     if not id_evaluador or not codigo_unico:
@@ -106,7 +161,6 @@ if opcion == "Cargar Evaluación":
               " 'Base_codigos'."
           )
         else:
-          # Confirmación 100% anónima (sin revelar la identidad del alumno)
           st.success(
               f"✅ **Datos Validados**: Evaluador **{nombre_evaluador}** | Examen"
               f" Anónimo **{codigo_unico}** Habilitado"
@@ -223,7 +277,9 @@ elif opcion == "Generar Códigos Únicos":
           "Escuela / Institución", value=escuela_defecto
       )
 
-    prefijo = st.selectbox("Materia de la Evaluación", ["MAT", "LEN", "TDR"])
+    prefijo = st.selectbox(
+        "Materia de la Evaluación", ["MAT", "LEN", "TDR1", "TDR2"]
+    )
 
     if st.button("Generar y Asignar Código Único", type="primary"):
       if not dni_input or not nombre_estudiante or not escuela_estudiante:
@@ -236,7 +292,8 @@ elif opcion == "Generar Códigos Únicos":
         mapa_materias = {
             "MAT": "Matemática",
             "LEN": "Lengua",
-            "TDR": "Tecnología de la Representación",
+            "TDR1": "Tecnología de la Representación Nivel 1",
+            "TDR2": "Tecnología de la Representación Nivel 2",
         }
         materia_nombre = mapa_materias.get(prefijo, prefijo)
 
