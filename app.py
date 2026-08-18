@@ -32,7 +32,7 @@ def leer_pestana(sheet_id, nombre_pestana):
     return pd.DataFrame()
 
 
-# Búsqueda inteligente de TODAS las coincidencias por DNI
+# Búsqueda inteligente de TODAS las coincidencias por DNI (incluyendo puntaje anterior)
 def buscar_estudiantes_por_dni(dni_búsqueda):
   df_respuestas = leer_pestana(SHEET_ID_PADRON, "Respuestas de formulario 1")
   if df_respuestas.empty:
@@ -55,7 +55,7 @@ def buscar_estudiantes_por_dni(dni_búsqueda):
             else ""
         )
         if val_cell == dni_str:
-          # Marca Temporal / Fecha de inscripción
+          # Marca Temporal / Fecha
           fecha_insc = ""
           if "Marca temporal" in df_respuestas.columns and pd.notna(
               row["Marca temporal"]
@@ -73,12 +73,15 @@ def buscar_estudiantes_por_dni(dni_búsqueda):
           ):
             escuela = str(row["Escuelas "])
 
-          # Nombre y Apellido
+          # Nombre, Apellido y Puntaje cercano
           nombre = ""
           apellido = ""
+          puntaje_anterior = "S/D"
+
           col_idx = df_respuestas.columns.get_loc(col)
 
-          for offset in [-2, -1, 1, 2]:
+          # Buscar en columnas adyacentes la información requerida
+          for offset in range(-4, 5):
             idx_cerca = col_idx + offset
             if 0 <= idx_cerca < len(df_respuestas.columns):
               nombre_col = df_respuestas.columns[idx_cerca]
@@ -94,6 +97,19 @@ def buscar_estudiantes_por_dni(dni_búsqueda):
                   and not apellido
               ):
                 apellido = str(row[nombre_col])
+              if (
+                  "PUNTAJE" in nombre_col.upper()
+                  and pd.notna(row[nombre_col])
+                  and puntaje_anterior == "S/D"
+              ):
+                puntaje_anterior = str(row[nombre_col])
+
+          # Si no se encontró puntaje por cercanía, buscar globalmente en la fila
+          if puntaje_anterior == "S/D":
+            for col_punt in df_respuestas.columns:
+              if "PUNTAJE" in col_punt.upper() and pd.notna(row[col_punt]):
+                puntaje_anterior = str(row[col_punt])
+                break
 
           nombre_completo = f"{nombre} {apellido}".strip()
           if not nombre_completo:
@@ -113,8 +129,9 @@ def buscar_estudiantes_por_dni(dni_búsqueda):
               "nombre": nombre_completo,
               "escuela": escuela,
               "evento": evento,
+              "puntaje_anterior": puntaje_anterior,
           })
-          break  # Evita duplicar la misma fila si el DNI aparece dos veces en esa fila
+          break
 
   return coincidencias
 
@@ -198,7 +215,7 @@ if opcion == "Cargar Evaluación":
         )
 
 # ---------------------------------------------------------
-# 2. GENERADOR DE CÓDIGOS ÚNICOS
+# 2. GENERADOR DE CÓDIGOS ÚNICOS CON MOSTRADOR DE PUNTAJE ANTERIOR
 # ---------------------------------------------------------
 elif opcion == "Generar Códigos Únicos":
   st.header("Generador de Códigos Únicos")
@@ -216,6 +233,7 @@ elif opcion == "Generar Códigos Únicos":
 
     nombre_defecto = ""
     escuela_defecto = ""
+    puntaje_defecto = "N/A"
 
     if dni_input:
       coincidencias = buscar_estudiantes_por_dni(dni_input)
@@ -224,15 +242,22 @@ elif opcion == "Generar Códigos Únicos":
         estudiante_sel = coincidencias[0]
         nombre_defecto = estudiante_sel["nombre"]
         escuela_defecto = estudiante_sel["escuela"]
+        puntaje_defecto = estudiante_sel["puntaje_anterior"]
+
         st.info(
             f"ℹ️ **Estudiante Encontrado:** {nombre_defecto} | **Escuela:**"
             f" {escuela_defecto}"
         )
-        if estudiante_sel["evento"]:
-          st.caption(f"📌 **Inscripción:** {estudiante_sel['evento']}")
+        col_m1, col_m2 = st.columns(2)
+        with col_m1:
+          if estudiante_sel["evento"]:
+            st.caption(f"📌 **Inscripción:** {estudiante_sel['evento']}")
+        with col_m2:
+          st.metric(
+              label="Puntaje Instancia Institucional", value=puntaje_defecto
+          )
 
       elif len(coincidencias) > 1:
-        # Advertencia indicando la última fecha de respuesta
         ultima_respuesta = coincidencias[-1]["fecha"]
         st.warning(
             f"⚠️ **Atención:** Se encontraron **{len(coincidencias)}"
@@ -240,13 +265,12 @@ elif opcion == "Generar Códigos Únicos":
             f"🕒 **Última respuesta registrada:** `{ultima_respuesta}`"
         )
 
-        # Crear opciones formateadas para el selector
         opciones_map = {
-            f"Opción {i+1} ({c['fecha']}) - {c['nombre']} [{c['escuela']}] - Desafío: {c['evento']}": c
+            f"Opción {i+1} ({c['fecha']}) - {c['nombre']} [{c['escuela']}] -"
+            f" Puntaje: {c['puntaje_anterior']}": c
             for i, c in enumerate(coincidencias)
         }
 
-        # Permitir al usuario elegir la inscripción correcta (por defecto selecciona la última)
         eleccion = st.selectbox(
             "Seleccione el registro que desea utilizar:",
             options=list(opciones_map.keys()),
@@ -256,6 +280,12 @@ elif opcion == "Generar Códigos Únicos":
         estudiante_sel = opciones_map[eleccion]
         nombre_defecto = estudiante_sel["nombre"]
         escuela_defecto = estudiante_sel["escuela"]
+        puntaje_defecto = estudiante_sel["puntaje_anterior"]
+
+        st.metric(
+            label="Puntaje Instancia Institucional (Seleccionado)",
+            value=puntaje_defecto,
+        )
 
       else:
         st.warning(
@@ -293,6 +323,7 @@ elif opcion == "Generar Códigos Únicos":
             "Codigo_Unico": codigo_generado,
             "Estudiante": nombre_estudiante,
             "Escuela": escuela_estudiante,
+            "Puntaje_Institucional": puntaje_defecto,
             "Materia": "Matemática" if prefijo == "MAT" else "Lengua",
         }])
         st.dataframe(df_asignacion, use_container_width=True)
