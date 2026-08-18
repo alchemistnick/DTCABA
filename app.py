@@ -11,15 +11,206 @@ SHEET_ID_EVALS = "1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk"
 CARACTERES_SEGUROS = "BCDFGHJKLMNPQRSTVWXYZ0123456789"
 
 st.set_page_config(
-    page_title="Evaluaciones DTCABA 2026", page_icon="📝", layout="centered"
+    page_title="Evaluaciones DTCABA 2026",
+    page_icon="📝",
+    layout="centered",
+    initial_sidebar_state="expanded",
 )
 
-st.title("Plataforma de Evaluaciones Técnicas")
-st.caption("Dirección Técnica - CABA 2026")
+# ---------------------------------------------------------
+# ESTILOS (solo diseño — no toca lógica ni funcionalidad)
+# ---------------------------------------------------------
+st.markdown(
+    """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600&display=swap');
 
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif;
+    }
+
+    :root {
+        --primary: #4F46E5;
+        --primary-dark: #3730A3;
+        --accent: #06B6D4;
+        --bg-soft: #F8F9FC;
+        --card-bg: #FFFFFF;
+        --border: #E5E7EB;
+        --success: #10B981;
+        --text-main: #1F2937;
+        --text-muted: #6B7280;
+    }
+
+    .stApp {
+        background: linear-gradient(180deg, #F5F6FB 0%, #EEF1FA 100%);
+    }
+
+    /* Encabezado principal */
+    .app-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+        padding: 2rem 2rem 1.6rem 2rem;
+        border-radius: 18px;
+        margin-bottom: 1.8rem;
+        box-shadow: 0 10px 30px rgba(79, 70, 229, 0.25);
+        color: white;
+    }
+    .app-header h1 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.7rem;
+        font-weight: 700;
+        margin: 0 0 0.3rem 0;
+        color: white;
+    }
+    .app-header p {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 0.95rem;
+    }
+
+    /* Títulos de sección */
+    h2 {
+        font-family: 'Poppins', sans-serif !important;
+        font-weight: 700 !important;
+        color: var(--text-main) !important;
+        border-left: 5px solid var(--primary);
+        padding-left: 0.7rem;
+        margin-top: 1.2rem !important;
+    }
+    h3 {
+        font-family: 'Poppins', sans-serif !important;
+        color: var(--primary-dark) !important;
+        font-weight: 600 !important;
+    }
+
+    /* Tarjetas contenedoras */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        background: var(--card-bg);
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        box-shadow: 0 2px 10px rgba(17, 24, 39, 0.04);
+    }
+
+    /* Inputs de texto */
+    div[data-baseweb="input"] input,
+    div[data-baseweb="select"] > div,
+    textarea {
+        border-radius: 10px !important;
+        border: 1.5px solid var(--border) !important;
+    }
+    div[data-baseweb="input"] input:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+    }
+
+    /* Radio horizontal (rúbrica) como chips */
+    div[role="radiogroup"] {
+        gap: 0.4rem;
+    }
+    div[role="radiogroup"] label {
+        background: var(--bg-soft);
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        padding: 0.35rem 0.9rem !important;
+        margin-right: 0.3rem;
+        transition: all 0.15s ease;
+    }
+    div[role="radiogroup"] label:hover {
+        border-color: var(--primary);
+        background: #EEF0FF;
+    }
+
+    /* Botones primarios */
+    .stButton > button[kind="primary"] {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border: none;
+        border-radius: 12px;
+        padding: 0.6rem 1.4rem;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+    .stButton > button[kind="primary"]:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4);
+    }
+
+    /* Sidebar */
+    section[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #1F2340 0%, #2D2F5E 100%);
+    }
+    section[data-testid="stSidebar"] * {
+        color: #F1F2FA !important;
+    }
+    section[data-testid="stSidebar"] div[role="radiogroup"] label {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 10px;
+        padding: 0.5rem 0.8rem !important;
+        margin-bottom: 0.35rem;
+    }
+    section[data-testid="stSidebar"] div[role="radiogroup"] label:hover {
+        background: rgba(255,255,255,0.14);
+    }
+
+    /* Métricas */
+    div[data-testid="stMetric"] {
+        background: var(--bg-soft);
+        border-radius: 14px;
+        padding: 0.8rem 1rem;
+        border: 1px solid var(--border);
+    }
+
+    /* Alertas / mensajes */
+    div[data-testid="stAlert"] {
+        border-radius: 12px;
+    }
+
+    /* Code block (código generado) */
+    .stCodeBlock, code {
+        border-radius: 10px !important;
+    }
+
+    /* Dataframes */
+    div[data-testid="stDataFrame"] {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+    }
+
+    /* Tabs */
+    button[data-baseweb="tab"] {
+        font-weight: 600;
+        border-radius: 10px 10px 0 0 !important;
+    }
+
+    /* Divider fino */
+    hr {
+        border-color: var(--border);
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# ---------------------------------------------------------
+# ENCABEZADO
+# ---------------------------------------------------------
+st.markdown(
+    """
+    <div class="app-header">
+        <h1>📝 Plataforma de Evaluaciones Técnicas</h1>
+        <p>Dirección Técnica · CABA 2026</p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+st.sidebar.markdown("### 🧭 Navegación")
 opcion = st.sidebar.radio(
     "Navegación",
     ["Cargar Evaluación", "Generar Códigos Únicos", "Panel de Administración"],
+    label_visibility="collapsed",
 )
 
 
@@ -51,27 +242,28 @@ def buscar_estudiantes_por_dni(dni_búsqueda):
 if opcion == "Cargar Evaluación":
   st.header("Carga de Evaluación")
 
-  col1, col2 = st.columns(2)
-  with col1:
-    id_evaluador = st.text_input(
-        "ID / Email del Evaluador", placeholder="Ej: EVAL-001 o email"
-    ).strip()
-  with col2:
-    codigo_unico = st.text_input(
-        "Código Único del Examen", placeholder="Ej: MAT-2026-X8K9"
-    ).strip()
+  with st.container(border=True):
+    col1, col2 = st.columns(2)
+    with col1:
+      id_evaluador = st.text_input(
+          "ID / Email del Evaluador", placeholder="Ej: EVAL-001 o email"
+      ).strip()
+    with col2:
+      codigo_unico = st.text_input(
+          "Código Único del Examen", placeholder="Ej: MAT-2026-X8K9"
+      ).strip()
 
-  materia = st.selectbox(
-      "Materia",
-      [
-          "Matemática",
-          "Lengua",
-          "Tecnología de la Representación Nivel 1",
-          "Tecnología de la Representación Nivel 2",
-      ],
-  )
+    materia = st.selectbox(
+        "Materia",
+        [
+            "Matemática",
+            "Lengua",
+            "Tecnología de la Representación Nivel 1",
+            "Tecnología de la Representación Nivel 2",
+        ],
+    )
 
-  st.subheader(f"Rúbrica de Evaluación: {materia}")
+  st.subheader(f"📋 Rúbrica de Evaluación: {materia}")
 
   # Definición adaptativa de criterios según la materia elegida
   if materia == "Matemática":
@@ -127,11 +319,14 @@ if opcion == "Cargar Evaluación":
     )
 
   # Renderizado dinámico de la rúbrica
-  c1 = st.radio(label_c1, [1, 2, 3, 4], horizontal=True)
-  c2 = st.radio(label_c2, [1, 2, 3, 4], horizontal=True)
-  c3 = st.radio(label_c3, [1, 2, 3, 4], horizontal=True)
+  with st.container(border=True):
+    c1 = st.radio(label_c1, [1, 2, 3, 4], horizontal=True)
+    st.divider()
+    c2 = st.radio(label_c2, [1, 2, 3, 4], horizontal=True)
+    st.divider()
+    c3 = st.radio(label_c3, [1, 2, 3, 4], horizontal=True)
 
-  if st.button("Guardar en Google Sheets", type="primary"):
+  if st.button("💾 Guardar en Google Sheets", type="primary"):
     if not id_evaluador or not codigo_unico:
       st.warning("⚠️ Completa el ID de evaluador y el Código Único.")
     else:
@@ -197,8 +392,8 @@ elif opcion == "Generar Códigos Únicos":
   )
 
   if clave_codigos == "admin123":
-    st.success("Acceso concedido.")
-    st.subheader("Búsqueda en Padrón de Encuentros Educativos")
+    st.success("🔓 Acceso concedido.")
+    st.subheader("🔍 Búsqueda en Padrón de Encuentros Educativos")
 
     dni_input = st.text_input(
         "DNI del Estudiante (presione Enter para buscar)"
@@ -267,21 +462,22 @@ elif opcion == "Generar Códigos Únicos":
             " Puedes completar los datos manualmente."
         )
 
-    col_est1, col_est2 = st.columns(2)
-    with col_est1:
-      nombre_estudiante = st.text_input(
-          "Nombre y Apellido", value=nombre_defecto
-      )
-    with col_est2:
-      escuela_estudiante = st.text_input(
-          "Escuela / Institución", value=escuela_defecto
+    with st.container(border=True):
+      col_est1, col_est2 = st.columns(2)
+      with col_est1:
+        nombre_estudiante = st.text_input(
+            "Nombre y Apellido", value=nombre_defecto
+        )
+      with col_est2:
+        escuela_estudiante = st.text_input(
+            "Escuela / Institución", value=escuela_defecto
+        )
+
+      prefijo = st.selectbox(
+          "Materia de la Evaluación", ["MAT", "LEN", "TDR1", "TDR2"]
       )
 
-    prefijo = st.selectbox(
-        "Materia de la Evaluación", ["MAT", "LEN", "TDR1", "TDR2"]
-    )
-
-    if st.button("Generar y Asignar Código Único", type="primary"):
+    if st.button("🎲 Generar y Asignar Código Único", type="primary"):
       if not dni_input or not nombre_estudiante or not escuela_estudiante:
         st.warning("⚠️ Debes completar DNI, Nombre y Escuela.")
       else:
@@ -373,12 +569,13 @@ elif opcion == "Panel de Administración":
       nuevo_id = f"EVAL-{cant_usuarios + 1:03d}"
       st.info(f"🆔 **ID asignado automáticamente:** `{nuevo_id}`")
 
-      nuevo_nombre = st.text_input("Nombre completo del evaluador")
-      quien_autoriza = st.text_input(
-          "Autorizado por", value="Dirección Técnica"
-      )
+      with st.container(border=True):
+        nuevo_nombre = st.text_input("Nombre completo del evaluador")
+        quien_autoriza = st.text_input(
+            "Autorizado por", value="Dirección Técnica"
+        )
 
-      if st.button("Autorizar Evaluador", type="primary"):
+      if st.button("✅ Autorizar Evaluador", type="primary"):
         if nuevo_nombre:
           payload = {
               "action": "usuario",
