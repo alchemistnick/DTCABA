@@ -46,7 +46,7 @@ def buscar_estudiantes_por_dni(dni_búsqueda):
 
 
 # ---------------------------------------------------------
-# 1. CARGAR EVALUACIÓN
+# 1. CARGAR EVALUACIÓN (EVALUACIÓN A CIEGAS / ANÓNIMA)
 # ---------------------------------------------------------
 if opcion == "Cargar Evaluación":
   st.header("Carga de Evaluación")
@@ -92,8 +92,6 @@ if opcion == "Cargar Evaluación":
         evaluador_valido = datos_val.get("evaluador_valido", False)
         nombre_evaluador = datos_val.get("nombre_evaluador", "")
         codigo_valido = datos_val.get("codigo_valido", False)
-        estudiante = datos_val.get("estudiante", "")
-        escuela = datos_val.get("escuela", "")
 
         if not evaluador_valido:
           st.error(
@@ -106,9 +104,10 @@ if opcion == "Cargar Evaluación":
               " 'Base_codigos'."
           )
         else:
+          # Confirmación 100% anónima (sin revelar la identidad del alumno)
           st.success(
-              f"✅ **Datos Validados**: Evaluador **{nombre_evaluador}** |"
-              f" Estudiante: **{estudiante}** ({escuela})"
+              f"✅ **Datos Validados**: Evaluador **{nombre_evaluador}** | Examen"
+              f" Anónimo **{codigo_unico}** Habilitado"
           )
 
           payload = {
