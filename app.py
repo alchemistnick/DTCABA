@@ -5,7 +5,7 @@ import pandas as pd
 import requests
 import streamlit as st
 
-WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyX0-fgr6aKRArGp3wPUYMqnyy6XlztPKu_yfWOgBRNqh1zsihjpvwQ0fvp6ZZ-I2C66g/exec"
+WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyK8Th8qiQq4HkIQY9fFMF2ahYRFHsEyipnw2DST1QmXg7JOxPQmybiW2xtyHwJBAW0fg/exec"
 SHEET_ID_EVALS = "1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk"
 
 # Conjunto seguro sin vocales (evita la formación de cualquier palabra)
