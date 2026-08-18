@@ -5,10 +5,9 @@ import pandas as pd
 import requests
 import streamlit as st
 
-WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyK8Th8qiQq4HkIQY9fFMF2ahYRFHsEyipnw2DST1QmXg7JOxPQmybiW2xtyHwJBAW0fg/exec"
+WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzyiTybfkEMkM_x_-Ist_7DlWObsTN9T3QtCnLyvz-oLpvvDkEYGI_bQTiHKwdTFx9oUw/exec"
 SHEET_ID_EVALS = "1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk"
 
-# Conjunto seguro sin vocales (evita la formación de cualquier palabra)
 CARACTERES_SEGUROS = "BCDFGHJKLMNPQRSTVWXYZ0123456789"
 
 st.set_page_config(
@@ -24,7 +23,6 @@ opcion = st.sidebar.radio(
 )
 
 
-# Lectura auxiliar
 def leer_pestana(sheet_id, nombre_pestana):
   try:
     url_csv = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={nombre_pestana}"
@@ -33,7 +31,6 @@ def leer_pestana(sheet_id, nombre_pestana):
     return pd.DataFrame()
 
 
-# Búsqueda por DNI a través del receptor de Apps Script
 def buscar_estudiantes_por_dni(dni_búsqueda):
   try:
     payload = {"action": "buscar_dni", "dni": str(dni_búsqueda)}
@@ -123,7 +120,7 @@ if opcion == "Cargar Evaluación":
         st.error("Error al acceder a la lista de usuarios en Google Sheets.")
 
 # ---------------------------------------------------------
-# 2. GENERADOR DE CÓDIGOS ÚNICOS (SEGURO)
+# 2. GENERADOR DE CÓDIGOS ÚNICOS CON GUARDADO AUTOMÁTICO
 # ---------------------------------------------------------
 elif opcion == "Generar Códigos Únicos":
   st.header("Generador de Códigos Únicos")
@@ -218,23 +215,43 @@ elif opcion == "Generar Códigos Únicos":
       if not dni_input or not nombre_estudiante or not escuela_estudiante:
         st.warning("⚠️ Debes completar DNI, Nombre y Escuela.")
       else:
-        # Selección segura utilizando únicamente el conjunto sin vocales
         aleatorio = "".join(random.choices(CARACTERES_SEGUROS, k=4))
         codigo_generado = f"{prefijo}-2026-{aleatorio}"
+        fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        materia_nombre = "Matemática" if prefijo == "MAT" else "Lengua"
 
-        st.subheader("Código Asignado")
-        st.code(codigo_generado, language="text")
+        payload_codigo = {
+            "action": "guardar_codigo",
+            "fecha": fecha_actual,
+            "dni": dni_input,
+            "codigo_unico": codigo_generado,
+            "estudiante": nombre_estudiante,
+            "escuela": escuela_estudiante,
+            "materia": materia_nombre,
+            "puntaje_institucional": puntaje_defecto,
+        }
 
-        df_asignacion = pd.DataFrame([{
-            "Fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "DNI": dni_input,
-            "Codigo_Unico": codigo_generado,
-            "Estudiante": nombre_estudiante,
-            "Escuela": escuela_estudiante,
-            "Puntaje_Institucional": puntaje_defecto,
-            "Materia": "Matemática" if prefijo == "MAT" else "Lengua",
-        }])
-        st.dataframe(df_asignacion, use_container_width=True)
+        res = requests.post(WEBAPP_URL, json=payload_codigo)
+        if res.status_code == 200:
+          st.success(
+              f"✅ Código **{codigo_generado}** asignado y guardado en"
+              " `Base_codigos`."
+          )
+          st.subheader("Código Asignado")
+          st.code(codigo_generado, language="text")
+
+          df_asignacion = pd.DataFrame([{
+              "Fecha": fecha_actual,
+              "DNI": dni_input,
+              "Codigo_Unico": codigo_generado,
+              "Estudiante": nombre_estudiante,
+              "Escuela": escuela_estudiante,
+              "Puntaje_Institucional": puntaje_defecto,
+              "Materia": materia_nombre,
+          }])
+          st.dataframe(df_asignacion, use_container_width=True)
+        else:
+          st.error("Error al guardar el código en Google Sheets.")
 
   elif clave_codigos != "":
     st.error("❌ Contraseña incorrecta.")
@@ -247,9 +264,11 @@ elif opcion == "Panel de Administración":
   clave = st.text_input("Clave Administrador", type="password")
 
   if clave == "admin123":
-    tab1, tab2 = st.tabs(
-        ["📊 Evaluaciones Registradas", "👤 Gestor de Usuarios"]
-    )
+    tab1, tab2, tab3 = st.tabs([
+        "📊 Evaluaciones Registradas",
+        "🔑 Base de Códigos",
+        "👤 Gestor de Usuarios",
+    ])
 
     with tab1:
       df_evals = leer_pestana(SHEET_ID_EVALS, "Evaluaciones")
@@ -259,6 +278,13 @@ elif opcion == "Panel de Administración":
         st.info("No hay evaluaciones registradas aún.")
 
     with tab2:
+      df_codigos = leer_pestana(SHEET_ID_EVALS, "Base_codigos")
+      if not df_codigos.empty:
+        st.dataframe(df_codigos, use_container_width=True)
+      else:
+        st.info("No hay códigos guardados en la base de datos.")
+
+    with tab3:
       df_users = leer_pestana(SHEET_ID_EVALS, "Usuarios")
       if not df_users.empty:
         st.dataframe(df_users, use_container_width=True)
