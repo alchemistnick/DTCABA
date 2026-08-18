@@ -251,7 +251,7 @@ st.markdown(
 st.markdown(
     """
     <div class="app-header">
-        <h1>🧑‍🔧 Desafíos Técnicos⚙️</h1>
+        <h1> 📐Desafíos Técnicos⚙️</h1>
         <p>Plataforma de evaluación y gestión</p>
         <p class="sub-caption">Dirección de Educación Técnica · CABA 2026</p>
     </div>
