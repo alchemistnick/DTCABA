@@ -56,7 +56,7 @@ st.markdown(
     }
     .app-header h1 {
         font-family: 'Poppins', sans-serif;
-        font-size: 1.7rem;
+        font-size: 2.6rem;
         font-weight: 700;
         margin: 0 0 0.3rem 0;
         color: white;
@@ -71,6 +71,7 @@ st.markdown(
     h2 {
         font-family: 'Poppins', sans-serif !important;
         font-weight: 700 !important;
+        font-size: 2.1rem !important;
         color: var(--text-main) !important;
         border-left: 5px solid var(--primary);
         padding-left: 0.7rem;
