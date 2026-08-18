@@ -283,7 +283,8 @@ def leer_pestana(sheet_id, nombre_pestana):
 def buscar_estudiantes_por_dni(dni_búsqueda):
   try:
     payload = {"action": "buscar_dni", "dni": str(dni_búsqueda).strip()}
-    res = requests.post(WEBAPP_URL, json=payload, timeout=10)
+    # Se aumenta el timeout a 25 segundos para tolerar el arranque en frío de Apps Script
+    res = requests.post(WEBAPP_URL, json=payload, timeout=25)
     if res.status_code == 200:
       try:
         data = res.json()
