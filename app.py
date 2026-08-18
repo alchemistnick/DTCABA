@@ -18,7 +18,7 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------------
-# ESTILOS (solo diseño — no toca lógica ni funcionalidad)
+# ESTILOS (solo diseño)
 # ---------------------------------------------------------
 st.markdown(
     """
@@ -361,6 +361,28 @@ if opcion == "Cargar Evaluación":
               f" Anónimo **{codigo_unico}** Habilitado"
           )
 
+          # ---------------------------------------------------------
+          # CÁLCULO DEL PROMEDIO DIFERENCIADO SEGÚN LA MATERIA
+          # ---------------------------------------------------------
+          if materia == "Matemática":
+            # Ejemplo: Promedio estándar de 3 dimensiones
+            promedio_calculado = round((c1 + c2 + c3) / 3, 2)
+
+          elif materia == "Lengua":
+            # Ejemplo: Promedio estándar de 3 dimensiones
+            promedio_calculado = round((c1 + c2 + c3) / 3, 2)
+
+          elif materia == "Tecnología de la Representación Nivel 1":
+            # Ejemplo: Promedio de 3 dimensiones
+            promedio_calculado = round((c1 + c2 + c3) / 3, 2)
+
+          elif materia == "Tecnología de la Representación Nivel 2":
+            # Ejemplo: Promedio de 3 dimensiones
+            promedio_calculado = round((c1 + c2 + c3) / 3, 2)
+
+          else:
+            promedio_calculado = round((c1 + c2 + c3) / 3, 2)
+
           payload = {
               "action": "evaluacion",
               "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -371,7 +393,7 @@ if opcion == "Cargar Evaluación":
               "c1": c1,
               "c2": c2,
               "c3": c3,
-              "promedio": round((c1 + c2 + c3) / 3, 2),
+              "promedio": promedio_calculado,
           }
 
           res = requests.post(WEBAPP_URL, json=payload)
