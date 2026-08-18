@@ -10,12 +10,12 @@ SHEET_ID_EVALS = "1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk"
 
 CARACTERES_SEGUROS = "BCDFGHJKLMNPQRSTVWXYZ0123456789"
 
-# Clave de administración segura (preferentemente desde st.secrets)
-ADMIN_PASSWORD = st.secrets.get("ADMIN_PASSWORD", "DTCABA_2026_SecureAdmin")
+# Clave de administración (por defecto "admin123" si no hay secrets configurados)
+ADMIN_PASSWORD = st.secrets.get("ADMIN_PASSWORD", "admin123")
 
 st.set_page_config(
     page_title="Evaluaciones DTCABA 2026",
-    page_icon="🧑‍🔧",
+    page_icon="📐",
     layout="centered",
     initial_sidebar_state="expanded",
 )
@@ -254,7 +254,7 @@ st.markdown(
 st.markdown(
     """
     <div class="app-header">
-        <h1>🧑‍🔧 Desafíos Técnicos</h1>
+        <h1>📐 Desafíos Técnicos⚙️</h1>
         <p>Plataforma de evaluación y gestión</p>
         <p class="sub-caption">Dirección de Educación Técnica · CABA 2026</p>
     </div>
