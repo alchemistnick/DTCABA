@@ -1,11 +1,12 @@
 import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
+import requests
 from datetime import datetime
 import random
 import string
-WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzyiTybfkEMkM_x_-Ist_7DlWObsTN9T3QtCnLyvz-oLpvvDkEYGI_bQTiHKwdTFx9oUw/exec"
 
+WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzyiTybfkEMkM_x_-Ist_7DlWObsTN9T3QtCnLyvz-oLpvvDkEYGI_bQTiHKwdTFx9oUw/exec"
 URL_SHEET = "https://docs.google.com/spreadsheets/d/1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk/edit"
 
 st.set_page_config(page_title="Evaluaciones DTCABA 2026", page_icon="📝", layout="centered")
@@ -17,12 +18,12 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 
 opcion = st.sidebar.radio("Navegación", ["Cargar Evaluación", "Generar Códigos Únicos", "Panel de Administración"])
 
-# Funciones seguras para leer pestañas
+# Función para lectura pública
 def leer_pestana(nombre_pestana):
     try:
         return conn.read(spreadsheet=URL_SHEET, worksheet=nombre_pestana, ttl=0)
     except Exception as e:
-        st.warning(f"⚠️ No se pudo leer la pestaña '{nombre_pestana}'. Verifica los permisos de Google Sheets.")
+        st.warning(f"⚠️ No se pudo leer la pestaña '{nombre_pestana}'. Verifica los nombres en Google Sheets.")
         return pd.DataFrame()
 
 # ---------------------------------------------------------
@@ -61,9 +62,8 @@ if opcion == "Cargar Evaluación":
                     if str(autorizado).upper() not in ["TRUE", "1", "VERDADERO"]:
                         st.error("❌ Evaluador no autorizado por la Dirección Técnica.")
                     else:
-                        df_evaluaciones = leer_pestana("Evaluaciones")
-
-                        nueva_fila = pd.DataFrame([{
+                        payload = {
+                            "action": "evaluacion",
                             "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                             "codigo_unico": codigo_unico,
                             "materia": materia,
@@ -73,11 +73,13 @@ if opcion == "Cargar Evaluación":
                             "c2": c2,
                             "c3": c3,
                             "promedio": round((c1 + c2 + c3) / 3, 2)
-                        }])
+                        }
 
-                        df_actualizado = pd.concat([df_evaluaciones, nueva_fila], ignore_index=True)
-                        conn.update(spreadsheet=URL_SHEET, worksheet="Evaluaciones", data=df_actualizado)
-                        st.success(f"✅ Evaluación guardada para el examen **{codigo_unico}**.")
+                        res = requests.post(WEBAPP_URL, json=payload)
+                        if res.status_code == 200:
+                            st.success(f"✅ Evaluación guardada con éxito para el examen **{codigo_unico}**.")
+                        else:
+                            st.error("Error al enviar los datos al receptor Apps Script.")
             else:
                 st.error("Error al acceder a la lista de usuarios. Revisa la pestaña 'Usuarios' en Google Sheets.")
 
@@ -150,17 +152,17 @@ elif opcion == "Panel de Administración":
             nuevo_nombre = st.text_input("Nombre completo")
             quien_autoriza = st.text_input("Autorizado por", value="Dirección Técnica")
 
-         if st.button("Autorizar Evaluador"):
-    if nuevo_id and nuevo_nombre:
-        payload = {
-            "action": "usuario",
-            "id_evaluador": nuevo_id,
-            "nombre": nuevo_nombre,
-            "autorizado_por": quien_autoriza
-        }
-        res = requests.post(WEBAPP_URL, json=payload)
-        if res.status_code == 200:
-            st.success(f"Evaluador {nuevo_nombre} guardado correctamente en Google Sheets.")
-            st.rerun()
-        else:
-            st.error("Error al registrar el usuario mediante Apps Script.")
+            if st.button("Autorizar Evaluador"):
+                if nuevo_id and nuevo_nombre:
+                    payload = {
+                        "action": "usuario",
+                        "id_evaluador": nuevo_id,
+                        "nombre": nuevo_nombre,
+                        "autorizado_por": quien_autoriza
+                    }
+                    res = requests.post(WEBAPP_URL, json=payload)
+                    if res.status_code == 200:
+                        st.success(f"Evaluador {nuevo_nombre} guardado correctamente en Google Sheets.")
+                        st.rerun()
+                    else:
+                        st.error("Error al registrar el usuario mediante Apps Script.")
