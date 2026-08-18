@@ -25,7 +25,8 @@ opcion = st.sidebar.radio(
 
 def leer_pestana(sheet_id, nombre_pestana):
   try:
-    url_csv = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={nombre_pestana}"
+    timestamp = int(datetime.now().timestamp())
+    url_csv = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={nombre_pestana}&t={timestamp}"
     return pd.read_csv(url_csv)
   except Exception:
     return pd.DataFrame()
@@ -45,7 +46,7 @@ def buscar_estudiantes_por_dni(dni_búsqueda):
 
 
 # ---------------------------------------------------------
-# 1. CARGAR EVALUACIÓN (BÚSQUEDA FLEXIBLE)
+# 1. CARGAR EVALUACIÓN
 # ---------------------------------------------------------
 if opcion == "Cargar Evaluación":
   st.header("Carga de Evaluación")
@@ -77,120 +78,59 @@ if opcion == "Cargar Evaluación":
     if not id_evaluador or not codigo_unico:
       st.warning("⚠️ Completa el ID de evaluador y el Código Único.")
     else:
-      # 1. Validar Evaluador en 'Usuarios' (sin importar mayúsculas/espacios o si busca por ID/Email)
-      df_usuarios = leer_pestana(SHEET_ID_EVALS, "Usuarios")
-      evaluador_valido = False
-      nombre_evaluador = ""
-
-      if not df_usuarios.empty:
-        id_buscado = id_evaluador.lower().strip()
-
-        # Normalizar columnas para evitar fallos por espacios invisibles
-        cols_lower = {
-            c: str(c).strip().lower() for c in df_usuarios.columns
-        }
-        df_usuarios.rename(columns=cols_lower, inplace=True)
-
-        col_id = "id_evaluador" if "id_evaluador" in df_usuarios.columns else ""
-        col_nom = "nombre" if "nombre" in df_usuarios.columns else ""
-
-        usuario_row = pd.DataFrame()
-
-        # Buscar por ID
-        if col_id:
-          df_usuarios["id_clean"] = (
-              df_usuarios[col_id].astype(str).str.strip().str.lower()
-          )
-          usuario_row = df_usuarios[df_usuarios["id_clean"] == id_buscado]
-
-        # Si no lo encuentra por ID, buscar por Nombre / Email
-        if usuario_row.empty and col_nom:
-          df_usuarios["nombre_clean"] = (
-              df_usuarios[col_nom].astype(str).str.strip().str.lower()
-          )
-          usuario_row = df_usuarios[df_usuarios["nombre_clean"] == id_buscado]
-
-        if not usuario_row.empty:
-          autorizado_val = (
-              str(usuario_row.iloc[0].get("autorizado", ""))
-              .strip()
-              .str.upper()
-              if "autorizado" in usuario_row.columns
-              else "TRUE"
-          )
-          if autorizado_val in [
-              "TRUE",
-              "1",
-              "VERDADERO",
-              "SI",
-              "YES",
-              "AUTORIZADO",
-          ]:
-            evaluador_valido = True
-            nombre_evaluador = (
-                usuario_row.iloc[0][col_nom]
-                if col_nom
-                else id_evaluador
-            )
-
-      # 2. Validar Código Único en 'Base_codigos'
-      df_codigos = leer_pestana(SHEET_ID_EVALS, "Base_codigos")
-      codigo_valido = False
-      datos_examen = None
-
-      if not df_codigos.empty:
-        codigo_buscado = codigo_unico.upper().strip()
-        cols_lower_cod = {c: str(c).strip().lower() for c in df_codigos.columns}
-        df_codigos.rename(columns=cols_lower_cod, inplace=True)
-
-        if "codigo_unico" in df_codigos.columns:
-          df_codigos["codigo_clean"] = (
-              df_codigos["codigo_unico"]
-              .astype(str)
-              .str.strip()
-              .str.upper()
-          )
-          codigo_row = df_codigos[df_codigos["codigo_clean"] == codigo_buscado]
-          if not codigo_row.empty:
-            codigo_valido = True
-            datos_examen = codigo_row.iloc[0]
-
-      # Resultado final
-      if not evaluador_valido:
-        st.error(
-            "❌ ID o Email de evaluador no registrado o no autorizado en la"
-            " pestaña 'Usuarios'."
-        )
-      elif not codigo_valido:
-        st.error(
-            "❌ Código Único de examen inexistente en la pestaña"
-            " 'Base_codigos'."
-        )
-      else:
-        st.success(
-            f"✅ **Datos Validados**: Evaluador **{nombre_evaluador}** | Estudiante:"
-            f" **{datos_examen.get('estudiante', 'Estudiante')}**"
-            f" ({datos_examen.get('escuela', 'Escuela')})"
-        )
-
-        payload = {
-            "action": "evaluacion",
-            "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+      with st.spinner("Validando evaluador y código de examen..."):
+        payload_val = {
+            "action": "validar_evaluacion",
+            "id_evaluador": id_evaluador,
             "codigo_unico": codigo_unico,
-            "materia": materia,
-            "evaluador_id": id_evaluador,
-            "evaluador_nombre": nombre_evaluador,
-            "c1": c1,
-            "c2": c2,
-            "c3": c3,
-            "promedio": round((c1 + c2 + c3) / 3, 2),
         }
+        res_val = requests.post(WEBAPP_URL, json=payload_val, timeout=10)
 
-        res = requests.post(WEBAPP_URL, json=payload)
-        if res.status_code == 200:
-          st.toast(f"✅ Evaluación registrada para {codigo_unico}.")
+      if res_val.status_code == 200:
+        datos_val = res_val.json()
+
+        evaluador_valido = datos_val.get("evaluador_valido", False)
+        nombre_evaluador = datos_val.get("nombre_evaluador", "")
+        codigo_valido = datos_val.get("codigo_valido", False)
+        estudiante = datos_val.get("estudiante", "")
+        escuela = datos_val.get("escuela", "")
+
+        if not evaluador_valido:
+          st.error(
+              "❌ ID / Email de evaluador no registrado o no autorizado en la"
+              " pestaña 'Usuarios'."
+          )
+        elif not codigo_valido:
+          st.error(
+              "❌ Código Único de examen inexistente en la pestaña"
+              " 'Base_codigos'."
+          )
         else:
-          st.error("Error al enviar la evaluación a Google Sheets.")
+          st.success(
+              f"✅ **Datos Validados**: Evaluador **{nombre_evaluador}** |"
+              f" Estudiante: **{estudiante}** ({escuela})"
+          )
+
+          payload = {
+              "action": "evaluacion",
+              "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+              "codigo_unico": codigo_unico,
+              "materia": materia,
+              "evaluador_id": id_evaluador,
+              "evaluador_nombre": nombre_evaluador,
+              "c1": c1,
+              "c2": c2,
+              "c3": c3,
+              "promedio": round((c1 + c2 + c3) / 3, 2),
+          }
+
+          res = requests.post(WEBAPP_URL, json=payload)
+          if res.status_code == 200:
+            st.toast(f"✅ Evaluación registrada para {codigo_unico}.")
+          else:
+            st.error("Error al enviar la evaluación a Google Sheets.")
+      else:
+        st.error("Error al conectar con el servidor de validación.")
 
 # ---------------------------------------------------------
 # 2. GENERADOR DE CÓDIGOS ÚNICOS
