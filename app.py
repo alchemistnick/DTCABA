@@ -12,7 +12,7 @@ CARACTERES_SEGUROS = "BCDFGHJKLMNPQRSTVWXYZ0123456789"
 
 st.set_page_config(
     page_title="Evaluaciones DTCABA 2026",
-    page_icon="🧑‍🔧",
+    page_icon="⚙️",
     layout="centered",
     initial_sidebar_state="expanded",
 )
@@ -251,7 +251,7 @@ st.markdown(
 st.markdown(
     """
     <div class="app-header">
-        <h1>🧑‍🔧 Desafíos Técnicos</h1>
+        <h1>🧑‍🔧 Desafíos Técnicos⚙️</h1>
         <p>Plataforma de evaluación y gestión</p>
         <p class="sub-caption">Dirección de Educación Técnica · CABA 2026</p>
     </div>
