@@ -1,5 +1,6 @@
 import random
 import string
+import urllib.parse
 from datetime import datetime
 import pandas as pd
 import requests
@@ -23,39 +24,49 @@ opcion = st.sidebar.radio(
 )
 
 
-# Funciones de lectura desde Google Sheets
+# Lectura desde Google Sheets codificando correctamente el nombre de la pestaña
 def leer_pestana(sheet_id, nombre_pestana):
   try:
-    url_csv = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={nombre_pestana}"
+    pestana_encoded = urllib.parse.quote(nombre_pestana)
+    url_csv = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={pestana_encoded}"
     return pd.read_csv(url_csv)
-  except Exception:
+  except Exception as e:
+    st.error(f"Error al leer la pestaña '{nombre_pestana}': {e}")
     return pd.DataFrame()
 
 
-# Búsqueda inteligente de TODAS las coincidencias por DNI (incluyendo puntaje anterior)
+# Búsqueda de coincidencias por DNI
 def buscar_estudiantes_por_dni(dni_búsqueda):
   df_respuestas = leer_pestana(SHEET_ID_PADRON, "Respuestas de formulario 1")
   if df_respuestas.empty:
     return []
 
-  dni_str = str(dni_búsqueda).replace(".", "").strip()
+  # Limpieza del DNI ingresado (quita puntos, comas y guiones)
+  dni_str = (
+      str(dni_búsqueda)
+      .replace(".", "")
+      .replace(",", "")
+      .replace("-", "")
+      .strip()
+  )
   coincidencias = []
 
-  # Recorrer cada fila del formulario
+  # Recorrer filas del formulario
   for idx, row in df_respuestas.iterrows():
-    # Buscar en todas las columnas que contengan DNI
     for col in df_respuestas.columns:
       if "DNI" in col.upper():
         val_cell = (
             str(row[col])
             .replace(".", "")
+            .replace(",", "")
+            .replace("-", "")
             .replace(".0", "")
             .strip()
             if pd.notna(row[col])
             else ""
         )
         if val_cell == dni_str:
-          # Marca Temporal / Fecha
+          # Fecha de inscripción
           fecha_insc = ""
           if "Marca temporal" in df_respuestas.columns and pd.notna(
               row["Marca temporal"]
@@ -80,7 +91,6 @@ def buscar_estudiantes_por_dni(dni_búsqueda):
 
           col_idx = df_respuestas.columns.get_loc(col)
 
-          # Buscar en columnas adyacentes la información requerida
           for offset in range(-4, 5):
             idx_cerca = col_idx + offset
             if 0 <= idx_cerca < len(df_respuestas.columns):
@@ -104,7 +114,6 @@ def buscar_estudiantes_por_dni(dni_búsqueda):
               ):
                 puntaje_anterior = str(row[nombre_col])
 
-          # Si no se encontró puntaje por cercanía, buscar globalmente en la fila
           if puntaje_anterior == "S/D":
             for col_punt in df_respuestas.columns:
               if "PUNTAJE" in col_punt.upper() and pd.notna(row[col_punt]):
@@ -115,7 +124,6 @@ def buscar_estudiantes_por_dni(dni_búsqueda):
           if not nombre_completo:
             nombre_completo = "Estudiante Encontrado"
 
-          # Evento / Desafío
           evento = ""
           for col_event in df_respuestas.columns:
             if "DESAFÍO" in col_event.upper() or "INSCRIPCIÓN" in col_event.upper():
@@ -215,7 +223,7 @@ if opcion == "Cargar Evaluación":
         )
 
 # ---------------------------------------------------------
-# 2. GENERADOR DE CÓDIGOS ÚNICOS CON MOSTRADOR DE PUNTAJE ANTERIOR
+# 2. GENERADOR DE CÓDIGOS ÚNICOS
 # ---------------------------------------------------------
 elif opcion == "Generar Códigos Únicos":
   st.header("Generador de Códigos Únicos")
