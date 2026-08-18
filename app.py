@@ -6,7 +6,7 @@ from datetime import datetime
 import random
 import string
 
-WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzyiTybfkEMkM_x_-Ist_7DlWObsTN9T3QtCnLyvz-oLpvvDkEYGI_bQTiHKwdTFx9oUw/exec"
+WEBAPP_URL = "https://script.google.com/macros/s/AKfycbymy1q6qXooXlR_C2vJm7J6PUhbKJSlkAZqiD5MkEdWae29F4wmuf-PjbWt6tgACtRsoQ/exec"
 URL_SHEET = "https://docs.google.com/spreadsheets/d/1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk/edit"
 
 st.set_page_config(page_title="Evaluaciones DTCABA 2026", page_icon="📝", layout="centered")
