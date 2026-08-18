@@ -214,6 +214,8 @@ opcion = st.sidebar.radio(
 )
 
 
+# Optimización con caché de Streamlit para accesos concurrentes de múltiples usuarios
+@st.cache_data(ttl=15, show_spinner=False)
 def leer_pestana(sheet_id, nombre_pestana):
   try:
     timestamp = int(datetime.now().timestamp())
@@ -365,19 +367,15 @@ if opcion == "Cargar Evaluación":
           # CÁLCULO DEL PROMEDIO DIFERENCIADO SEGÚN LA MATERIA
           # ---------------------------------------------------------
           if materia == "Matemática":
-            # Ejemplo: Promedio estándar de 3 dimensiones
             promedio_calculado = round((c1 + c2 + c3) / 3, 2)
 
           elif materia == "Lengua":
-            # Ejemplo: Promedio estándar de 3 dimensiones
             promedio_calculado = round((c1 + c2 + c3) / 3, 2)
 
           elif materia == "Tecnología de la Representación Nivel 1":
-            # Ejemplo: Promedio de 3 dimensiones
             promedio_calculado = round((c1 + c2 + c3) / 3, 2)
 
           elif materia == "Tecnología de la Representación Nivel 2":
-            # Ejemplo: Promedio de 3 dimensiones
             promedio_calculado = round((c1 + c2 + c3) / 3, 2)
 
           else:
@@ -399,6 +397,8 @@ if opcion == "Cargar Evaluación":
           res = requests.post(WEBAPP_URL, json=payload)
           if res.status_code == 200:
             st.toast(f"✅ Evaluación registrada para {codigo_unico}.")
+            # Limpiar caché para que el panel de control se actualice con la nueva fila
+            st.cache_data.clear()
           else:
             st.error("Error al enviar la evaluación a Google Sheets.")
       else:
@@ -545,6 +545,8 @@ elif opcion == "Generar Códigos Únicos":
               "Materia": materia_nombre,
           }])
           st.dataframe(df_asignacion, use_container_width=True)
+          # Limpiar caché para que el panel de control se actualice con la nueva fila
+          st.cache_data.clear()
         else:
           st.error("Error al guardar el código en Google Sheets.")
 
@@ -611,6 +613,7 @@ elif opcion == "Panel de Administración":
                 f"Evaluador **{nuevo_nombre}** registrado con éxito con el ID"
                 f" **{nuevo_id}**."
             )
+            st.cache_data.clear()
             st.rerun()
           else:
             st.error("Error al registrar el usuario en Google Sheets.")
