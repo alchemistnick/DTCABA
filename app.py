@@ -16,7 +16,7 @@ st.caption("Dirección Técnica - CABA 2026")
 
 opcion = st.sidebar.radio("Navegación", ["Cargar Evaluación", "Generar Códigos Únicos", "Panel de Administración"])
 
-# Lectura directa y rápida desde Google Sheets mediante exportación CSV
+# Lectura directa desde Google Sheets mediante exportación CSV
 def leer_pestana(nombre_pestana):
     try:
         url_csv = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet={nombre_pestana}"
@@ -34,9 +34,9 @@ if opcion == "Cargar Evaluación":
 
     col1, col2 = st.columns(2)
     with col1:
-        id_evaluador = st.text_input("ID / Email del Evaluador").strip()
+        id_evaluador = st.text_input("ID del Evaluador", placeholder="Ej: EVAL-001").strip()
     with col2:
-        codigo_unico = st.text_input("Código Único del Examen").strip()
+        codigo_unico = st.text_input("Código Único del Examen", placeholder="Ej: MAT-2026-X8K9").strip()
 
     materia = st.selectbox("Materia", ["Matemática", "Lengua"])
 
@@ -149,12 +149,18 @@ elif opcion == "Panel de Administración":
 
             st.markdown("---")
             st.subheader("Autorizar Nuevo Evaluador")
-            nuevo_id = st.text_input("ID / Email del evaluador")
-            nuevo_nombre = st.text_input("Nombre completo")
+
+            # Generación automática correlativa del ID
+            cant_usuarios = len(df_users) if not df_users.empty else 0
+            nuevo_id = f"EVAL-{cant_usuarios + 1:03d}"
+
+            st.info(f"🆔 **ID asignado automáticamente:** `{nuevo_id}`")
+
+            nuevo_nombre = st.text_input("Nombre completo del evaluador")
             quien_autoriza = st.text_input("Autorizado por", value="Dirección Técnica")
 
-            if st.button("Autorizar Evaluador"):
-                if nuevo_id and nuevo_nombre:
+            if st.button("Autorizar Evaluador", type="primary"):
+                if nuevo_nombre:
                     payload = {
                         "action": "usuario",
                         "id_evaluador": nuevo_id,
@@ -163,7 +169,9 @@ elif opcion == "Panel de Administración":
                     }
                     res = requests.post(WEBAPP_URL, json=payload)
                     if res.status_code == 200:
-                        st.success(f"Evaluador {nuevo_nombre} guardado correctamente.")
+                        st.success(f"Evaluador **{nuevo_nombre}** registrado con éxito con el ID **{nuevo_id}**.")
                         st.rerun()
                     else:
                         st.error("Error al registrar el usuario en Google Sheets.")
+                else:
+                    st.warning("⚠️ Debes ingresar el Nombre completo del evaluador.")
