@@ -12,7 +12,7 @@ CARACTERES_SEGUROS = "BCDFGHJKLMNPQRSTVWXYZ0123456789"
 
 st.set_page_config(
     page_title="Evaluaciones DTCABA 2026",
-    page_icon="⚙️",
+    page_icon="🧑‍🔧",
     layout="centered",
     initial_sidebar_state="expanded",
 )
@@ -251,7 +251,7 @@ st.markdown(
 st.markdown(
     """
     <div class="app-header">
-        <h1> 📐Desafíos Técnicos⚙️</h1>
+        <h1>🧑‍🔧 Desafíos Técnicos</h1>
         <p>Plataforma de evaluación y gestión</p>
         <p class="sub-caption">Dirección de Educación Técnica · CABA 2026</p>
     </div>
@@ -597,7 +597,7 @@ elif opcion == "Generar Códigos Únicos":
               "Puntaje_Institucional": puntaje_defecto,
               "Materia": materia_nombre,
           }])
-          st.dataframe(df_asignacion, use_container_width=True)
+          st.dataframe(df_asignacion, width="stretch")
           # Limpiar caché para que el panel de control se actualice con la nueva fila
           st.cache_data.clear()
         else:
@@ -623,21 +623,21 @@ elif opcion == "Panel de Administración":
     with tab1:
       df_evals = leer_pestana(SHEET_ID_EVALS, "Evaluaciones")
       if not df_evals.empty:
-        st.dataframe(df_evals, use_container_width=True)
+        st.dataframe(df_evals, width="stretch")
       else:
         st.info("No hay evaluaciones registradas aún.")
 
     with tab2:
       df_codigos = leer_pestana(SHEET_ID_EVALS, "Base_codigos")
       if not df_codigos.empty:
-        st.dataframe(df_codigos, use_container_width=True)
+        st.dataframe(df_codigos, width="stretch")
       else:
         st.info("No hay códigos guardados en la base de datos.")
 
     with tab3:
       df_users = leer_pestana(SHEET_ID_EVALS, "Usuarios")
       if not df_users.empty:
-        st.dataframe(df_users, use_container_width=True)
+        st.dataframe(df_users, width="stretch")
 
       st.markdown("---")
       st.subheader("Autorizar Nuevo Evaluador")
