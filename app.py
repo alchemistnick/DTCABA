@@ -5,8 +5,11 @@ import pandas as pd
 import requests
 import streamlit as st
 
-WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyX0-fgr6aKRArGp3wPUYMqnyy6XlztPKu_yfWOgBRNqh1zsihjpvwQ0fvp6ZZ-I2C66g/exec"
+WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzyiTybfkEMkM_x_-Ist_7DlWObsTN9T3QtCnLyvz-oLpvvDkEYGI_bQTiHKwdTFx9oUw/exec"
 SHEET_ID_EVALS = "1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk"
+
+# Conjunto seguro sin vocales (evita la formación de cualquier palabra)
+CARACTERES_SEGUROS = "BCDFGHJKLMNPQRSTVWXYZ0123456789"
 
 st.set_page_config(
     page_title="Evaluaciones DTCABA 2026", page_icon="📝", layout="centered"
@@ -120,7 +123,7 @@ if opcion == "Cargar Evaluación":
         st.error("Error al acceder a la lista de usuarios en Google Sheets.")
 
 # ---------------------------------------------------------
-# 2. GENERADOR DE CÓDIGOS ÚNICOS
+# 2. GENERADOR DE CÓDIGOS ÚNICOS (SEGURO)
 # ---------------------------------------------------------
 elif opcion == "Generar Códigos Únicos":
   st.header("Generador de Códigos Únicos")
@@ -215,9 +218,8 @@ elif opcion == "Generar Códigos Únicos":
       if not dni_input or not nombre_estudiante or not escuela_estudiante:
         st.warning("⚠️ Debes completar DNI, Nombre y Escuela.")
       else:
-        aleatorio = "".join(
-            random.choices(string.ascii_uppercase + string.digits, k=4)
-        )
+        # Selección segura utilizando únicamente el conjunto sin vocales
+        aleatorio = "".join(random.choices(CARACTERES_SEGUROS, k=4))
         codigo_generado = f"{prefijo}-2026-{aleatorio}"
 
         st.subheader("Código Asignado")
