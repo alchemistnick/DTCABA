@@ -18,7 +18,7 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------------
-# ESTILOS (solo diseño)
+# ESTILOS (Adaptado para Modo Claro y Modo Oscuro móvil)
 # ---------------------------------------------------------
 st.markdown(
     """
@@ -29,174 +29,212 @@ st.markdown(
         font-family: 'Inter', sans-serif;
     }
 
+    /* Variables Modo Claro */
     :root {
         --primary: #4F46E5;
         --primary-dark: #3730A3;
         --accent: #06B6D4;
-        --bg-soft: #F8F9FC;
-        --card-bg: #FFFFFF;
-        --border: #E5E7EB;
-        --success: #10B981;
+        --bg-app: linear-gradient(180deg, #F5F6FB 0%, #EEF1FA 100%);
+        --bg-card: #FFFFFF;
+        --bg-input: #F9FAFB;
+        --bg-chip: #F3F4F6;
+        --bg-chip-hover: #EEF0FF;
+        --border-color: #E5E7EB;
         --text-main: #1F2937;
-        --text-muted: #6B7280;
+        --text-muted: #4B5563;
+        --header-title: #FFFFFF;
+        --header-sub: #E0E7FF;
+    }
+
+    /* Variables Modo Oscuro */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --primary: #6366F1;
+            --primary-dark: #4F46E5;
+            --accent: #22D3EE;
+            --bg-app: #0F172A;
+            --bg-card: #1E293B;
+            --bg-input: #0F172A;
+            --bg-chip: #334155;
+            --bg-chip-hover: #475569;
+            --border-color: #334155;
+            --text-main: #F8FAFC;
+            --text-muted: #CBD5E1;
+            --header-title: #FFFFFF;
+            --header-sub: #E2E8F0;
+        }
+    }
+
+    /* Override Streamlit Dark Theme */
+    [data-theme="dark"] {
+        --primary: #6366F1;
+        --primary-dark: #4F46E5;
+        --accent: #22D3EE;
+        --bg-app: #0F172A;
+        --bg-card: #1E293B;
+        --bg-input: #0F172A;
+        --bg-chip: #334155;
+        --bg-chip-hover: #475569;
+        --border-color: #334155;
+        --text-main: #F8FAFC;
+        --text-muted: #CBD5E1;
+        --header-title: #FFFFFF;
+        --header-sub: #E2E8F0;
     }
 
     .stApp {
-        background: linear-gradient(180deg, #F5F6FB 0%, #EEF1FA 100%);
+        background: var(--bg-app) !important;
     }
 
     /* Encabezado principal */
     .app-header {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-        padding: 2.5rem 2rem 2rem 2rem;
+        background: linear-gradient(135deg, var(--primary) 0%, #312E81 100%);
+        padding: 2.2rem 1.5rem 1.8rem 1.5rem;
         border-radius: 20px;
         margin-bottom: 2rem;
-        box-shadow: 0 12px 35px rgba(79, 70, 229, 0.28);
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
         color: white;
         text-align: center;
     }
     .app-header h1 {
         font-family: 'Poppins', sans-serif;
-        font-size: 3.2rem;
+        font-size: 2.8rem;
         font-weight: 800;
-        margin: 0 0 0.5rem 0;
-        color: white;
+        margin: 0 0 0.4rem 0;
+        color: var(--header-title) !important;
         letter-spacing: -1px;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
     .app-header p {
-        margin: 0 0 0.3rem 0;
-        opacity: 0.95;
-        font-size: 1.15rem;
+        margin: 0 0 0.2rem 0;
+        color: var(--header-sub) !important;
+        font-size: 1.1rem;
         font-weight: 500;
     }
     .app-header .sub-caption {
-        font-size: 0.95rem;
-        opacity: 0.85;
+        font-size: 0.92rem;
+        color: #C7D2FE !important;
         margin-top: 0.2rem;
     }
 
     /* Títulos de sección */
-    h2 {
+    h2, [data-testid="stHeader"] h2 {
         font-family: 'Poppins', sans-serif !important;
         font-weight: 700 !important;
-        font-size: 2.1rem !important;
+        font-size: 2rem !important;
         color: var(--text-main) !important;
         border-left: 5px solid var(--primary);
         padding-left: 0.7rem;
         margin-top: 1.2rem !important;
     }
-    h3 {
+    h3, [data-testid="stHeader"] h3 {
         font-family: 'Poppins', sans-serif !important;
-        color: var(--primary-dark) !important;
+        color: var(--text-main) !important;
         font-weight: 600 !important;
     }
 
     /* Tarjetas contenedoras */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        background: var(--card-bg);
+        background: var(--bg-card) !important;
         border-radius: 16px;
-        border: 1px solid var(--border);
-        box-shadow: 0 2px 10px rgba(17, 24, 39, 0.04);
+        border: 1px solid var(--border-color) !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
 
-    /* Inputs de texto */
+    /* Textos generales */
+    p, span, label, div {
+        color: var(--text-main);
+    }
+
+    /* Inputs de texto y selectbox */
     div[data-baseweb="input"] input,
     div[data-baseweb="select"] > div,
     textarea {
+        background-color: var(--bg-input) !important;
+        color: var(--text-main) !important;
         border-radius: 10px !important;
-        border: 1.5px solid var(--border) !important;
+        border: 1.5px solid var(--border-color) !important;
     }
     div[data-baseweb="input"] input:focus {
         border-color: var(--primary) !important;
-        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
     }
 
-    /* Radio horizontal (rúbrica) como chips */
+    /* Radio horizontal (rúbrica) */
     div[role="radiogroup"] {
-        gap: 0.4rem;
+        gap: 0.5rem;
     }
     div[role="radiogroup"] label {
-        background: var(--bg-soft);
-        border: 1.5px solid var(--border);
+        background: var(--bg-chip) !important;
+        border: 1.5px solid var(--border-color) !important;
         border-radius: 10px;
-        padding: 0.35rem 0.9rem !important;
+        padding: 0.4rem 1rem !important;
         margin-right: 0.3rem;
         transition: all 0.15s ease;
     }
+    div[role="radiogroup"] label p {
+        color: var(--text-main) !important;
+        font-weight: 600;
+    }
     div[role="radiogroup"] label:hover {
-        border-color: var(--primary);
-        background: #EEF0FF;
+        border-color: var(--primary) !important;
+        background: var(--bg-chip-hover) !important;
     }
 
     /* Botones primarios */
     .stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%) !important;
+        color: #FFFFFF !important;
         border: none;
         border-radius: 12px;
-        padding: 0.6rem 1.4rem;
+        padding: 0.65rem 1.5rem;
         font-weight: 600;
         letter-spacing: 0.2px;
-        box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+        box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
         transition: transform 0.12s ease, box-shadow 0.12s ease;
     }
     .stButton > button[kind="primary"]:hover {
         transform: translateY(-1px);
-        box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4);
+        box-shadow: 0 6px 18px rgba(99, 102, 241, 0.45);
     }
 
     /* Sidebar */
     section[data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #1F2340 0%, #2D2F5E 100%);
+        background: #1E1B4B !important;
     }
     section[data-testid="stSidebar"] * {
-        color: #F1F2FA !important;
+        color: #F3F4F6 !important;
     }
     section[data-testid="stSidebar"] div[role="radiogroup"] label {
-        background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(255, 255, 255, 0.08) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
         border-radius: 10px;
         padding: 0.5rem 0.8rem !important;
         margin-bottom: 0.35rem;
     }
     section[data-testid="stSidebar"] div[role="radiogroup"] label:hover {
-        background: rgba(255,255,255,0.14);
+        background: rgba(255, 255, 255, 0.18) !important;
     }
 
     /* Métricas */
     div[data-testid="stMetric"] {
-        background: var(--bg-soft);
+        background: var(--bg-card) !important;
         border-radius: 14px;
         padding: 0.8rem 1rem;
-        border: 1px solid var(--border);
-    }
-
-    /* Alertas / mensajes */
-    div[data-testid="stAlert"] {
-        border-radius: 12px;
-    }
-
-    /* Code block (código generado) */
-    .stCodeBlock, code {
-        border-radius: 10px !important;
+        border: 1px solid var(--border-color) !important;
     }
 
     /* Dataframes */
     div[data-testid="stDataFrame"] {
         border-radius: 12px;
         overflow: hidden;
-        border: 1px solid var(--border);
+        border: 1px solid var(--border-color) !important;
+        background-color: var(--bg-card) !important;
     }
 
-    /* Tabs */
-    button[data-baseweb="tab"] {
-        font-weight: 600;
-        border-radius: 10px 10px 0 0 !important;
-    }
-
-    /* Divider fino */
+    /* Divider */
     hr {
-        border-color: var(--border);
+        border-color: var(--border-color) !important;
     }
     </style>
     """,
