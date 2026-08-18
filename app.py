@@ -23,7 +23,7 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap');
 
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif;
@@ -48,23 +48,32 @@ st.markdown(
     /* Encabezado principal */
     .app-header {
         background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-        padding: 2rem 2rem 1.6rem 2rem;
-        border-radius: 18px;
-        margin-bottom: 1.8rem;
-        box-shadow: 0 10px 30px rgba(79, 70, 229, 0.25);
+        padding: 2.5rem 2rem 2rem 2rem;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        box-shadow: 0 12px 35px rgba(79, 70, 229, 0.28);
         color: white;
+        text-align: center;
     }
     .app-header h1 {
         font-family: 'Poppins', sans-serif;
-        font-size: 2.6rem;
-        font-weight: 700;
-        margin: 0 0 0.3rem 0;
+        font-size: 3.2rem;
+        font-weight: 800;
+        margin: 0 0 0.5rem 0;
         color: white;
+        letter-spacing: -1px;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
     }
     .app-header p {
-        margin: 0;
-        opacity: 0.9;
+        margin: 0 0 0.3rem 0;
+        opacity: 0.95;
+        font-size: 1.15rem;
+        font-weight: 500;
+    }
+    .app-header .sub-caption {
         font-size: 0.95rem;
+        opacity: 0.85;
+        margin-top: 0.2rem;
     }
 
     /* Títulos de sección */
@@ -200,10 +209,9 @@ st.markdown(
 st.markdown(
     """
     <div class="app-header">
-        <h1; style="text-align: center;">🧑‍🔧 Desafíos Técnicos </h1>
+        <h1>🧑‍🔧 Desafíos Técnicos</h1>
         <p>Plataforma de evaluación y gestión</p>
-        <pp style="text-align: center;">Dirección de Educación Técnica · CABA 2026</p>
-        
+        <p class="sub-caption">Dirección de Educación Técnica · CABA 2026</p>
     </div>
     """,
     unsafe_allow_html=True,
