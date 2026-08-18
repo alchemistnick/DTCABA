@@ -1,29 +1,29 @@
 import streamlit as st
-from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 import requests
 from datetime import datetime
 import random
 import string
 
-WEBAPP_URL = "https://script.google.com/macros/s/AKfycbymy1q6qXooXlR_C2vJm7J6PUhbKJSlkAZqiD5MkEdWae29F4wmuf-PjbWt6tgACtRsoQ/exec"
-URL_SHEET = "https://docs.google.com/spreadsheets/d/1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk/edit"
+# Configuración de URLs e ID de tu planilla
+WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzyiTybfkEMkM_x_-Ist_7DlWObsTN9T3QtCnLyvz-oLpvvDkEYGI_bQTiHKwdTFx9oUw/exec"
+SHEET_ID = "1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk"
 
 st.set_page_config(page_title="Evaluaciones DTCABA 2026", page_icon="📝", layout="centered")
 
 st.title("Plataforma de Evaluaciones Técnicas")
 st.caption("Dirección Técnica - CABA 2026")
 
-conn = st.connection("gsheets", type=GSheetsConnection)
-
 opcion = st.sidebar.radio("Navegación", ["Cargar Evaluación", "Generar Códigos Únicos", "Panel de Administración"])
 
-# Función para lectura pública
+# Lectura directa y rápida desde Google Sheets mediante exportación CSV
 def leer_pestana(nombre_pestana):
     try:
-        return conn.read(spreadsheet=URL_SHEET, worksheet=nombre_pestana, ttl=0)
-    except Exception as e:
-        st.warning(f"⚠️ No se pudo leer la pestaña '{nombre_pestana}'. Verifica los nombres en Google Sheets.")
+        url_csv = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet={nombre_pestana}"
+        df = pd.read_csv(url_csv)
+        return df
+    except Exception:
+        st.warning(f"⚠️ No se pudo leer la pestaña '{nombre_pestana}'. Revisa los permisos de la planilla.")
         return pd.DataFrame()
 
 # ---------------------------------------------------------
@@ -78,8 +78,9 @@ if opcion == "Cargar Evaluación":
                         res = requests.post(WEBAPP_URL, json=payload)
                         if res.status_code == 200:
                             st.success(f"✅ Evaluación guardada con éxito para el examen **{codigo_unico}**.")
+                            st.rerun()
                         else:
-                            st.error("Error al enviar los datos al receptor Apps Script.")
+                            st.error("Error al enviar los datos a Google Sheets.")
             else:
                 st.error("Error al acceder a la lista de usuarios. Revisa la pestaña 'Usuarios' en Google Sheets.")
 
@@ -139,7 +140,7 @@ elif opcion == "Panel de Administración":
             if not df_evals.empty:
                 st.dataframe(df_evals, use_container_width=True)
             else:
-                st.info("No hay evaluaciones registradas o la pestaña está vacía.")
+                st.info("No hay evaluaciones registradas aún.")
 
         with tab2:
             df_users = leer_pestana("Usuarios")
@@ -162,7 +163,7 @@ elif opcion == "Panel de Administración":
                     }
                     res = requests.post(WEBAPP_URL, json=payload)
                     if res.status_code == 200:
-                        st.success(f"Evaluador {nuevo_nombre} guardado correctamente en Google Sheets.")
+                        st.success(f"Evaluador {nuevo_nombre} guardado correctamente.")
                         st.rerun()
                     else:
-                        st.error("Error al registrar el usuario mediante Apps Script.")
+                        st.error("Error al registrar el usuario en Google Sheets.")
