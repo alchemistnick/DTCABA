@@ -5,7 +5,7 @@ from datetime import datetime
 import random
 import string
 
-# Enlace directo a tu planilla "DTCABA_2026"
+# Enlace configurado
 URL_SHEET = "https://docs.google.com/spreadsheets/d/1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk/edit?usp=sharing"
 
 st.set_page_config(page_title="Evaluaciones DTCABA 2026", page_icon="📝", layout="centered")
@@ -75,15 +75,15 @@ if opcion == "Cargar Evaluación":
                 st.error(f"Error de conexión: {e}")
 
 # ---------------------------------------------------------
-# 2. GENERADOR DE CÓDIGOS ÚNICOS CON AUTENTICACIÓN
+# 2. GENERADOR DE CÓDIGOS ÚNICOS CON CONTRASEÑA
 # ---------------------------------------------------------
 elif opcion == "Generar Códigos Únicos":
     st.header("Generador de Códigos Únicos")
     
     clave_codigos = st.text_input("Ingrese Contraseña Autorizada", type="password")
 
-    if clave_codigos == "admin123":  # Puedes cambiar 'admin123' por la clave que prefieras
-        st.success("Acceso concedido para generar códigos.")
+    if clave_codigos == "admin123":
+        st.success("Acceso concedido.")
         st.subheader("Datos del Estudiante")
 
         col_est1, col_est2 = st.columns(2)
@@ -98,14 +98,12 @@ elif opcion == "Generar Códigos Únicos":
             if not nombre_estudiante or not escuela_estudiante:
                 st.warning("⚠️ Debes ingresar el Nombre del estudiante y la Escuela.")
             else:
-                # Generación del código aleatorio
                 aleatorio = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
                 codigo_generado = f"{prefijo}-2026-{aleatorio}"
 
                 st.subheader("Código Asignado")
                 st.code(codigo_generado, language="text")
 
-                # Mostrar resumen de asignación
                 df_asignacion = pd.DataFrame([{
                     "Fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     "Codigo_Unico": codigo_generado,
