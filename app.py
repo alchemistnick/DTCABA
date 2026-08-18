@@ -1,15 +1,12 @@
 import random
 import string
-import urllib.parse
 from datetime import datetime
 import pandas as pd
 import requests
 import streamlit as st
 
-# Configuración de URLs e IDs
-WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzyiTybfkEMkM_x_-Ist_7DlWObsTN9T3QtCnLyvz-oLpvvDkEYGI_bQTiHKwdTFx9oUw/exec"
-SHEET_ID_EVALS = "1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk"  # Planilla DTCABA_2026
-SHEET_ID_PADRON = "1_FUVwICY_q8mru-88fM5dJmws_Cbw2FVd_qgCZ5ImO0"  # Planilla Encuentros Educativos 2026
+WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyX0-fgr6aKRArGp3wPUYMqnyy6XlztPKu_yfWOgBRNqh1zsihjpvwQ0fvp6ZZ-I2C66g/exec"
+SHEET_ID_EVALS = "1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk"
 
 st.set_page_config(
     page_title="Evaluaciones DTCABA 2026", page_icon="📝", layout="centered"
@@ -24,124 +21,27 @@ opcion = st.sidebar.radio(
 )
 
 
-# Lectura desde Google Sheets codificando correctamente el nombre de la pestaña
+# Lectura auxiliar
 def leer_pestana(sheet_id, nombre_pestana):
   try:
-    pestana_encoded = urllib.parse.quote(nombre_pestana)
-    url_csv = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={pestana_encoded}"
+    url_csv = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={nombre_pestana}"
     return pd.read_csv(url_csv)
-  except Exception as e:
-    st.error(f"Error al leer la pestaña '{nombre_pestana}': {e}")
+  except Exception:
     return pd.DataFrame()
 
 
-# Búsqueda de coincidencias por DNI
+# Búsqueda por DNI a través del receptor de Apps Script
 def buscar_estudiantes_por_dni(dni_búsqueda):
-  df_respuestas = leer_pestana(SHEET_ID_PADRON, "Respuestas de formulario 1")
-  if df_respuestas.empty:
-    return []
-
-  # Limpieza del DNI ingresado (quita puntos, comas y guiones)
-  dni_str = (
-      str(dni_búsqueda)
-      .replace(".", "")
-      .replace(",", "")
-      .replace("-", "")
-      .strip()
-  )
-  coincidencias = []
-
-  # Recorrer filas del formulario
-  for idx, row in df_respuestas.iterrows():
-    for col in df_respuestas.columns:
-      if "DNI" in col.upper():
-        val_cell = (
-            str(row[col])
-            .replace(".", "")
-            .replace(",", "")
-            .replace("-", "")
-            .replace(".0", "")
-            .strip()
-            if pd.notna(row[col])
-            else ""
-        )
-        if val_cell == dni_str:
-          # Fecha de inscripción
-          fecha_insc = ""
-          if "Marca temporal" in df_respuestas.columns and pd.notna(
-              row["Marca temporal"]
-          ):
-            fecha_insc = str(row["Marca temporal"])
-
-          # Escuela
-          escuela = ""
-          if "Escuela Técnica Nº" in df_respuestas.columns and pd.notna(
-              row["Escuela Técnica Nº"]
-          ):
-            escuela = str(row["Escuela Técnica Nº"])
-          elif "Escuelas " in df_respuestas.columns and pd.notna(
-              row["Escuelas "]
-          ):
-            escuela = str(row["Escuelas "])
-
-          # Nombre, Apellido y Puntaje cercano
-          nombre = ""
-          apellido = ""
-          puntaje_anterior = "S/D"
-
-          col_idx = df_respuestas.columns.get_loc(col)
-
-          for offset in range(-4, 5):
-            idx_cerca = col_idx + offset
-            if 0 <= idx_cerca < len(df_respuestas.columns):
-              nombre_col = df_respuestas.columns[idx_cerca]
-              if (
-                  "NOMBRE" in nombre_col.upper()
-                  and pd.notna(row[nombre_col])
-                  and not nombre
-              ):
-                nombre = str(row[nombre_col])
-              if (
-                  "APELLIDO" in nombre_col.upper()
-                  and pd.notna(row[nombre_col])
-                  and not apellido
-              ):
-                apellido = str(row[nombre_col])
-              if (
-                  "PUNTAJE" in nombre_col.upper()
-                  and pd.notna(row[nombre_col])
-                  and puntaje_anterior == "S/D"
-              ):
-                puntaje_anterior = str(row[nombre_col])
-
-          if puntaje_anterior == "S/D":
-            for col_punt in df_respuestas.columns:
-              if "PUNTAJE" in col_punt.upper() and pd.notna(row[col_punt]):
-                puntaje_anterior = str(row[col_punt])
-                break
-
-          nombre_completo = f"{nombre} {apellido}".strip()
-          if not nombre_completo:
-            nombre_completo = "Estudiante Encontrado"
-
-          evento = ""
-          for col_event in df_respuestas.columns:
-            if "DESAFÍO" in col_event.upper() or "INSCRIPCIÓN" in col_event.upper():
-              if pd.notna(row[col_event]):
-                evento = str(row[col_event])
-                break
-
-          coincidencias.append({
-              "id_fila": idx,
-              "fecha": fecha_insc,
-              "nombre": nombre_completo,
-              "escuela": escuela,
-              "evento": evento,
-              "puntaje_anterior": puntaje_anterior,
-          })
-          break
-
-  return coincidencias
+  try:
+    payload = {"action": "buscar_dni", "dni": str(dni_búsqueda)}
+    res = requests.post(WEBAPP_URL, json=payload, timeout=10)
+    if res.status_code == 200:
+      data = res.json()
+      if data.get("status") == "success":
+        return data.get("coincidencias", [])
+  except Exception as e:
+    st.error(f"Error al conectar con el motor de búsqueda: {e}")
+  return []
 
 
 # ---------------------------------------------------------
@@ -217,10 +117,7 @@ if opcion == "Cargar Evaluación":
             else:
               st.error("Error al enviar los datos a Google Sheets.")
       else:
-        st.error(
-            "Error al acceder a la lista de usuarios. Revisa la pestaña"
-            " 'Usuarios' en Google Sheets."
-        )
+        st.error("Error al acceder a la lista de usuarios en Google Sheets.")
 
 # ---------------------------------------------------------
 # 2. GENERADOR DE CÓDIGOS ÚNICOS
@@ -244,7 +141,8 @@ elif opcion == "Generar Códigos Únicos":
     puntaje_defecto = "N/A"
 
     if dni_input:
-      coincidencias = buscar_estudiantes_por_dni(dni_input)
+      with st.spinner("Buscando DNI en el padrón..."):
+        coincidencias = buscar_estudiantes_por_dni(dni_input)
 
       if len(coincidencias) == 1:
         estudiante_sel = coincidencias[0]
@@ -347,11 +245,9 @@ elif opcion == "Panel de Administración":
   clave = st.text_input("Clave Administrador", type="password")
 
   if clave == "admin123":
-    tab1, tab2, tab3 = st.tabs([
-        "📊 Evaluaciones Registradas",
-        "👤 Gestor de Usuarios",
-        "📋 Padrón Encuentros Educativos",
-    ])
+    tab1, tab2 = st.tabs(
+        ["📊 Evaluaciones Registradas", "👤 Gestor de Usuarios"]
+    )
 
     with tab1:
       df_evals = leer_pestana(SHEET_ID_EVALS, "Evaluaciones")
@@ -396,10 +292,3 @@ elif opcion == "Panel de Administración":
             st.error("Error al registrar el usuario en Google Sheets.")
         else:
           st.warning("⚠️ Debes ingresar el Nombre completo del evaluador.")
-
-    with tab3:
-      df_resp = leer_pestana(SHEET_ID_PADRON, "Respuestas de formulario 1")
-      if not df_resp.empty:
-        st.dataframe(df_resp, use_container_width=True)
-      else:
-        st.info("No se pudo cargar el padrón de Encuentros Educativos.")
