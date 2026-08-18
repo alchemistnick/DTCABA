@@ -10,9 +10,12 @@ SHEET_ID_EVALS = "1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk"
 
 CARACTERES_SEGUROS = "BCDFGHJKLMNPQRSTVWXYZ0123456789"
 
+# Clave de administración segura (preferentemente desde st.secrets)
+ADMIN_PASSWORD = st.secrets.get("ADMIN_PASSWORD", "DTCABA_2026_SecureAdmin")
+
 st.set_page_config(
     page_title="Evaluaciones DTCABA 2026",
-    page_icon="📐",
+    page_icon="🧑‍🔧",
     layout="centered",
     initial_sidebar_state="expanded",
 )
@@ -251,7 +254,7 @@ st.markdown(
 st.markdown(
     """
     <div class="app-header">
-        <h1>📐 Desafíos Técnicos⚙️</h1>
+        <h1>🧑‍🔧 Desafíos Técnicos</h1>
         <p>Plataforma de evaluación y gestión</p>
         <p class="sub-caption">Dirección de Educación Técnica · CABA 2026</p>
     </div>
@@ -267,7 +270,6 @@ opcion = st.sidebar.radio(
 )
 
 
-# Optimización con caché de Streamlit para accesos concurrentes de múltiples usuarios
 @st.cache_data(ttl=15, show_spinner=False)
 def leer_pestana(sheet_id, nombre_pestana):
   try:
@@ -280,12 +282,15 @@ def leer_pestana(sheet_id, nombre_pestana):
 
 def buscar_estudiantes_por_dni(dni_búsqueda):
   try:
-    payload = {"action": "buscar_dni", "dni": str(dni_búsqueda)}
+    payload = {"action": "buscar_dni", "dni": str(dni_búsqueda).strip()}
     res = requests.post(WEBAPP_URL, json=payload, timeout=10)
     if res.status_code == 200:
-      data = res.json()
-      if data.get("status") == "success":
-        return data.get("coincidencias", [])
+      try:
+        data = res.json()
+        if data.get("status") == "success":
+          return data.get("coincidencias", [])
+      except Exception:
+        st.error("Respuesta inválida del motor de búsqueda.")
   except Exception as e:
     st.error(f"Error al conectar con el motor de búsqueda: {e}")
   return []
@@ -300,13 +305,21 @@ if opcion == "Cargar Evaluación":
   with st.container(border=True):
     col1, col2 = st.columns(2)
     with col1:
-      id_evaluador = st.text_input(
-          "ID / Email del Evaluador", placeholder="Ej: EVAL-001 o email"
-      ).strip()
+      id_evaluador = (
+          st.text_input(
+              "ID / Email del Evaluador", placeholder="Ej: EVAL-001 o email"
+          )
+          .strip()
+          .lower()
+      )
     with col2:
-      codigo_unico = st.text_input(
-          "Código Único del Examen", placeholder="Ej: MAT-2026-X8K9"
-      ).strip()
+      codigo_unico = (
+          st.text_input(
+              "Código Único del Examen", placeholder="Ej: MAT-2026-X8K9"
+          )
+          .strip()
+          .upper()
+      )
 
     materia = st.selectbox(
         "Materia",
@@ -320,7 +333,7 @@ if opcion == "Cargar Evaluación":
 
   st.subheader(f"📋 Rúbrica de Evaluación: {materia}")
 
-  # Definición adaptativa de criterios según la materia elegida
+  # Definición adaptativa de criterios por materia
   if materia == "Matemática":
     label_c1 = (
         "Criterio 1: Planteo y Razonamiento (Estrategias de resolución y"
@@ -360,7 +373,7 @@ if opcion == "Cargar Evaluación":
         " técnica)"
     )
 
-  else:  # Tecnología de la Representación Nivel 2
+  else:  # TDR Nivel 2
     label_c1 = (
         "Criterio 1: Modelado / Vistas Complejas (Cortes, secciones y detalles)"
     )
@@ -373,7 +386,7 @@ if opcion == "Cargar Evaluación":
         " despiece o ensamble)"
     )
 
-  # Renderizado dinámico de la rúbrica
+  # Renderizado dinámico
   with st.container(border=True):
     c1 = st.radio(label_c1, [1, 2, 3, 4], horizontal=True)
     st.divider()
@@ -390,11 +403,19 @@ if opcion == "Cargar Evaluación":
             "action": "validar_evaluacion",
             "id_evaluador": id_evaluador,
             "codigo_unico": codigo_unico,
+            "materia": materia,
         }
-        res_val = requests.post(WEBAPP_URL, json=payload_val, timeout=10)
+        try:
+          res_val = requests.post(WEBAPP_URL, json=payload_val, timeout=10)
+        except Exception as e:
+          res_val = None
+          st.error(f"Error de conexión con el servidor: {e}")
 
-      if res_val.status_code == 200:
-        datos_val = res_val.json()
+      if res_val and res_val.status_code == 200:
+        try:
+          datos_val = res_val.json()
+        except Exception:
+          datos_val = {}
 
         evaluador_valido = datos_val.get("evaluador_valido", False)
         nombre_evaluador = datos_val.get("nombre_evaluador", "")
@@ -407,8 +428,8 @@ if opcion == "Cargar Evaluación":
           )
         elif not codigo_valido:
           st.error(
-              "❌ Código Único de examen inexistente en la pestaña"
-              " 'Base_codigos'."
+              "❌ Código Único de examen inexistente o no coincide con la"
+              " materia elegida."
           )
         else:
           st.success(
@@ -416,23 +437,8 @@ if opcion == "Cargar Evaluación":
               f" Anónimo **{codigo_unico}** Habilitado"
           )
 
-          # ---------------------------------------------------------
-          # CÁLCULO DEL PROMEDIO DIFERENCIADO SEGÚN LA MATERIA
-          # ---------------------------------------------------------
-          if materia == "Matemática":
-            promedio_calculado = round((c1 + c2 + c3) / 3, 2)
-
-          elif materia == "Lengua":
-            promedio_calculado = round((c1 + c2 + c3) / 3, 2)
-
-          elif materia == "Tecnología de la Representación Nivel 1":
-            promedio_calculado = round((c1 + c2 + c3) / 3, 2)
-
-          elif materia == "Tecnología de la Representación Nivel 2":
-            promedio_calculado = round((c1 + c2 + c3) / 3, 2)
-
-          else:
-            promedio_calculado = round((c1 + c2 + c3) / 3, 2)
+          # Promedio por materia
+          promedio_calculado = round((c1 + c2 + c3) / 3, 2)
 
           payload = {
               "action": "evaluacion",
@@ -447,13 +453,15 @@ if opcion == "Cargar Evaluación":
               "promedio": promedio_calculado,
           }
 
-          res = requests.post(WEBAPP_URL, json=payload)
-          if res.status_code == 200:
-            st.toast(f"✅ Evaluación registrada para {codigo_unico}.")
-            # Limpiar caché para que el panel de control se actualice con la nueva fila
-            st.cache_data.clear()
-          else:
-            st.error("Error al enviar la evaluación a Google Sheets.")
+          try:
+            res = requests.post(WEBAPP_URL, json=payload, timeout=10)
+            if res.status_code == 200:
+              st.toast(f"✅ Evaluación registrada para {codigo_unico}.")
+              st.cache_data.clear()
+            else:
+              st.error("Error al enviar la evaluación a Google Sheets.")
+          except Exception as e:
+            st.error(f"Error al enviar datos: {e}")
       else:
         st.error("Error al conectar con el servidor de validación.")
 
@@ -466,7 +474,7 @@ elif opcion == "Generar Códigos Únicos":
       "Ingrese Contraseña Autorizada", type="password"
   )
 
-  if clave_codigos == "admin123":
+  if clave_codigos == ADMIN_PASSWORD:
     st.success("🔓 Acceso concedido.")
     st.subheader("🔍 Búsqueda en Padrón de Encuentros Educativos")
 
@@ -579,29 +587,31 @@ elif opcion == "Generar Códigos Únicos":
             "puntaje_institucional": puntaje_defecto,
         }
 
-        res = requests.post(WEBAPP_URL, json=payload_codigo)
-        if res.status_code == 200:
-          st.success(
-              f"✅ Código **{codigo_generado}** asignado y guardado en"
-              " `Base_codigos`."
-          )
-          st.subheader("Código Asignado")
-          st.code(codigo_generado, language="text")
+        try:
+          res = requests.post(WEBAPP_URL, json=payload_codigo, timeout=10)
+          if res.status_code == 200:
+            st.success(
+                f"✅ Código **{codigo_generado}** asignado y guardado en"
+                " `Base_codigos`."
+            )
+            st.subheader("Código Asignado")
+            st.code(codigo_generado, language="text")
 
-          df_asignacion = pd.DataFrame([{
-              "Fecha": fecha_actual,
-              "DNI": dni_input,
-              "Codigo_Unico": codigo_generado,
-              "Estudiante": nombre_estudiante,
-              "Escuela": escuela_estudiante,
-              "Puntaje_Institucional": puntaje_defecto,
-              "Materia": materia_nombre,
-          }])
-          st.dataframe(df_asignacion, width="stretch")
-          # Limpiar caché para que el panel de control se actualice con la nueva fila
-          st.cache_data.clear()
-        else:
-          st.error("Error al guardar el código en Google Sheets.")
+            df_asignacion = pd.DataFrame([{
+                "Fecha": fecha_actual,
+                "DNI": dni_input,
+                "Codigo_Unico": codigo_generado,
+                "Estudiante": nombre_estudiante,
+                "Escuela": escuela_estudiante,
+                "Puntaje_Institucional": puntaje_defecto,
+                "Materia": materia_nombre,
+            }])
+            st.dataframe(df_asignacion, width="stretch")
+            st.cache_data.clear()
+          else:
+            st.error("Error al guardar el código en Google Sheets.")
+        except Exception as e:
+          st.error(f"Error de conexión: {e}")
 
   elif clave_codigos != "":
     st.error("❌ Contraseña incorrecta.")
@@ -613,7 +623,7 @@ elif opcion == "Panel de Administración":
   st.header("Panel de Administración")
   clave = st.text_input("Clave Administrador", type="password")
 
-  if clave == "admin123":
+  if clave == ADMIN_PASSWORD:
     tab1, tab2, tab3 = st.tabs([
         "📊 Evaluaciones Registradas",
         "🔑 Base de Códigos",
@@ -660,15 +670,18 @@ elif opcion == "Panel de Administración":
               "nombre": nuevo_nombre,
               "autorizado_por": quien_autoriza,
           }
-          res = requests.post(WEBAPP_URL, json=payload)
-          if res.status_code == 200:
-            st.success(
-                f"Evaluador **{nuevo_nombre}** registrado con éxito con el ID"
-                f" **{nuevo_id}**."
-            )
-            st.cache_data.clear()
-            st.rerun()
-          else:
-            st.error("Error al registrar el usuario en Google Sheets.")
+          try:
+            res = requests.post(WEBAPP_URL, json=payload, timeout=10)
+            if res.status_code == 200:
+              st.success(
+                  f"Evaluador **{nuevo_nombre}** registrado con éxito con el ID"
+                  f" **{nuevo_id}**."
+              )
+              st.cache_data.clear()
+              st.rerun()
+            else:
+              st.error("Error al registrar el usuario en Google Sheets.")
+          except Exception as e:
+            st.error(f"Error de conexión: {e}")
         else:
           st.warning("⚠️ Debes ingresar el Nombre completo del evaluador.")
