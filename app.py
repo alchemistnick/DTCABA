@@ -141,8 +141,8 @@ st.markdown(
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
 
-    /* Textos generales */
-    p, span, label, div {
+    /* Textos generales del cuerpo */
+    .stApp p, .stApp span, .stApp label, .stApp div {
         color: var(--text-main);
     }
 
@@ -198,22 +198,26 @@ st.markdown(
         box-shadow: 0 6px 18px rgba(99, 102, 241, 0.45);
     }
 
-    /* Sidebar */
+    /* Sidebar (Corrección de visibilidad de texto) */
     section[data-testid="stSidebar"] {
         background: #1E1B4B !important;
     }
-    section[data-testid="stSidebar"] * {
-        color: #F3F4F6 !important;
+    section[data-testid="stSidebar"] *,
+    section[data-testid="stSidebar"] p,
+    section[data-testid="stSidebar"] span,
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] h3 {
+        color: #FFFFFF !important;
     }
     section[data-testid="stSidebar"] div[role="radiogroup"] label {
-        background: rgba(255, 255, 255, 0.08) !important;
-        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        background: rgba(255, 255, 255, 0.12) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
         border-radius: 10px;
-        padding: 0.5rem 0.8rem !important;
-        margin-bottom: 0.35rem;
+        padding: 0.6rem 0.9rem !important;
+        margin-bottom: 0.4rem;
     }
     section[data-testid="stSidebar"] div[role="radiogroup"] label:hover {
-        background: rgba(255, 255, 255, 0.18) !important;
+        background: rgba(255, 255, 255, 0.25) !important;
     }
 
     /* Métricas */
