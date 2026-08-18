@@ -5,7 +5,7 @@ import pandas as pd
 import requests
 import streamlit as st
 
-WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzWV-24qUc4tWkuFVkFrWOl3c025tXjLy_7Yg76R6nAE9412EvAqlKRHvFx-ueMGCSiQg/exec"
+WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwxvBXjPABFAuCssxzIJU4FP9PdejrM5kRcxbmOx6zmGeBGhJj1elSmpsVzn9ZZmG3E/exec"
 SHEET_ID_EVALS = "1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk"
 
 CARACTERES_SEGUROS = "BCDFGHJKLMNPQRSTVWXYZ0123456789"
