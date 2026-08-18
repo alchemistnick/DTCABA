@@ -5,7 +5,7 @@ import pandas as pd
 import requests
 import streamlit as st
 
-WEBAPP_URL = "hhttps://script.google.com/macros/s/AKfycbyK8Th8qiQq4HkIQY9fFMF2ahYRFHsEyipnw2DST1QmXg7JOxPQmybiW2xtyHwJBAW0fg/exec"
+WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyK8Th8qiQq4HkIQY9fFMF2ahYRFHsEyipnw2DST1QmXg7JOxPQmybiW2xtyHwJBAW0fg/exec"
 SHEET_ID_EVALS = "1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk"
 
 CARACTERES_SEGUROS = "BCDFGHJKLMNPQRSTVWXYZ0123456789"
@@ -45,7 +45,7 @@ def buscar_estudiantes_por_dni(dni_búsqueda):
 
 
 # ---------------------------------------------------------
-# 1. CARGAR EVALUACIÓN (CON VALIDACIÓN DE CÓDIGO Y EVALUADOR)
+# 1. CARGAR EVALUACIÓN (BÚSQUEDA FLEXIBLE)
 # ---------------------------------------------------------
 if opcion == "Cargar Evaluación":
   st.header("Carga de Evaluación")
@@ -53,7 +53,7 @@ if opcion == "Cargar Evaluación":
   col1, col2 = st.columns(2)
   with col1:
     id_evaluador = st.text_input(
-        "ID del Evaluador", placeholder="Ej: EVAL-001"
+        "ID / Email del Evaluador", placeholder="Ej: EVAL-001 o email"
     ).strip()
   with col2:
     codigo_unico = st.text_input(
@@ -77,50 +77,100 @@ if opcion == "Cargar Evaluación":
     if not id_evaluador or not codigo_unico:
       st.warning("⚠️ Completa el ID de evaluador y el Código Único.")
     else:
-      # 1. Validar Evaluador en la pestaña 'Usuarios'
+      # 1. Validar Evaluador en 'Usuarios' (sin importar mayúsculas/espacios o si busca por ID/Email)
       df_usuarios = leer_pestana(SHEET_ID_EVALS, "Usuarios")
       evaluador_valido = False
       nombre_evaluador = ""
 
-      if not df_usuarios.empty and "id_evaluador" in df_usuarios.columns:
-        usuario_row = df_usuarios[
-            df_usuarios["id_evaluador"].astype(str) == id_evaluador
-        ]
-        if not usuario_row.empty:
-          autorizado = usuario_row.iloc[0]["autorizado"]
-          if str(autorizado).upper() in ["TRUE", "1", "VERDADERO"]:
-            evaluador_valido = True
-            nombre_evaluador = usuario_row.iloc[0]["nombre"]
+      if not df_usuarios.empty:
+        id_buscado = id_evaluador.lower().strip()
 
-      # 2. Validar Código Único en la pestaña 'Base_codigos'
+        # Normalizar columnas para evitar fallos por espacios invisibles
+        cols_lower = {
+            c: str(c).strip().lower() for c in df_usuarios.columns
+        }
+        df_usuarios.rename(columns=cols_lower, inplace=True)
+
+        col_id = "id_evaluador" if "id_evaluador" in df_usuarios.columns else ""
+        col_nom = "nombre" if "nombre" in df_usuarios.columns else ""
+
+        usuario_row = pd.DataFrame()
+
+        # Buscar por ID
+        if col_id:
+          df_usuarios["id_clean"] = (
+              df_usuarios[col_id].astype(str).str.strip().str.lower()
+          )
+          usuario_row = df_usuarios[df_usuarios["id_clean"] == id_buscado]
+
+        # Si no lo encuentra por ID, buscar por Nombre / Email
+        if usuario_row.empty and col_nom:
+          df_usuarios["nombre_clean"] = (
+              df_usuarios[col_nom].astype(str).str.strip().str.lower()
+          )
+          usuario_row = df_usuarios[df_usuarios["nombre_clean"] == id_buscado]
+
+        if not usuario_row.empty:
+          autorizado_val = (
+              str(usuario_row.iloc[0].get("autorizado", ""))
+              .strip()
+              .str.upper()
+              if "autorizado" in usuario_row.columns
+              else "TRUE"
+          )
+          if autorizado_val in [
+              "TRUE",
+              "1",
+              "VERDADERO",
+              "SI",
+              "YES",
+              "AUTORIZADO",
+          ]:
+            evaluador_valido = True
+            nombre_evaluador = (
+                usuario_row.iloc[0][col_nom]
+                if col_nom
+                else id_evaluador
+            )
+
+      # 2. Validar Código Único en 'Base_codigos'
       df_codigos = leer_pestana(SHEET_ID_EVALS, "Base_codigos")
       codigo_valido = False
       datos_examen = None
 
-      if not df_codigos.empty and "codigo_unico" in df_codigos.columns:
-        codigo_row = df_codigos[
-            df_codigos["codigo_unico"].astype(str) == codigo_unico
-        ]
-        if not codigo_row.empty:
-          codigo_valido = True
-          datos_examen = codigo_row.iloc[0]
+      if not df_codigos.empty:
+        codigo_buscado = codigo_unico.upper().strip()
+        cols_lower_cod = {c: str(c).strip().lower() for c in df_codigos.columns}
+        df_codigos.rename(columns=cols_lower_cod, inplace=True)
 
-      # Verificar resultado de las validaciones
+        if "codigo_unico" in df_codigos.columns:
+          df_codigos["codigo_clean"] = (
+              df_codigos["codigo_unico"]
+              .astype(str)
+              .str.strip()
+              .str.upper()
+          )
+          codigo_row = df_codigos[df_codigos["codigo_clean"] == codigo_buscado]
+          if not codigo_row.empty:
+            codigo_valido = True
+            datos_examen = codigo_row.iloc[0]
+
+      # Resultado final
       if not evaluador_valido:
         st.error(
-            "❌ ID de evaluador no encontrado o no autorizado en la pestaña"
-            " 'Usuarios'."
+            "❌ ID o Email de evaluador no registrado o no autorizado en la"
+            " pestaña 'Usuarios'."
         )
       elif not codigo_valido:
         st.error(
             "❌ Código Único de examen inexistente en la pestaña"
-            " 'Base_codigos'. Verifica el código ingresado."
+            " 'Base_codigos'."
         )
       else:
-        # Cartel de confirmación de validación
         st.success(
             f"✅ **Datos Validados**: Evaluador **{nombre_evaluador}** | Estudiante:"
-            f" **{datos_examen['estudiante']}** ({datos_examen['escuela']})"
+            f" **{datos_examen.get('estudiante', 'Estudiante')}**"
+            f" ({datos_examen.get('escuela', 'Escuela')})"
         )
 
         payload = {
@@ -143,7 +193,7 @@ if opcion == "Cargar Evaluación":
           st.error("Error al enviar la evaluación a Google Sheets.")
 
 # ---------------------------------------------------------
-# 2. GENERADOR DE CÓDIGOS ÚNICOS CON GUARDADO AUTOMÁTICO
+# 2. GENERADOR DE CÓDIGOS ÚNICOS
 # ---------------------------------------------------------
 elif opcion == "Generar Códigos Únicos":
   st.header("Generador de Códigos Únicos")
