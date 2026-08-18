@@ -2,63 +2,57 @@ import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 from datetime import datetime
+import random
+import string
 
-# Enlace directo a tu planilla Google Sheets "DTCABA_2026"
+# Enlace directo a tu planilla "DTCABA_2026"
 URL_SHEET = "https://docs.google.com/spreadsheets/d/1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk/edit?usp=sharing"
 
-st.set_page_config(page_title="Plataforma de Evaluaciones DTCABA", page_icon="📝", layout="centered")
+st.set_page_config(page_title="Evaluaciones DTCABA 2026", page_icon="📝", layout="centered")
 
 st.title("Plataforma de Evaluaciones Técnicas")
-st.caption("Conectado con la planilla DTCABA_2026 | Dirección Técnica")
+st.caption("Dirección Técnica - CABA 2026")
 
-# Conexión con la API de Google Sheets
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 opcion = st.sidebar.radio("Navegación", ["Cargar Evaluación", "Generar Códigos Únicos", "Panel de Administración"])
 
 # ---------------------------------------------------------
-# OPCIÓN 1: CARGAR EVALUACIÓN (EVALUADORES)
+# 1. CARGAR EVALUACIÓN
 # ---------------------------------------------------------
 if opcion == "Cargar Evaluación":
     st.header("Carga de Evaluación")
 
     col1, col2 = st.columns(2)
     with col1:
-        id_evaluador = st.text_input("ID o Correo del Evaluador", placeholder="Ej: EVAL-001").strip()
+        id_evaluador = st.text_input("ID / Email del Evaluador").strip()
     with col2:
-        codigo_unico = st.text_input("Código Único del Examen", placeholder="Ej: MAT-2026-X8K9").strip()
+        codigo_unico = st.text_input("Código Único del Examen").strip()
 
     materia = st.selectbox("Materia", ["Matemática", "Lengua"])
 
     st.subheader("Rúbrica de Evaluación")
-    st.markdown("Seleccione el nivel de desempeño (1 a 4) para cada criterio:")
-
     c1 = st.radio("Criterio 1: Razonamiento / Comprensión", [1, 2, 3, 4], horizontal=True)
     c2 = st.radio("Criterio 2: Coherencia / Resolución", [1, 2, 3, 4], horizontal=True)
     c3 = st.radio("Criterio 3: Dominio Técnico / Gramática", [1, 2, 3, 4], horizontal=True)
 
-    if st.button("Guardar Evaluación en Google Sheets", type="primary"):
+    if st.button("Guardar en Google Sheets", type="primary"):
         if not id_evaluador or not codigo_unico:
-            st.warning("⚠️ Debes completar el ID del evaluador y el Código Único del Examen.")
+            st.warning("⚠️ Completa el ID de evaluador y el Código Único.")
         else:
             try:
-                # 1. Leer usuarios autorizados desde la pestaña "Usuarios"
                 df_usuarios = conn.read(spreadsheet=URL_SHEET, worksheet="Usuarios", ttl=0)
-                
-                # Filtrar si existe el ID cargado
                 usuario_row = df_usuarios[df_usuarios["id_evaluador"].astype(str) == id_evaluador]
 
                 if usuario_row.empty:
-                    st.error("❌ El ID de evaluador no existe en la lista oficial de la Dirección Técnica.")
+                    st.error("❌ El ID de evaluador no existe en la pestaña 'Usuarios'.")
                 else:
                     autorizado = usuario_row.iloc[0]["autorizado"]
                     nombre_evaluador = usuario_row.iloc[0]["nombre"]
 
-                    # Comprobar estado de autorización
                     if str(autorizado).upper() not in ["TRUE", "1", "VERDADERO"]:
-                        st.error("❌ Usuario sin autorización de la Dirección Técnica.")
+                        st.error("❌ Evaluador no autorizado por la Dirección Técnica.")
                     else:
-                        # 2. Leer las evaluaciones guardadas
                         df_evaluaciones = conn.read(spreadsheet=URL_SHEET, worksheet="Evaluaciones", ttl=0)
 
                         nueva_fila = pd.DataFrame([{
@@ -73,55 +67,75 @@ if opcion == "Cargar Evaluación":
                             "promedio": round((c1 + c2 + c3) / 3, 2)
                         }])
 
-                        # Concatenar y guardar
                         df_actualizado = pd.concat([df_evaluaciones, nueva_fila], ignore_index=True)
                         conn.update(spreadsheet=URL_SHEET, worksheet="Evaluaciones", data=df_actualizado)
 
-                        st.success(f"✅ Evaluación registrada con éxito para el examen **{codigo_unico}**.")
-
+                        st.success(f"✅ Evaluación guardada con éxito para el examen **{codigo_unico}**.")
             except Exception as e:
-                st.error(f"Error de conexión con Google Sheets: {e}")
+                st.error(f"Error de conexión: {e}")
 
 # ---------------------------------------------------------
-# OPCIÓN 2: GENERADOR DE CÓDIGOS ÚNICOS
+# 2. GENERADOR DE CÓDIGOS ÚNICOS CON AUTENTICACIÓN
 # ---------------------------------------------------------
 elif opcion == "Generar Códigos Únicos":
     st.header("Generador de Códigos Únicos")
-    import random, string
+    
+    clave_codigos = st.text_input("Ingrese Contraseña Autorizada", type="password")
 
-    prefijo = st.selectbox("Seleccione Materia", ["MAT", "LEN"])
-    cantidad = st.number_input("Cantidad de códigos a generar", min_value=1, max_value=50, value=5)
+    if clave_codigos == "admin123":  # Puedes cambiar 'admin123' por la clave que prefieras
+        st.success("Acceso concedido para generar códigos.")
+        st.subheader("Datos del Estudiante")
 
-    if st.button("Generar Lote de Códigos"):
-        codigos = []
-        for _ in range(cantidad):
-            caracteres = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
-            codigos.append(f"{prefijo}-2026-{caracteres}")
-        
-        df_codigos = pd.DataFrame({"Codigo_Unico": codigos, "Materia": prefijo, "Estado": "Disponible"})
-        st.dataframe(df_codigos)
+        col_est1, col_est2 = st.columns(2)
+        with col_est1:
+            nombre_estudiante = st.text_input("Nombre y Apellido del Estudiante")
+        with col_est2:
+            escuela_estudiante = st.text_input("Escuela / Institución")
+
+        prefijo = st.selectbox("Materia de la Evaluación", ["MAT", "LEN"])
+
+        if st.button("Generar y Asignar Código Único", type="primary"):
+            if not nombre_estudiante or not escuela_estudiante:
+                st.warning("⚠️ Debes ingresar el Nombre del estudiante y la Escuela.")
+            else:
+                # Generación del código aleatorio
+                aleatorio = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
+                codigo_generado = f"{prefijo}-2026-{aleatorio}"
+
+                st.subheader("Código Asignado")
+                st.code(codigo_generado, language="text")
+
+                # Mostrar resumen de asignación
+                df_asignacion = pd.DataFrame([{
+                    "Fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "Codigo_Unico": codigo_generado,
+                    "Estudiante": nombre_estudiante,
+                    "Escuela": escuela_estudiante,
+                    "Materia": "Matemática" if prefijo == "MAT" else "Lengua"
+                }])
+                st.dataframe(df_asignacion, use_container_width=True)
+
+    elif clave_codigos != "":
+        st.error("❌ Contraseña incorrecta.")
 
 # ---------------------------------------------------------
-# OPCIÓN 3: PANEL DE ADMINISTRACIÓN
+# 3. PANEL DE ADMINISTRACIÓN
 # ---------------------------------------------------------
 elif opcion == "Panel de Administración":
     st.header("Panel de Administración")
     clave = st.text_input("Clave Administrador", type="password")
 
     if clave == "admin123":
-        tab1, tab2 = st.tabs(["📊 Evaluaciones Cargadas", "👤 Gestionar Usuarios Autorizados"])
+        tab1, tab2 = st.tabs(["📊 Evaluaciones Registradas", "👤 Gestor de Usuarios"])
 
         with tab1:
-            st.subheader("Evaluaciones en la Planilla DTCABA_2026")
-            df_evals = conn.read(spreadsheet=URL_SHEET, worksheet="Evaluaciones", ttl=0)
-            st.dataframe(df_evals, use_container_width=True)
+            st.dataframe(conn.read(spreadsheet=URL_SHEET, worksheet="Evaluaciones", ttl=0), use_container_width=True)
 
         with tab2:
-            st.subheader("Autorizar Nuevo Evaluador")
             df_users = conn.read(spreadsheet=URL_SHEET, worksheet="Usuarios", ttl=0)
             st.dataframe(df_users, use_container_width=True)
 
-            nuevo_id = st.text_input("ID / Email del nuevo evaluador")
+            nuevo_id = st.text_input("ID / Email del evaluador")
             nuevo_nombre = st.text_input("Nombre completo")
             quien_autoriza = st.text_input("Autorizado por", value="Dirección Técnica")
 
@@ -134,9 +148,6 @@ elif opcion == "Panel de Administración":
                         "autorizado": True,
                         "autorizado_por": quien_autoriza
                     }])
-
-                    df_users_actualizado = pd.concat([df_users, nueva_usr], ignore_index=True)
-                    conn.update(spreadsheet=URL_SHEET, worksheet="Usuarios", data=df_users_actualizado)
-                    
-                    st.success(f"Evaluador {nuevo_nombre} registrado en Google Sheets.")
+                    conn.update(spreadsheet=URL_SHEET, worksheet="Usuarios", data=pd.concat([df_users, nueva_usr], ignore_index=True))
+                    st.success(f"Evaluador {nuevo_nombre} guardado en Google Sheets.")
                     st.rerun()
