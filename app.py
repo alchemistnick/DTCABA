@@ -5,7 +5,6 @@ from datetime import datetime
 import random
 import string
 
-# URL limpia de la planilla DTCABA_2026
 URL_SHEET = "https://docs.google.com/spreadsheets/d/1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk/edit"
 
 st.set_page_config(page_title="Evaluaciones DTCABA 2026", page_icon="📝", layout="centered")
@@ -13,13 +12,20 @@ st.set_page_config(page_title="Evaluaciones DTCABA 2026", page_icon="📝", layo
 st.title("Plataforma de Evaluaciones Técnicas")
 st.caption("Dirección Técnica - CABA 2026")
 
-# Conexión a Google Sheets
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 opcion = st.sidebar.radio("Navegación", ["Cargar Evaluación", "Generar Códigos Únicos", "Panel de Administración"])
 
+# Funciones seguras para leer pestañas
+def leer_pestana(nombre_pestana):
+    try:
+        return conn.read(spreadsheet=URL_SHEET, worksheet=nombre_pestana, ttl=0)
+    except Exception as e:
+        st.warning(f"⚠️ No se pudo leer la pestaña '{nombre_pestana}'. Verifica los permisos de Google Sheets.")
+        return pd.DataFrame()
+
 # ---------------------------------------------------------
-# 1. CARGAR EVALUACIÓN (EVALUADORES)
+# 1. CARGAR EVALUACIÓN
 # ---------------------------------------------------------
 if opcion == "Cargar Evaluación":
     st.header("Carga de Evaluación")
@@ -41,9 +47,8 @@ if opcion == "Cargar Evaluación":
         if not id_evaluador or not codigo_unico:
             st.warning("⚠️ Completa el ID de evaluador y el Código Único.")
         else:
-            try:
-                # Lectura de la pestaña "Usuarios"
-                df_usuarios = conn.read(spreadsheet=URL_SHEET, worksheet="Usuarios", ttl=0)
+            df_usuarios = leer_pestana("Usuarios")
+            if not df_usuarios.empty and "id_evaluador" in df_usuarios.columns:
                 usuario_row = df_usuarios[df_usuarios["id_evaluador"].astype(str) == id_evaluador]
 
                 if usuario_row.empty:
@@ -55,8 +60,7 @@ if opcion == "Cargar Evaluación":
                     if str(autorizado).upper() not in ["TRUE", "1", "VERDADERO"]:
                         st.error("❌ Evaluador no autorizado por la Dirección Técnica.")
                     else:
-                        # Lectura y actualización de la pestaña "Evaluaciones"
-                        df_evaluaciones = conn.read(spreadsheet=URL_SHEET, worksheet="Evaluaciones", ttl=0)
+                        df_evaluaciones = leer_pestana("Evaluaciones")
 
                         nueva_fila = pd.DataFrame([{
                             "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -72,17 +76,15 @@ if opcion == "Cargar Evaluación":
 
                         df_actualizado = pd.concat([df_evaluaciones, nueva_fila], ignore_index=True)
                         conn.update(spreadsheet=URL_SHEET, worksheet="Evaluaciones", data=df_actualizado)
-
-                        st.success(f"✅ Evaluación guardada con éxito para el examen **{codigo_unico}**.")
-            except Exception as e:
-                st.error(f"Error de conexión con Google Sheets: {e}")
+                        st.success(f"✅ Evaluación guardada para el examen **{codigo_unico}**.")
+            else:
+                st.error("Error al acceder a la lista de usuarios. Revisa la pestaña 'Usuarios' en Google Sheets.")
 
 # ---------------------------------------------------------
-# 2. GENERADOR DE CÓDIGOS ÚNICOS (PROTEGIDO)
+# 2. GENERADOR DE CÓDIGOS ÚNICOS
 # ---------------------------------------------------------
 elif opcion == "Generar Códigos Únicos":
     st.header("Generador de Códigos Únicos")
-    
     clave_codigos = st.text_input("Ingrese Contraseña Autorizada", type="password")
 
     if clave_codigos == "admin123":
@@ -120,7 +122,7 @@ elif opcion == "Generar Códigos Únicos":
         st.error("❌ Contraseña incorrecta.")
 
 # ---------------------------------------------------------
-# 3. PANEL DE ADMINISTRACIÓN (PROTEGIDO)
+# 3. PANEL DE ADMINISTRACIÓN
 # ---------------------------------------------------------
 elif opcion == "Panel de Administración":
     st.header("Panel de Administración")
@@ -130,33 +132,32 @@ elif opcion == "Panel de Administración":
         tab1, tab2 = st.tabs(["📊 Evaluaciones Registradas", "👤 Gestor de Usuarios"])
 
         with tab1:
-            try:
-                st.dataframe(conn.read(spreadsheet=URL_SHEET, worksheet="Evaluaciones", ttl=0), use_container_width=True)
-            except Exception as e:
-                st.error(f"Error al leer la pestaña 'Evaluaciones': {e}")
+            df_evals = leer_pestana("Evaluaciones")
+            if not df_evals.empty:
+                st.dataframe(df_evals, use_container_width=True)
+            else:
+                st.info("No hay evaluaciones registradas o la pestaña está vacía.")
 
         with tab2:
-            try:
-                df_users = conn.read(spreadsheet=URL_SHEET, worksheet="Usuarios", ttl=0)
+            df_users = leer_pestana("Usuarios")
+            if not df_users.empty:
                 st.dataframe(df_users, use_container_width=True)
 
-                st.markdown("---")
-                st.subheader("Autorizar Nuevo Evaluador")
-                nuevo_id = st.text_input("ID / Email del evaluador")
-                nuevo_nombre = st.text_input("Nombre completo")
-                quien_autoriza = st.text_input("Autorizado por", value="Dirección Técnica")
+            st.markdown("---")
+            st.subheader("Autorizar Nuevo Evaluador")
+            nuevo_id = st.text_input("ID / Email del evaluador")
+            nuevo_nombre = st.text_input("Nombre completo")
+            quien_autoriza = st.text_input("Autorizado por", value="Dirección Técnica")
 
-                if st.button("Autorizar Evaluador"):
-                    if nuevo_id and nuevo_nombre:
-                        df_users = df_users[df_users["id_evaluador"].astype(str) != nuevo_id]
-                        nueva_usr = pd.DataFrame([{
-                            "id_evaluador": nuevo_id,
-                            "nombre": nuevo_nombre,
-                            "autorizado": True,
-                            "autorizado_por": quien_autoriza
-                        }])
-                        conn.update(spreadsheet=URL_SHEET, worksheet="Usuarios", data=pd.concat([df_users, nueva_usr], ignore_index=True))
-                        st.success(f"Evaluador {nuevo_nombre} guardado en Google Sheets.")
-                        st.rerun()
-            except Exception as e:
-                st.error(f"Error al leer la pestaña 'Usuarios': {e}")
+            if st.button("Autorizar Evaluador"):
+                if nuevo_id and nuevo_nombre:
+                    df_users = df_users[df_users["id_evaluador"].astype(str) != nuevo_id] if not df_users.empty else pd.DataFrame()
+                    nueva_usr = pd.DataFrame([{
+                        "id_evaluador": nuevo_id,
+                        "nombre": nuevo_nombre,
+                        "autorizado": True,
+                        "autorizado_por": quien_autoriza
+                    }])
+                    conn.update(spreadsheet=URL_SHEET, worksheet="Usuarios", data=pd.concat([df_users, nueva_usr], ignore_index=True))
+                    st.success(f"Evaluador {nuevo_nombre} guardado en Google Sheets.")
+                    st.rerun()
