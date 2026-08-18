@@ -150,15 +150,17 @@ elif opcion == "Panel de Administración":
             nuevo_nombre = st.text_input("Nombre completo")
             quien_autoriza = st.text_input("Autorizado por", value="Dirección Técnica")
 
-            if st.button("Autorizar Evaluador"):
-                if nuevo_id and nuevo_nombre:
-                    df_users = df_users[df_users["id_evaluador"].astype(str) != nuevo_id] if not df_users.empty else pd.DataFrame()
-                    nueva_usr = pd.DataFrame([{
-                        "id_evaluador": nuevo_id,
-                        "nombre": nuevo_nombre,
-                        "autorizado": True,
-                        "autorizado_por": quien_autoriza
-                    }])
-                    conn.update(spreadsheet=URL_SHEET, worksheet="Usuarios", data=pd.concat([df_users, nueva_usr], ignore_index=True))
-                    st.success(f"Evaluador {nuevo_nombre} guardado en Google Sheets.")
-                    st.rerun()
+         if st.button("Autorizar Evaluador"):
+    if nuevo_id and nuevo_nombre:
+        payload = {
+            "action": "usuario",
+            "id_evaluador": nuevo_id,
+            "nombre": nuevo_nombre,
+            "autorizado_por": quien_autoriza
+        }
+        res = requests.post(WEBAPP_URL, json=payload)
+        if res.status_code == 200:
+            st.success(f"Evaluador {nuevo_nombre} guardado correctamente en Google Sheets.")
+            st.rerun()
+        else:
+            st.error("Error al registrar el usuario mediante Apps Script.")
