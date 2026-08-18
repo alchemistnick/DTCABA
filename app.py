@@ -198,23 +198,23 @@ st.markdown(
         box-shadow: 0 6px 18px rgba(99, 102, 241, 0.45);
     }
 
-    /* Sidebar (Corrección de visibilidad de texto) */
+    /* Sidebar (Fuerza color blanco para el menú lateral) */
     section[data-testid="stSidebar"] {
         background: #1E1B4B !important;
     }
-    section[data-testid="stSidebar"] *,
-    section[data-testid="stSidebar"] p,
-    section[data-testid="stSidebar"] span,
-    section[data-testid="stSidebar"] label,
     section[data-testid="stSidebar"] h3 {
         color: #FFFFFF !important;
     }
     section[data-testid="stSidebar"] div[role="radiogroup"] label {
         background: rgba(255, 255, 255, 0.12) !important;
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
         border-radius: 10px;
         padding: 0.6rem 0.9rem !important;
         margin-bottom: 0.4rem;
+    }
+    section[data-testid="stSidebar"] div[role="radiogroup"] label * {
+        color: #FFFFFF !important;
+        font-weight: 600 !important;
     }
     section[data-testid="stSidebar"] div[role="radiogroup"] label:hover {
         background: rgba(255, 255, 255, 0.25) !important;
