@@ -4,7 +4,7 @@ import pandas as pd
 import requests
 import streamlit as st
 
-WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzgdCGAxtSrFcZP7A7KlDlkaWzbc9_3R1-rpPN6yuR0JblvPADa2hPDL7etnUWMB4xyng/exec"
+WEBAPP_URL ="https://script.google.com/macros/s/AKfycbzgdCGAxtSrFcZP7A7KlDlkaWzbc9_3R1-rpPN6yuR0JblvPADa2hPDL7etnUWMB4xyng/exec"
 SHEET_ID_EVALS = "1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk"
 
 CARACTERES_SEGUROS = "BCDFGHJKLMNPQRSTVWXYZ0123456789"
@@ -98,7 +98,7 @@ st.markdown(
     """
     <div class="app-header">
         <h1>📐 Desafíos Técnicos⚙️</h1>
-        <p>Plataforma Simplificada de Evaluación y Gestión</p>
+        <p>Plataforma de Evaluación y Gestión</p>
     </div>
     """,
     unsafe_allow_html=True,
@@ -112,7 +112,7 @@ opcion = st.sidebar.radio(
 )
 
 
-@st.cache_data(ttl=30, show_spinner=False)
+@st.cache_data(ttl=15, show_spinner=False)
 def leer_pestana(sheet_id, nombre_pestana):
   try:
     timestamp = int(datetime.now().timestamp())
@@ -122,8 +122,25 @@ def leer_pestana(sheet_id, nombre_pestana):
     return pd.DataFrame()
 
 
+def buscar_estudiantes_por_dni(dni_búsqueda):
+  try:
+    dni_limpio = str(dni_búsqueda).strip().replace(".", "").replace(" ", "")
+    payload = {"action": "buscar_dni", "dni": dni_limpio}
+    res = requests.post(WEBAPP_URL, json=payload, timeout=25)
+    if res.status_code == 200:
+      try:
+        data = res.json()
+        if data.get("status") == "success":
+          return data.get("coincidencias", [])
+      except Exception:
+        pass
+  except Exception:
+    pass
+  return []
+
+
 # ---------------------------------------------------------
-# 1. CARGAR EVALUACIÓN (SÚPER RÁPIDO Y DIRECTO)
+# 1. CARGAR EVALUACIÓN (CON DNI DE EVALUADOR DIRECTO)
 # ---------------------------------------------------------
 if opcion == "Cargar Evaluación":
   st.header("Carga de Evaluación")
@@ -206,7 +223,7 @@ if opcion == "Cargar Evaluación":
       }
 
       try:
-        res = requests.post(WEBAPP_URL, json=payload, timeout=8)
+        res = requests.post(WEBAPP_URL, json=payload, timeout=10)
         st.success(
             f"✅ Evaluación guardada con éxito para el examen **{codigo_unico}**!"
         )
@@ -218,7 +235,7 @@ if opcion == "Cargar Evaluación":
         )
 
 # ---------------------------------------------------------
-# 2. GENERADOR DE CÓDIGOS SIMPLIFICADO Y RÁPIDO
+# 2. GENERADOR DE CÓDIGOS CON BÚSQUEDA EN PADRÓN
 # ---------------------------------------------------------
 elif opcion == "Generar Códigos Únicos":
   st.header("Generador de Códigos Únicos")
@@ -226,16 +243,74 @@ elif opcion == "Generar Códigos Únicos":
 
   if clave == ADMIN_PASSWORD:
     st.success("🔓 Acceso habilitado.")
+    st.subheader("🔍 Búsqueda en Padrón de Encuentros Educativos")
+
+    dni_input = st.text_input(
+        "DNI del Estudiante (presione Enter para buscar)"
+    ).strip()
+
+    nombre_defecto = ""
+    escuela_defecto = ""
+    puntaje_defecto = "N/A"
+
+    if dni_input:
+      with st.spinner("Buscando DNI en el padrón..."):
+        coincidencias = buscar_estudiantes_por_dni(dni_input)
+
+      if len(coincidencias) == 1:
+        estudiante_sel = coincidencias[0]
+        nombre_defecto = estudiante_sel.get("nombre", "")
+        escuela_defecto = estudiante_sel.get("escuela", "")
+        puntaje_defecto = estudiante_sel.get("puntaje_anterior", "N/A")
+
+        st.info(
+            f"ℹ️ **Estudiante Encontrado:** {nombre_defecto} | **Escuela:**"
+            f" {escuela_defecto}"
+        )
+        col_m1, col_m2 = st.columns(2)
+        with col_m1:
+          if estudiante_sel.get("evento"):
+            st.caption(f"📌 **Inscripción:** {estudiante_sel['evento']}")
+        with col_m2:
+          st.metric(
+              label="Puntaje Instancia Institucional", value=puntaje_defecto
+          )
+
+      elif len(coincidencias) > 1:
+        st.warning(
+            f"⚠️ Se encontraron **{len(coincidencias)} registros** para este"
+            " DNI."
+        )
+        opciones_map = {
+            f"Opción {i+1} - {c.get('nombre', '')} [{c.get('escuela', '')}] -"
+            f" Puntaje: {c.get('puntaje_anterior', 'N/A')}": c
+            for i, c in enumerate(coincidencias)
+        }
+        eleccion = st.selectbox(
+            "Seleccione el registro a utilizar:",
+            options=list(opciones_map.keys()),
+        )
+        estudiante_sel = opciones_map[eleccion]
+        nombre_defecto = estudiante_sel.get("nombre", "")
+        escuela_defecto = estudiante_sel.get("escuela", "")
+        puntaje_defecto = estudiante_sel.get("puntaje_anterior", "N/A")
+      else:
+        st.warning(
+            "⚠️ No se encontró el DNI en el padrón. Puedes completar los datos"
+            " manualmente."
+        )
 
     with st.container(border=True):
       col_a, col_b = st.columns(2)
       with col_a:
-        dni_estudiante = (
-            st.text_input("DNI Estudiante").strip().replace(".", "")
+        dni_estudiante = st.text_input("DNI Estudiante", value=dni_input)
+        nombre_estudiante = st.text_input(
+            "Nombre y Apellido", value=nombre_defecto
         )
-        nombre_estudiante = st.text_input("Nombre y Apellido")
       with col_b:
-        escuela_estudiante = st.text_input("Escuela / Institución")
+        escuela_estudiante = st.text_input(
+            "Escuela / Institución", value=escuela_defecto
+        )
         prefijo = st.selectbox(
             "Materia de Evaluación", ["MAT", "LEN", "TDR1", "TDR2"]
         )
@@ -264,11 +339,11 @@ elif opcion == "Generar Códigos Únicos":
             "estudiante": nombre_estudiante,
             "escuela": escuela_estudiante,
             "materia": materia_nombre,
-            "puntaje_institucional": "N/A",
+            "puntaje_institucional": puntaje_defecto,
         }
 
         try:
-          requests.post(WEBAPP_URL, json=payload_codigo, timeout=8)
+          requests.post(WEBAPP_URL, json=payload_codigo, timeout=10)
           st.success(f"✅ Código Generado: **{codigo_generado}**")
           st.code(codigo_generado, language="text")
           st.cache_data.clear()
