@@ -4,7 +4,7 @@ import pandas as pd
 import requests
 import streamlit as st
 
-WEBAPP_URL = "https://script.google.com/macros/s/AKfycby1UFrO_XjEllieLYbbs3-DEff4j_MW-9vpD4m4e-BaWxL8ICDPNtwMox2WcDjW3FLyQw/exec"
+WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzuztbd7aTJa1Yq5APE663F_PeOY3AaprmCXR2meJDesR4a_CZzDap8FesLaVzZww8zYA/exec"
 SHEET_ID_EVALS = "1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk"
 
 CARACTERES_SEGUROS = "BCDFGHJKLMNPQRSTVWXYZ0123456789"
@@ -102,7 +102,7 @@ def buscar_estudiantes_por_dni(dni):
 
 
 # ---------------------------------------------------------
-# 1. CARGAR EVALUACIÓN (CON OBSERVACIONES Y PONDERACIÓN LENGUA)
+# 1. CARGAR EVALUACIÓN (CON OBSERVACIONES POR CRITERIO)
 # ---------------------------------------------------------
 if opcion == "Cargar Evaluación":
   st.header("Carga de Evaluación")
@@ -123,7 +123,7 @@ if opcion == "Cargar Evaluación":
       codigo_unico = (
           st.text_input(
               "Código Único del Examen",
-              placeholder="Ej: LEN-2026-X8K9",
+              placeholder="Ej: LEN2026X8K198",
               key="eval_codigo",
           )
           .strip()
@@ -142,16 +142,13 @@ if opcion == "Cargar Evaluación":
 
   st.subheader(f"📋 Rúbrica de Evaluación: {materia}")
 
-  # ---------------------------------------------------------
-  # RÚBRICA ESPECÍFICA DE LENGUA
-  # ---------------------------------------------------------
   if materia == "Lengua":
     st.markdown("### A. Comprender para transformar (40%)")
 
     with st.container(border=True):
       st.markdown("**1. Apropiación del texto fuente** *(Ponderación 20%)*")
       c1 = st.radio(
-          "Seleccione el nivel:",
+          "Nivel:",
           [4, 3, 2, 1],
           format_func=lambda x: {
               4: "4 - Avanzado (Conserva e integra el sentido central)",
@@ -175,7 +172,7 @@ if opcion == "Cargar Evaluación":
 
       st.markdown("**2. Transformación del género** *(Ponderación 20%)*")
       c2 = st.radio(
-          "Seleccione el nivel:",
+          "Nivel:",
           [4, 3, 2, 1],
           format_func=lambda x: {
               4: "4 - Avanzado (Se transforma completamente en relato)",
@@ -195,7 +192,7 @@ if opcion == "Cargar Evaluación":
     with st.container(border=True):
       st.markdown("**3. Voz narrativa**")
       c3 = st.radio(
-          "Seleccione el nivel:",
+          "Nivel:",
           [4, 3, 2, 1],
           format_func=lambda x: {
               4: "4 - Avanzado (Voz consistente y verosímil)",
@@ -214,7 +211,7 @@ if opcion == "Cargar Evaluación":
 
       st.markdown("**4. Resignificación del lenguaje técnico**")
       c4 = st.radio(
-          "Seleccione el nivel:",
+          "Nivel:",
           [4, 3, 2, 1],
           format_func=lambda x: {
               4: "4 - Avanzado (Construye experiencias/emociones/vínculos)",
@@ -235,7 +232,7 @@ if opcion == "Cargar Evaluación":
 
       st.markdown("**5. Construcción literaria**")
       c5 = st.radio(
-          "Seleccione el nivel:",
+          "Nivel:",
           [4, 3, 2, 1],
           format_func=lambda x: {
               4: "4 - Avanzado (Integra descripciones, metáforas o comparaciones)",
@@ -255,7 +252,7 @@ if opcion == "Cargar Evaluación":
     with st.container(border=True):
       st.markdown("**6. Organización del relato** *(Ponderación 10%)*")
       c6 = st.radio(
-          "Seleccione el nivel:",
+          "Nivel:",
           [4, 3, 2, 1],
           format_func=lambda x: {
               4: "4 - Avanzado (Secuencia clara, coherente y cohesionada)",
@@ -277,7 +274,7 @@ if opcion == "Cargar Evaluación":
 
       st.markdown("**7. Normativa** *(Ponderación 10%)*")
       c7 = st.radio(
-          "Seleccione el nivel:",
+          "Nivel:",
           [4, 3, 2, 1],
           format_func=lambda x: {
               4: "4 - Avanzado (Emplea correctamente la normativa)",
@@ -292,7 +289,6 @@ if opcion == "Cargar Evaluación":
           "Observaciones para Normativa:", key="obs_c7", height=70
       )
 
-    # Cálculo Ponderado exacto de Lengua: Bloque A (40%), Bloque B (40%), Bloque C (20%)
     promedio_calculado = round(
         (c1 * 0.20)
         + (c2 * 0.20)
@@ -321,9 +317,6 @@ if opcion == "Cargar Evaluación":
         "obs7": obs7,
     }
 
-  # ---------------------------------------------------------
-  # OTRAS MATERIAS (ESTRUCURA BASE DE 3 CRITERIOS Y OBSERVACIONES)
-  # ---------------------------------------------------------
   else:
     with st.container(border=True):
       c1 = st.radio("Criterio 1", [1, 2, 3, 4], horizontal=True, key="gen_c1")
@@ -376,8 +369,9 @@ if opcion == "Cargar Evaluación":
         st.cache_data.clear()
       except Exception:
         st.error("⚠️ Error de conexión al guardar la evaluación.")
+
 # ---------------------------------------------------------
-# 2. GENERADOR DE CÓDIGOS PARA DUPLAS (CÓDIGO ALFANUMÉRICO DE 6 DÍGITOS SIN GUIONES)
+# 2. GENERADOR DE CÓDIGOS PARA DUPLAS (6 DÍGITOS ALFANUMÉRICOS + GARANTÍA DE UNICIDAD)
 # ---------------------------------------------------------
 elif opcion == "Generar Códigos Únicos":
   st.header("Generador de Códigos para Duplas")
@@ -533,64 +527,78 @@ elif opcion == "Generar Códigos Únicos":
             "⚠️ Debes completar los datos de ambos integrantes de la dupla."
         )
       else:
-        # Generación de 3 caracteres aleatorios + últimos 3 dígitos del DNI1
-        tres_aleatorios = "".join(random.choices(CARACTERES_SEGUROS, k=3))
-        ultimos_tres_dni = (
-            dni1[-3:] if len(dni1) >= 3 else dni1.zfill(3)
-        )  # Extrae últimos 3 dígitos del DNI
-        codigo_generado = f"{tres_aleatorios}{ultimos_tres_dni}"  # Código de 6 dígitos sin guiones
+        guardado_exitoso = False
+        intentos = 0
 
-        fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        while not guardado_exitoso and intentos < 5:
+          intentos += 1
 
-        mapa_materias = {
-            "MAT": "Matemática",
-            "LEN": "Lengua",
-            "TDR1": "Tecnología de la Representación Nivel 1",
-            "TDR2": "Tecnología de la Representación Nivel 2",
-        }
-        materia_nombre = mapa_materias.get(prefijo, prefijo)
+          tres_aleatorios = "".join(random.choices(CARACTERES_SEGUROS, k=3))
+          ultimos_tres_dni = dni1[-3:] if len(dni1) >= 3 else dni1.zfill(3)
+          codigo_generado = f"{tres_aleatorios}{ultimos_tres_dni}"
 
-        nivel_consolidado = (
-            f"Int1: {niv1} | Int2: {niv2}" if niv1 != niv2 else niv1
-        )
-        inscripcion_consolidada = (
-            f"Int1: {insc1} | Int2: {insc2}" if insc1 != insc2 else insc1
-        )
+          fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        payload_codigo = {
-            "action": "guardar_codigo_dupla",
-            "fecha": fecha_actual,
-            "codigo_unico": codigo_generado,
-            "materia": materia_nombre,
-            "inscripcion_desafio": inscripcion_consolidada,
-            "nivel_dupla": nivel_consolidado,
-            # Integrante 1
-            "dni1": dni1,
-            "estudiante1": nom1,
-            "escuela1": esc1,
-            "email1": mail1,
-            "puntaje1": punt1,
-            # Integrante 2
-            "dni2": dni2,
-            "estudiante2": nom2,
-            "escuela2": esc2,
-            "email2": mail2,
-            "puntaje2": punt2,
-        }
+          mapa_materias = {
+              "MAT": "Matemática",
+              "LEN": "Lengua",
+              "TDR1": "Tecnología de la Representación Nivel 1",
+              "TDR2": "Tecnología de la Representación Nivel 2",
+          }
+          materia_nombre = mapa_materias.get(prefijo, prefijo)
 
-        try:
-          requests.post(WEBAPP_URL, json=payload_codigo, timeout=10)
-          st.success(
-              f"✅ Código de Dupla Generado: **{codigo_generado}** (Asociado al"
-              f" DNI ...{ultimos_tres_dni})"
+          nivel_consolidado = (
+              f"Int1: {niv1} | Int2: {niv2}" if niv1 != niv2 else niv1
           )
-          st.code(codigo_generado, language="text")
-          st.cache_data.clear()
-        except Exception:
-          st.error("Error al guardar el código en Google Sheets.")
+          inscripcion_consolidada = (
+              f"Int1: {insc1} | Int2: {insc2}" if insc1 != insc2 else insc1
+          )
+
+          payload_codigo = {
+              "action": "guardar_codigo_dupla",
+              "fecha": fecha_actual,
+              "codigo_unico": codigo_generado,
+              "materia": materia_nombre,
+              "inscripcion_desafio": inscripcion_consolidada,
+              "nivel_dupla": nivel_consolidado,
+              # Integrante 1
+              "dni1": dni1,
+              "estudiante1": nom1,
+              "escuela1": esc1,
+              "email1": mail1,
+              "puntaje1": punt1,
+              # Integrante 2
+              "dni2": dni2,
+              "estudiante2": nom2,
+              "escuela2": esc2,
+              "email2": mail2,
+              "puntaje2": punt2,
+          }
+
+          try:
+            res = requests.post(WEBAPP_URL, json=payload_codigo, timeout=10)
+            if res.status_code == 200:
+              respuesta = res.json()
+              if respuesta.get("status") == "success":
+                guardado_exitoso = True
+                st.success(
+                    f"✅ Código Único Generado: **{codigo_generado}** (DNI"
+                    f" ...{ultimos_tres_dni})"
+                )
+                st.code(codigo_generado, language="text")
+                st.cache_data.clear()
+              elif respuesta.get("message") == "DUPLICADO":
+                continue
+              else:
+                st.error("Error devuelto por el servidor.")
+                break
+          except Exception:
+            st.error("Error de conexión al guardar el código.")
+            break
 
   elif clave != "":
     st.error("❌ Contraseña incorrecta.")
+
 # ---------------------------------------------------------
 # 3. PANEL DE ADMINISTRACIÓN
 # ---------------------------------------------------------
