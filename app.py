@@ -18,7 +18,7 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------------
-# ESTILOS
+# ESTILOS Y ORDENAMIENTO VISUAL
 # ---------------------------------------------------------
 st.markdown(
     """
@@ -40,9 +40,22 @@ st.markdown(
     }
     .app-header h1 { font-family: 'Poppins', sans-serif; font-size: 2.5rem; font-weight: 800; margin: 0; color: #FFFFFF !important; }
     .app-header p { margin: 0.2rem 0 0 0; color: #E0E7FF !important; }
+    
+    /* Contenedores ordenados */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        background: #FFFFFF !important; border-radius: 16px; border: 1px solid #E5E7EB !important; padding: 1rem;
+        background: #FFFFFF !important;
+        border-radius: 16px;
+        border: 1px solid #E5E7EB !important;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
     }
+    
+    .stRadio > label {
+        font-weight: 600 !important;
+        color: #374151 !important;
+        margin-bottom: 0.5rem;
+    }
+
     .stButton > button[kind="primary"] {
         background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%) !important;
         color: #FFFFFF !important; border: none; border-radius: 12px; padding: 0.65rem 1.5rem; font-weight: 600; width: 100%;
@@ -102,7 +115,7 @@ def buscar_estudiantes_por_dni(dni):
 
 
 # ---------------------------------------------------------
-# 1. CARGAR EVALUACIÓN (LENGUA Y MATEMÁTICA CON OBSERVACIONES)
+# 1. CARGAR EVALUACIÓN (RÚBRICAS ORDENADAS Y ESTRUCTURADAS)
 # ---------------------------------------------------------
 if opcion == "Cargar Evaluación":
   st.header("Carga de Evaluación")
@@ -143,153 +156,202 @@ if opcion == "Cargar Evaluación":
   st.subheader(f"📋 Rúbrica de Evaluación: {materia}")
 
   # ---------------------------------------------------------
-  # RÚBRICA DE LENGUA
+  # RÚBRICA DE LENGUA (ORDENADA POR BLOQUES Y CRITERIOS)
   # ---------------------------------------------------------
   if materia == "Lengua":
-    st.markdown("### A. Comprender para transformar (40%)")
+    st.markdown("### BLOQUE A: Comprender para transformar (40%)")
 
     with st.container(border=True):
-      st.markdown("**1. Apropiación del texto fuente** *(Ponderación 20%)*")
+      st.markdown("#### 1. Apropiación del texto fuente (20%)")
       c1 = st.radio(
-          "Nivel:",
+          "Seleccione el Nivel Alcanzado:",
           [4, 3, 2, 1],
           format_func=lambda x: {
-              4: "4 - Avanzado (Conserva e integra el sentido central)",
+              4: "4 - Avanzado: Conserva e integra el sentido central del texto técnico.",
               3: (
-                  "3 - Satisfactorio (Conserva ideas principales con pequeñas"
-                  " simplificaciones)"
+                  "3 - Satisfactorio: Conserva ideas principales con pequeñas"
+                  " simplificaciones."
               ),
-              2: "2 - En desarrollo (Recupera solo parte de la información)",
-              1: "1 - Inicial (Pierde o modifica el sentido del texto)",
+              2: (
+                  "2 - En desarrollo: Recupera solo parte de la información"
+                  " relevante."
+              ),
+              1: (
+                  "1 - Inicial: Pierde o modifica el sentido del texto fuente."
+              ),
           }[x],
-          horizontal=True,
           key="len_c1",
       )
       obs1 = st.text_area(
-          "Observaciones para Apropiación del texto fuente:",
-          key="obs_c1",
-          height=70,
+          "Observaciones / Justificación:", key="obs_c1", height=70
       )
 
-      st.divider()
-
-      st.markdown("**2. Transformación del género** *(Ponderación 20%)*")
+    with st.container(border=True):
+      st.markdown("#### 2. Transformación del género (20%)")
       c2 = st.radio(
-          "Nivel:",
+          "Seleccione el Nivel Alcanzado:",
           [4, 3, 2, 1],
           format_func=lambda x: {
-              4: "4 - Avanzado (Se transforma completamente en relato)",
-              3: "3 - Satisfactorio (Predomina el relato con rasgos expositivos)",
-              2: "2 - En desarrollo (Alterna explicación y narración sin integrar)",
-              1: "1 - Inicial (Predomina texto expositivo / no transforma)",
+              4: (
+                  "4 - Avanzado: El texto se transforma completamente en un"
+                  " relato literario."
+              ),
+              3: (
+                  "3 - Satisfactorio: Predomina el relato aunque mantiene"
+                  " rasgos expositivos."
+              ),
+              2: (
+                  "2 - En desarrollo: Alterna explicación y narración sin"
+                  " integrarlas."
+              ),
+              1: (
+                  "1 - Inicial: Predomina el texto expositivo o no logra la"
+                  " transformación."
+              ),
           }[x],
-          horizontal=True,
           key="len_c2",
       )
       obs2 = st.text_area(
-          "Observaciones para Transformación del género:", key="obs_c2", height=70
+          "Observaciones / Justificación:", key="obs_c2", height=70
       )
 
-    st.markdown("### B. Escribir para construir sentido (40%)")
+    st.markdown("### BLOQUE B: Escribir para construir sentido (40%)")
 
     with st.container(border=True):
-      st.markdown("**3. Voz narrativa**")
+      st.markdown("#### 3. Voz narrativa")
       c3 = st.radio(
-          "Nivel:",
+          "Seleccione el Nivel Alcanzado:",
           [4, 3, 2, 1],
           format_func=lambda x: {
-              4: "4 - Avanzado (Voz consistente y verosímil)",
-              3: "3 - Satisfactorio (Voz se sostiene con inconsistencias)",
-              2: "2 - En desarrollo (Voz de manera parcial o irregular)",
-              1: "1 - Inicial (No logra construir voz narrativa)",
+              4: (
+                  "4 - Avanzado: Construye una voz en primera persona"
+                  " consistente y verosímil."
+              ),
+              3: (
+                  "3 - Satisfactorio: La voz se sostiene con algunas"
+                  " inconsistencias."
+              ),
+              2: (
+                  "2 - En desarrollo: La voz aparece de manera parcial o"
+                  " irregular."
+              ),
+              1: "1 - Inicial: No logra construir una voz narrativa.",
           }[x],
-          horizontal=True,
           key="len_c3",
       )
       obs3 = st.text_area(
-          "Observaciones para Voz narrativa:", key="obs_c3", height=70
+          "Observaciones / Justificación:", key="obs_c3", height=70
       )
 
-      st.divider()
-
-      st.markdown("**4. Resignificación del lenguaje técnico**")
+    with st.container(border=True):
+      st.markdown("#### 4. Resignificación del lenguaje técnico")
       c4 = st.radio(
-          "Nivel:",
+          "Seleccione el Nivel Alcanzado:",
           [4, 3, 2, 1],
           format_func=lambda x: {
-              4: "4 - Avanzado (Construye experiencias/emociones/vínculos)",
-              3: "3 - Satisfactorio (Integra vocabulario de manera pertinente)",
-              2: "2 - En desarrollo (Lenguaje aparece aislado o forzado)",
-              1: "1 - Inicial (No incorpora o utiliza incorrectamente)",
+              4: (
+                  "4 - Avanzado: Utiliza el lenguaje técnico para construir"
+                  " experiencias y emociones."
+              ),
+              3: (
+                  "3 - Satisfactorio: Integra el vocabulario técnico de manera"
+                  " pertinente."
+              ),
+              2: (
+                  "2 - En desarrollo: El lenguaje técnico aparece de forma"
+                  " aislada o forzada."
+              ),
+              1: (
+                  "1 - Inicial: No incorpora o utiliza incorrectamente el"
+                  " lenguaje técnico."
+              ),
           }[x],
-          horizontal=True,
           key="len_c4",
       )
       obs4 = st.text_area(
-          "Observaciones para Resignificación del lenguaje técnico:",
-          key="obs_c4",
-          height=70,
+          "Observaciones / Justificación:", key="obs_c4", height=70
       )
 
-      st.divider()
-
-      st.markdown("**5. Construcción literaria**")
+    with st.container(border=True):
+      st.markdown("#### 5. Construcción literaria")
       c5 = st.radio(
-          "Nivel:",
+          "Seleccione el Nivel Alcanzado:",
           [4, 3, 2, 1],
           format_func=lambda x: {
-              4: "4 - Avanzado (Integra descripciones, metáforas o comparaciones)",
-              3: "3 - Satisfactorio (Utiliza recursos expresivos adecuados)",
-              2: "2 - En desarrollo (Recursos escasos o poco pertinentes)",
-              1: "1 - Inicial (No utiliza recursos literarios significativos)",
+              4: (
+                  "4 - Avanzado: Integra descripciones, metáforas o"
+                  " comparaciones enriquecedoras."
+              ),
+              3: (
+                  "3 - Satisfactorio: Utiliza algunos recursos expresivos"
+                  " adecuados."
+              ),
+              2: (
+                  "2 - En desarrollo: Los recursos son escasos o poco"
+                  " pertinentes."
+              ),
+              1: (
+                  "1 - Inicial: No utiliza recursos literarios significativos."
+              ),
           }[x],
-          horizontal=True,
           key="len_c5",
       )
       obs5 = st.text_area(
-          "Observaciones para Construcción literaria:", key="obs_c5", height=70
+          "Observaciones / Justificación:", key="obs_c5", height=70
       )
 
-    st.markdown("### C. Comunicar con claridad (20%)")
+    st.markdown("### BLOQUE C: Comunicar con claridad (20%)")
 
     with st.container(border=True):
-      st.markdown("**6. Organización del relato** *(Ponderación 10%)*")
+      st.markdown("#### 6. Organización del relato (10%)")
       c6 = st.radio(
-          "Nivel:",
+          "Seleccione el Nivel Alcanzado:",
           [4, 3, 2, 1],
           format_func=lambda x: {
-              4: "4 - Avanzado (Secuencia clara, coherente y cohesionada)",
-              3: (
-                  "3 - Satisfactorio (Relato comprensible con pequeñas"
-                  " dificultades)"
+              4: (
+                  "4 - Avanzado: Presenta una secuencia clara, coherente y"
+                  " cohesionada."
               ),
-              2: "2 - En desarrollo (Reiteraciones o saltos)",
-              1: "1 - Inicial (Organización dificulta la comprensión)",
+              3: (
+                  "3 - Satisfactorio: El relato es comprensible con pequeñas"
+                  " dificultades."
+              ),
+              2: (
+                  "2 - En desarrollo: La organización presenta reiteraciones o"
+                  " saltos."
+              ),
+              1: "1 - Inicial: La organización dificulta la comprensión.",
           }[x],
-          horizontal=True,
           key="len_c6",
       )
       obs6 = st.text_area(
-          "Observaciones para Organización del relato:", key="obs_c6", height=70
+          "Observaciones / Justificación:", key="obs_c6", height=70
       )
 
-      st.divider()
-
-      st.markdown("**7. Normativa** *(Ponderación 10%)*")
+    with st.container(border=True):
+      st.markdown("#### 7. Normativa (10%)")
       c7 = st.radio(
-          "Nivel:",
+          "Seleccione el Nivel Alcanzado:",
           [4, 3, 2, 1],
           format_func=lambda x: {
-              4: "4 - Avanzado (Emplea correctamente la normativa)",
-              3: "3 - Satisfactorio (Pocos errores que no dificultan)",
-              2: "2 - En desarrollo (Errores que dificultan en parte)",
-              1: "1 - Inicial (Errores afectan significativamente)",
+              4: "4 - Avanzado: Emplea correctamente la normativa ortográfica.",
+              3: (
+                  "3 - Satisfactorio: Presenta pocos errores que no dificultan"
+                  " la lectura."
+              ),
+              2: (
+                  "2 - En desarrollo: Presenta errores que dificultan la"
+                  " lectura en parte."
+              ),
+              1: (
+                  "1 - Inicial: Los errores afectan significativamente la"
+                  " comprensión."
+              ),
           }[x],
-          horizontal=True,
           key="len_c7",
       )
       obs7 = st.text_area(
-          "Observaciones para Normativa:", key="obs_c7", height=70
+          "Observaciones / Justificación:", key="obs_c7", height=70
       )
 
     promedio_calculado = round(
@@ -321,134 +383,149 @@ if opcion == "Cargar Evaluación":
     }
 
   # ---------------------------------------------------------
-  # RÚBRICA DE MATEMÁTICA
+  # RÚBRICA DE MATEMÁTICA (ORDENADA EN CONTENEDORES INDEPENDIENTES)
   # ---------------------------------------------------------
   elif materia == "Matemática":
-    st.markdown(
-        "### 📐 Rúbrica de Matemática (Puntaje Total Ponderado: 100%)"
-    )
+    st.markdown("### 📐 Criterios de Evaluación: Matemática")
 
     with st.container(border=True):
       st.markdown(
-          "**1. Construcción y Representación de la Figura Tridimensional**"
-          " *(Ponderación 20%)*"
+          "#### 1. Construcción y Representación de la Figura Tridimensional"
+          " (20%)"
       )
       c1 = st.radio(
-          "Nivel:",
+          "Seleccione el Nivel Alcanzado:",
           [5, 4, 3, 2, 1],
           format_func=lambda x: {
               5: (
-                  "5 - Destacado (Figura original, alta complejidad y excelente"
-                  " representación)"
+                  "5 - Destacado: Figura original y de alta complejidad con"
+                  " excelente representación."
               ),
-              4: "4 - Avanzado (Original, de buena calidad y muestra idea clara)",
+              4: (
+                  "4 - Avanzado: Figura tridimensional bien construida,"
+                  " muestra originalidad y calidad."
+              ),
               3: (
-                  "3 - Satisfactorio (Adecuada y realizada de manera correcta)"
+                  "3 - Satisfactorio: La figura es adecuada y realizada de"
+                  " manera correcta."
               ),
-              2: "2 - Básico (Muy básica, representación incompleta o no del todo)",
-              1: "1 - Inicial (No es clara y presenta muchos errores)",
+              2: (
+                  "2 - Básico: La figura es muy básica con representación"
+                  " incompleta."
+              ),
+              1: (
+                  "1 - Inicial: La figura no es clara y presenta muchos"
+                  " errores."
+              ),
           }[x],
-          horizontal=True,
           key="mat_c1",
       )
       obs1 = st.text_area(
-          "Observaciones para Construcción y Representación:",
-          key="obs_mat1",
-          height=70,
+          "Observaciones / Justificación:", key="obs_mat1", height=70
       )
 
-      st.divider()
-
+    with st.container(border=True):
       st.markdown(
-          "**2. Diseño del Problema Matemático e Interdisciplinariedad**"
-          " *(Ponderación 30%)*"
+          "#### 2. Diseño del Problema Matemático e Interdisciplinariedad"
+          " (30%)"
       )
       c2 = st.radio(
-          "Nivel:",
+          "Seleccione el Nivel Alcanzado:",
           [5, 4, 3, 2, 1],
           format_func=lambda x: {
               5: (
-                  "5 - Destacado (Problema original, contextualizado y excelente"
-                  " integración)"
+                  "5 - Destacado: Problema original, explícito y de integración"
+                  " impecable."
               ),
               4: (
-                  "4 - Avanzado (Bien planteado, coherente y adecuada"
-                  " adecuación)"
+                  "4 - Avanzado: Situación problemática bien planteada con"
+                  " coherencia."
               ),
-              3: "3 - Satisfactorio (Aceptable, aunque la figura no sea central)",
+              3: (
+                  "3 - Satisfactorio: El problema es correcto aunque la figura"
+                  " no sea central."
+              ),
               2: (
-                  "2 - Básico (Inconsistencias en el desarrollo / difícil"
-                  " de asociar)"
+                  "2 - Básico: El problema presenta inconsistencias en su"
+                  " desarrollo."
               ),
               1: (
-                  "1 - Inicial (No logra contextualizar en una situación"
-                  " problemática)"
+                  "1 - Inicial: No logra contextualizar en una situación"
+                  " problemática."
               ),
           }[x],
-          horizontal=True,
           key="mat_c2",
       )
       obs2 = st.text_area(
-          "Observaciones para Diseño del Problema:",
-          key="obs_mat2",
-          height=70,
+          "Observaciones / Justificación:", key="obs_mat2", height=70
       )
 
-      st.divider()
-
+    with st.container(border=True):
       st.markdown(
-          "**3. Resolución y Justificación del Problema** *(Ponderación 30%)*"
+          "#### 3. Resolución y Justificación del Problema (30%)"
       )
       c3 = st.radio(
-          "Nivel:",
+          "Seleccione el Nivel Alcanzado:",
           [5, 4, 3, 2, 1],
           format_func=lambda x: {
               5: (
-                  "5 - Destacado (Desarrollo impecable, procedimientos"
-                  " rigurosos y justificando cada paso)"
+                  "5 - Destacado: Procedimiento impecable, utilizando datos y"
+                  " justificando cada paso."
               ),
               4: (
-                  "4 - Avanzado (Aplica procedimiento correcto y presenta"
-                  " justificación)"
+                  "4 - Avanzado: Aplica el procedimiento correcto y presenta"
+                  " justificación sólida."
               ),
-              3: "3 - Satisfactorio (Planteo correcto con algunas imprecisiones)",
-              2: "2 - Básico (Reconoce datos pero presenta problemas al plantear)",
-              1: "1 - Inicial (No reconoce los datos necesarios)",
+              3: (
+                  "3 - Satisfactorio: El planteo es correcto pero con algunas"
+                  " imprecisiones."
+              ),
+              2: (
+                  "2 - Básico: Reconoce datos pero presenta problemas al"
+                  " plantear el problema."
+              ),
+              1: (
+                  "1 - Inicial: No reconoce los datos necesarios para poder"
+                  " plantear la situación."
+              ),
           }[x],
-          horizontal=True,
           key="mat_c3",
       )
       obs3 = st.text_area(
-          "Observaciones para Resolución y Justificación:",
-          key="obs_mat3",
-          height=70,
+          "Observaciones / Justificación:", key="obs_mat3", height=70
       )
 
-      st.divider()
-
-      st.markdown(
-          "**4. Presentación y Comunicación** *(Ponderación 20%)*"
-      )
+    with st.container(border=True):
+      st.markdown("#### 4. Presentación y Comunicación (20%)")
       c4 = st.radio(
-          "Nivel:",
+          "Seleccione el Nivel Alcanzado:",
           [5, 4, 3, 2, 1],
           format_func=lambda x: {
-              5: "5 - Destacado (Gran precisión, claridad y uso del lenguaje)",
-              4: "4 - Avanzado (Utiliza forma correcta y formal, cumple bien)",
-              3: (
-                  "3 - Satisfactorio (Comprensible, cumple con la consigna"
-                  " justa)"
+              5: (
+                  "5 - Destacado: La utilización del lenguaje presenta gran"
+                  " precisión y soltura."
               ),
-              2: "2 - Básico (Lenguaje informal / impreciso)",
-              1: "1 - Inicial (Es desorganizada / no cumple pautas)",
+              4: (
+                  "4 - Avanzado: Utiliza de forma correcta y formal el"
+                  " lenguaje técnico."
+              ),
+              3: (
+                  "3 - Satisfactorio: Exposición comprensible, cumple con la"
+                  " consigna."
+              ),
+              2: (
+                  "2 - Básico: Utiliza lenguaje informal o impreciso en su"
+                  " explicación."
+              ),
+              1: (
+                  "1 - Inicial: La presentación es desorganizada y no cumple"
+                  " pautas."
+              ),
           }[x],
-          horizontal=True,
           key="mat_c4",
       )
       obs4 = st.text_area(
-          "Observaciones para Presentación y Comunicación:",
-          key="obs_mat4",
-          height=70,
+          "Observaciones / Justificación:", key="obs_mat4", height=70
       )
 
     promedio_calculado = round(
@@ -468,17 +545,19 @@ if opcion == "Cargar Evaluación":
 
   else:
     with st.container(border=True):
-      c1 = st.radio("Criterio 1", [1, 2, 3, 4], horizontal=True, key="gen_c1")
+      c1 = st.radio("Criterio 1", [1, 2, 3, 4], key="gen_c1")
       obs1 = st.text_area(
           "Observaciones Criterio 1:", key="obs_gen1", height=70
       )
-      st.divider()
-      c2 = st.radio("Criterio 2", [1, 2, 3, 4], horizontal=True, key="gen_c2")
+
+    with st.container(border=True):
+      c2 = st.radio("Criterio 2", [1, 2, 3, 4], key="gen_c2")
       obs2 = st.text_area(
           "Observaciones Criterio 2:", key="obs_gen2", height=70
       )
-      st.divider()
-      c3 = st.radio("Criterio 3", [1, 2, 3, 4], horizontal=True, key="gen_c3")
+
+    with st.container(border=True):
+      c3 = st.radio("Criterio 3", [1, 2, 3, 4], key="gen_c3")
       obs3 = st.text_area(
           "Observaciones Criterio 3:", key="obs_gen3", height=70
       )
@@ -520,7 +599,7 @@ if opcion == "Cargar Evaluación":
         st.error("⚠️ Error de conexión al guardar la evaluación.")
 
 # ---------------------------------------------------------
-# 2. GENERADOR DE CÓDIGOS PARA DUPLAS (6 DÍGITOS ALFANUMÉRICOS + GARANTÍA DE UNICIDAD)
+# 2. GENERADOR DE CÓDIGOS PARA DUPLAS (UNIK CÓDIGOS)
 # ---------------------------------------------------------
 elif opcion == "Generar Códigos Únicos":
   st.header("Generador de Códigos para Duplas")
@@ -710,13 +789,11 @@ elif opcion == "Generar Códigos Únicos":
               "materia": materia_nombre,
               "inscripcion_desafio": inscripcion_consolidada,
               "nivel_dupla": nivel_consolidado,
-              # Integrante 1
               "dni1": dni1,
               "estudiante1": nom1,
               "escuela1": esc1,
               "email1": mail1,
               "puntaje1": punt1,
-              # Integrante 2
               "dni2": dni2,
               "estudiante2": nom2,
               "escuela2": esc2,
