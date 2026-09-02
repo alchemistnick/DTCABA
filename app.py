@@ -18,50 +18,109 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------------
-# ESTILOS Y ORDENAMIENTO VISUAL
+# ESTILOS ADAPTABLES (MODO CLARO Y MODO OSCURO)
 # ---------------------------------------------------------
 st.markdown(
     """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap');
-    html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+    
+    html, body, [class*="css"] { 
+        font-family: 'Inter', sans-serif; 
+    }
+
+    /* Variables base */
     :root {
         --primary: #4F46E5;
         --primary-dark: #3730A3;
-        --bg-app: linear-gradient(180deg, #F5F6FB 0%, #EEF1FA 100%);
-        --bg-card: #FFFFFF;
-        --border-color: #E5E7EB;
-        --text-main: #1F2937;
+        --header-bg: linear-gradient(135deg, #4F46E5 0%, #312E81 100%);
+        --card-bg: #FFFFFF;
+        --card-border: #E5E7EB;
+        --text-color: #1F2937;
+        --subtext-color: #4B5563;
     }
-    .stApp { background: var(--bg-app) !important; }
+
+    /* Adaptación automática a MODO OSCURO */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --primary: #6366F1;
+            --primary-dark: #4F46E5;
+            --header-bg: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+            --card-bg: #1E293B;
+            --card-border: #334155;
+            --text-color: #F9FAFB;
+            --subtext-color: #CBD5E1;
+        }
+    }
+
+    /* Encabezado Principal */
     .app-header {
-        background: linear-gradient(135deg, var(--primary) 0%, #312E81 100%);
-        padding: 2rem 1.5rem; border-radius: 20px; margin-bottom: 2rem; color: white; text-align: center;
+        background: var(--header-bg);
+        padding: 2rem 1.5rem; 
+        border-radius: 20px; 
+        margin-bottom: 2rem; 
+        color: #FFFFFF !important; 
+        text-align: center;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
-    .app-header h1 { font-family: 'Poppins', sans-serif; font-size: 2.5rem; font-weight: 800; margin: 0; color: #FFFFFF !important; }
-    .app-header p { margin: 0.2rem 0 0 0; color: #E0E7FF !important; }
+    .app-header h1 { 
+        font-family: 'Poppins', sans-serif; 
+        font-size: 2.5rem; 
+        font-weight: 800; 
+        margin: 0; 
+        color: #FFFFFF !important; 
+    }
+    .app-header p { 
+        margin: 0.2rem 0 0 0; 
+        color: #E0E7FF !important; 
+    }
     
-    /* Contenedores ordenados */
+    /* Contenedores de Rúbricas y Cuadrantes */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        background: #FFFFFF !important;
+        background-color: var(--card-bg) !important;
         border-radius: 16px;
-        border: 1px solid #E5E7EB !important;
+        border: 1px solid var(--card-border) !important;
         padding: 1.25rem;
         margin-bottom: 1rem;
     }
-    
-    .stRadio > label {
-        font-weight: 600 !important;
-        color: #374151 !important;
-        margin-bottom: 0.5rem;
+
+    /* Textos y Subtítulos dentro de tarjetas */
+    div[data-testid="stVerticalBlockBorderWrapper"] h4, 
+    div[data-testid="stVerticalBlockBorderWrapper"] p,
+    div[data-testid="stVerticalBlockBorderWrapper"] span {
+        color: var(--text-color) !important;
     }
 
-    .stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%) !important;
-        color: #FFFFFF !important; border: none; border-radius: 12px; padding: 0.65rem 1.5rem; font-weight: 600; width: 100%;
+    /* Opciones Radio Buttons */
+    .stRadio > label {
+        font-weight: 600 !important;
+        color: var(--text-color) !important;
+        margin-bottom: 0.5rem;
     }
-    section[data-testid="stSidebar"] { background: #1E1B4B !important; }
-    section[data-testid="stSidebar"] * { color: #FFFFFF !important; }
+    
+    div[role="radiogroup"] label {
+        color: var(--subtext-color) !important;
+    }
+
+    /* Botón Primario */
+    .stButton > button[kind="primary"] {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%) !important;
+        color: #FFFFFF !important; 
+        border: none; 
+        border-radius: 12px; 
+        padding: 0.65rem 1.5rem; 
+        font-weight: 600; 
+        width: 100%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+
+    /* Sidebar (Barra Lateral) */
+    section[data-testid="stSidebar"] { 
+        background-color: #0F172A !important; 
+    }
+    section[data-testid="stSidebar"] * { 
+        color: #F8FAFC !important; 
+    }
     </style>
     """,
     unsafe_allow_html=True,
