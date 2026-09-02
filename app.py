@@ -4,7 +4,7 @@ import pandas as pd
 import requests
 import streamlit as st
 
-WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzVCPVD-AUIrLIhijqI4d1_1tuOvdMlONHO5CiJwPwMuYKLZ17m_Tcu8ZK8U3PXZp5Lmg/exec"
+WEBAPP_URL = "https://script.google.com/macros/s/AKfycby7Uhrab2kRig4C2yaC-RDF3Ge9eJQY0Tf1Mc5tzJBEaxtB3gjxk1f2L7SflsOMcBdAPA/exec"
 SHEET_ID_EVALS = "1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk"
 
 CARACTERES_SEGUROS = "BCDFGHJKLMNPQRSTVWXYZ0123456789"
@@ -24,7 +24,6 @@ st.markdown(
     """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap');
-
     html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     :root {
         --primary: #4F46E5;
@@ -86,20 +85,20 @@ def leer_pestana(sheet_id, nombre_pestana):
     return pd.DataFrame()
 
 
-def buscar_estudiante_en_padron(dni):
+def buscar_estudiantes_por_dni(dni):
   try:
     dni_limpio = str(dni).strip().replace(".", "").replace(" ", "")
     if not dni_limpio:
-      return None
+      return []
     payload = {"action": "buscar_dni", "dni": dni_limpio}
     res = requests.post(WEBAPP_URL, json=payload, timeout=20)
     if res.status_code == 200:
       data = res.json()
-      if data.get("status") == "success" and data.get("coincidencias"):
-        return data.get("coincidencias")[0]
+      if data.get("status") == "success":
+        return data.get("coincidencias", [])
   except Exception:
     pass
-  return None
+  return []
 
 
 # ---------------------------------------------------------
@@ -200,7 +199,7 @@ if opcion == "Cargar Evaluación":
         st.error("⚠️ Error de conexión al guardar la evaluación.")
 
 # ---------------------------------------------------------
-# 2. GENERADOR DE CÓDIGOS PARA DUPLAS (CON ESCUELA Y NIVEL)
+# 2. GENERADOR DE CÓDIGOS PARA DUPLAS (CON DETECCIÓN EXACTA DE ENCABEZADOS)
 # ---------------------------------------------------------
 elif opcion == "Generar Códigos Únicos":
   st.header("Generador de Códigos para Duplas")
@@ -209,17 +208,9 @@ elif opcion == "Generar Códigos Únicos":
   if clave == ADMIN_PASSWORD:
     st.success("🔓 Acceso habilitado.")
 
-    col_mat, col_niv = st.columns(2)
-    with col_mat:
-      prefijo = st.selectbox(
-          "Materia de Evaluación", ["MAT", "LEN", "TDR1", "TDR2"]
-      )
-    with col_niv:
-      nivel_dupla = st.selectbox(
-          "Nivel / Categoría de la Dupla",
-          ["Nivel 1", "Nivel 2", "Ciclo Básico", "Ciclo Superior"],
-      )
-
+    prefijo = st.selectbox(
+        "Materia de Evaluación", ["MAT", "LEN", "TDR1", "TDR2"]
+    )
     st.divider()
 
     col_m1, col_m2 = st.columns(2)
@@ -233,21 +224,59 @@ elif opcion == "Generar Códigos Únicos":
           .replace(".", "")
       )
 
-      n1_def, esc1_def, mail1_def, punt1_def = "", "", "", "N/A"
+      n1_def, esc1_def, mail1_def, punt1_def, niv1_def, insc1_def = (
+          "",
+          "",
+          "",
+          "N/A",
+          "N/A",
+          "N/A",
+      )
+
       if dni1:
-        res1 = buscar_estudiante_en_padron(dni1)
-        if res1:
+        coincidencias1 = buscar_estudiantes_por_dni(dni1)
+
+        if len(coincidencias1) == 1:
+          c = coincidencias1[0]
           st.success("✅ Encontrado en padrón")
-          n1_def = res1.get("nombre", "")
-          esc1_def = res1.get("escuela", "")
-          mail1_def = res1.get("email", "")
-          punt1_def = res1.get("puntaje_anterior", "N/A")
-          if res1.get("nivel") and res1.get("nivel") != "Nivel General":
-            st.caption(f"📌 **Nivel Padrón:** {res1.get('nivel')}")
+          n1_def, esc1_def, mail1_def, punt1_def, niv1_def, insc1_def = (
+              c.get("nombre", ""),
+              c.get("escuela", ""),
+              c.get("email", ""),
+              c.get("puntaje_anterior", "N/A"),
+              c.get("nivel", "N/A"),
+              c.get("inscripcion", "N/A"),
+          )
+        elif len(coincidencias1) > 1:
+          st.warning(
+              f"⚠️ DNI duplicado: {len(coincidencias1)} registros encontrados."
+          )
+          opciones1 = {
+              f"Reg {i+1} ({c.get('fecha','')}) - {c.get('escuela','')} -"
+              f" Desafío: {c.get('inscripcion','N/A')} - Nivel:"
+              f" {c.get('nivel','N/A')}": c
+              for i, c in enumerate(coincidencias1)
+          }
+          sel1 = st.selectbox(
+              "Seleccionar inscripción Integrante 1:",
+              options=list(opciones1.keys()),
+              key="sel1",
+          )
+          c = opciones1[sel1]
+          n1_def, esc1_def, mail1_def, punt1_def, niv1_def, insc1_def = (
+              c.get("nombre", ""),
+              c.get("escuela", ""),
+              c.get("email", ""),
+              c.get("puntaje_anterior", "N/A"),
+              c.get("nivel", "N/A"),
+              c.get("inscripcion", "N/A"),
+          )
 
       nom1 = st.text_input("Nombre y Apellido 1", value=n1_def)
-      esc1 = st.text_input("Escuela / Institución 1", value=esc1_def)
+      esc1 = st.text_input("Escuela Técnica Nº 1", value=esc1_def)
       mail1 = st.text_input("Correo Electrónico 1", value=mail1_def)
+      insc1 = st.text_input("Inscripción a Desafío de... (1)", value=str(insc1_def))
+      niv1 = st.text_input("Nivel de la dupla (1)", value=str(niv1_def))
       punt1 = st.text_input("Puntaje Institucional 1", value=str(punt1_def))
 
     # INTEGRANTE 2
@@ -259,21 +288,59 @@ elif opcion == "Generar Códigos Únicos":
           .replace(".", "")
       )
 
-      n2_def, esc2_def, mail2_def, punt2_def = "", "", "", "N/A"
+      n2_def, esc2_def, mail2_def, punt2_def, niv2_def, insc2_def = (
+          "",
+          "",
+          "",
+          "N/A",
+          "N/A",
+          "N/A",
+      )
+
       if dni2:
-        res2 = buscar_estudiante_en_padron(dni2)
-        if res2:
+        coincidencias2 = buscar_estudiantes_por_dni(dni2)
+
+        if len(coincidencias2) == 1:
+          c = coincidencias2[0]
           st.success("✅ Encontrado en padrón")
-          n2_def = res2.get("nombre", "")
-          esc2_def = res2.get("escuela", "")
-          mail2_def = res2.get("email", "")
-          punt2_def = res2.get("puntaje_anterior", "N/A")
-          if res2.get("nivel") and res2.get("nivel") != "Nivel General":
-            st.caption(f"📌 **Nivel Padrón:** {res2.get('nivel')}")
+          n2_def, esc2_def, mail2_def, punt2_def, niv2_def, insc2_def = (
+              c.get("nombre", ""),
+              c.get("escuela", ""),
+              c.get("email", ""),
+              c.get("puntaje_anterior", "N/A"),
+              c.get("nivel", "N/A"),
+              c.get("inscripcion", "N/A"),
+          )
+        elif len(coincidencias2) > 1:
+          st.warning(
+              f"⚠️ DNI duplicado: {len(coincidencias2)} registros encontrados."
+          )
+          opciones2 = {
+              f"Reg {i+1} ({c.get('fecha','')}) - {c.get('escuela','')} -"
+              f" Desafío: {c.get('inscripcion','N/A')} - Nivel:"
+              f" {c.get('nivel','N/A')}": c
+              for i, c in enumerate(coincidencias2)
+          }
+          sel2 = st.selectbox(
+              "Seleccionar inscripción Integrante 2:",
+              options=list(opciones2.keys()),
+              key="sel2",
+          )
+          c = opciones2[sel2]
+          n2_def, esc2_def, mail2_def, punt2_def, niv2_def, insc2_def = (
+              c.get("nombre", ""),
+              c.get("escuela", ""),
+              c.get("email", ""),
+              c.get("puntaje_anterior", "N/A"),
+              c.get("nivel", "N/A"),
+              c.get("inscripcion", "N/A"),
+          )
 
       nom2 = st.text_input("Nombre y Apellido 2", value=n2_def)
-      esc2 = st.text_input("Escuela / Institución 2", value=esc2_def)
+      esc2 = st.text_input("Escuela Técnica Nº 2", value=esc2_def)
       mail2 = st.text_input("Correo Electrónico 2", value=mail2_def)
+      insc2 = st.text_input("Inscripción a Desafío de... (2)", value=str(insc2_def))
+      niv2 = st.text_input("Nivel de la dupla (2)", value=str(niv2_def))
       punt2 = st.text_input("Puntaje Institucional 2", value=str(punt2_def))
 
     st.divider()
@@ -296,12 +363,16 @@ elif opcion == "Generar Códigos Únicos":
         }
         materia_nombre = mapa_materias.get(prefijo, prefijo)
 
+        nivel_consolidado = f"Int1: {niv1} | Int2: {niv2}" if niv1 != niv2 else niv1
+        inscripcion_consolidada = f"Int1: {insc1} | Int2: {insc2}" if insc1 != insc2 else insc1
+
         payload_codigo = {
             "action": "guardar_codigo_dupla",
             "fecha": fecha_actual,
             "codigo_unico": codigo_generado,
             "materia": materia_nombre,
-            "nivel_dupla": nivel_dupla,
+            "inscripcion_desafio": inscripcion_consolidada,
+            "nivel_dupla": nivel_consolidado,
             # Integrante 1
             "dni1": dni1,
             "estudiante1": nom1,
@@ -319,7 +390,8 @@ elif opcion == "Generar Códigos Únicos":
         try:
           requests.post(WEBAPP_URL, json=payload_codigo, timeout=10)
           st.success(
-              f"✅ Código Generado: **{codigo_generado}** ({nivel_dupla})"
+              f"✅ Código de Dupla Generado: **{codigo_generado}** (Nivel:"
+              f" {nivel_consolidado})"
           )
           st.code(codigo_generado, language="text")
           st.cache_data.clear()
@@ -328,6 +400,7 @@ elif opcion == "Generar Códigos Únicos":
 
   elif clave != "":
     st.error("❌ Contraseña incorrecta.")
+
 # ---------------------------------------------------------
 # 3. PANEL DE ADMINISTRACIÓN
 # ---------------------------------------------------------
