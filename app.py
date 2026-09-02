@@ -102,7 +102,7 @@ def buscar_estudiantes_por_dni(dni):
 
 
 # ---------------------------------------------------------
-# 1. CARGAR EVALUACIÓN (CON OBSERVACIONES POR CRITERIO)
+# 1. CARGAR EVALUACIÓN (LENGUA Y MATEMÁTICA CON OBSERVACIONES)
 # ---------------------------------------------------------
 if opcion == "Cargar Evaluación":
   st.header("Carga de Evaluación")
@@ -123,7 +123,7 @@ if opcion == "Cargar Evaluación":
       codigo_unico = (
           st.text_input(
               "Código Único del Examen",
-              placeholder="Ej: LEN2026X8K198",
+              placeholder="Ej: X8K198",
               key="eval_codigo",
           )
           .strip()
@@ -142,6 +142,9 @@ if opcion == "Cargar Evaluación":
 
   st.subheader(f"📋 Rúbrica de Evaluación: {materia}")
 
+  # ---------------------------------------------------------
+  # RÚBRICA DE LENGUA
+  # ---------------------------------------------------------
   if materia == "Lengua":
     st.markdown("### A. Comprender para transformar (40%)")
 
@@ -315,6 +318,152 @@ if opcion == "Cargar Evaluación":
         "obs6": obs6,
         "c7": c7,
         "obs7": obs7,
+    }
+
+  # ---------------------------------------------------------
+  # RÚBRICA DE MATEMÁTICA
+  # ---------------------------------------------------------
+  elif materia == "Matemática":
+    st.markdown(
+        "### 📐 Rúbrica de Matemática (Puntaje Total Ponderado: 100%)"
+    )
+
+    with st.container(border=True):
+      st.markdown(
+          "**1. Construcción y Representación de la Figura Tridimensional**"
+          " *(Ponderación 20%)*"
+      )
+      c1 = st.radio(
+          "Nivel:",
+          [5, 4, 3, 2, 1],
+          format_func=lambda x: {
+              5: (
+                  "5 - Destacado (Figura original, alta complejidad y excelente"
+                  " representación)"
+              ),
+              4: "4 - Avanzado (Original, de buena calidad y muestra idea clara)",
+              3: (
+                  "3 - Satisfactorio (Adecuada y realizada de manera correcta)"
+              ),
+              2: "2 - Básico (Muy básica, representación incompleta o no del todo)",
+              1: "1 - Inicial (No es clara y presenta muchos errores)",
+          }[x],
+          horizontal=True,
+          key="mat_c1",
+      )
+      obs1 = st.text_area(
+          "Observaciones para Construcción y Representación:",
+          key="obs_mat1",
+          height=70,
+      )
+
+      st.divider()
+
+      st.markdown(
+          "**2. Diseño del Problema Matemático e Interdisciplinariedad**"
+          " *(Ponderación 30%)*"
+      )
+      c2 = st.radio(
+          "Nivel:",
+          [5, 4, 3, 2, 1],
+          format_func=lambda x: {
+              5: (
+                  "5 - Destacado (Problema original, contextualizado y excelente"
+                  " integración)"
+              ),
+              4: (
+                  "4 - Avanzado (Bien planteado, coherente y adecuada"
+                  " adecuación)"
+              ),
+              3: "3 - Satisfactorio (Aceptable, aunque la figura no sea central)",
+              2: (
+                  "2 - Básico (Inconsistencias en el desarrollo / difícil"
+                  " de asociar)"
+              ),
+              1: (
+                  "1 - Inicial (No logra contextualizar en una situación"
+                  " problemática)"
+              ),
+          }[x],
+          horizontal=True,
+          key="mat_c2",
+      )
+      obs2 = st.text_area(
+          "Observaciones para Diseño del Problema:",
+          key="obs_mat2",
+          height=70,
+      )
+
+      st.divider()
+
+      st.markdown(
+          "**3. Resolución y Justificación del Problema** *(Ponderación 30%)*"
+      )
+      c3 = st.radio(
+          "Nivel:",
+          [5, 4, 3, 2, 1],
+          format_func=lambda x: {
+              5: (
+                  "5 - Destacado (Desarrollo impecable, procedimientos"
+                  " rigurosos y justificando cada paso)"
+              ),
+              4: (
+                  "4 - Avanzado (Aplica procedimiento correcto y presenta"
+                  " justificación)"
+              ),
+              3: "3 - Satisfactorio (Planteo correcto con algunas imprecisiones)",
+              2: "2 - Básico (Reconoce datos pero presenta problemas al plantear)",
+              1: "1 - Inicial (No reconoce los datos necesarios)",
+          }[x],
+          horizontal=True,
+          key="mat_c3",
+      )
+      obs3 = st.text_area(
+          "Observaciones para Resolución y Justificación:",
+          key="obs_mat3",
+          height=70,
+      )
+
+      st.divider()
+
+      st.markdown(
+          "**4. Presentación y Comunicación** *(Ponderación 20%)*"
+      )
+      c4 = st.radio(
+          "Nivel:",
+          [5, 4, 3, 2, 1],
+          format_func=lambda x: {
+              5: "5 - Destacado (Gran precisión, claridad y uso del lenguaje)",
+              4: "4 - Avanzado (Utiliza forma correcta y formal, cumple bien)",
+              3: (
+                  "3 - Satisfactorio (Comprensible, cumple con la consigna"
+                  " justa)"
+              ),
+              2: "2 - Básico (Lenguaje informal / impreciso)",
+              1: "1 - Inicial (Es desorganizada / no cumple pautas)",
+          }[x],
+          horizontal=True,
+          key="mat_c4",
+      )
+      obs4 = st.text_area(
+          "Observaciones para Presentación y Comunicación:",
+          key="obs_mat4",
+          height=70,
+      )
+
+    promedio_calculado = round(
+        (c1 * 0.20) + (c2 * 0.30) + (c3 * 0.30) + (c4 * 0.20), 2
+    )
+
+    eval_respuestas = {
+        "c1": c1,
+        "obs1": obs1,
+        "c2": c2,
+        "obs2": obs2,
+        "c3": c3,
+        "obs3": obs3,
+        "c4": c4,
+        "obs4": obs4,
     }
 
   else:
