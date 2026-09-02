@@ -172,9 +172,8 @@ def buscar_estudiantes_por_dni(dni):
     pass
   return []
 
-
 # ---------------------------------------------------------
-# 1. CARGAR EVALUACIÓN (CON DESCRIPCIÓN COMPLETA DE NIVEL SELECCIONADO)
+# 1. CARGAR EVALUACIÓN (CON PONDERACIÓN SOBRE 100 PUNTOS)
 # ---------------------------------------------------------
 if opcion == "Cargar Evaluación":
   st.header("Carga de Evaluación")
@@ -215,7 +214,7 @@ if opcion == "Cargar Evaluación":
   st.subheader(f"📋 Rúbrica de Evaluación: {materia}")
 
   # ---------------------------------------------------------
-  # RÚBRICA DE LENGUA
+  # RÚBRICA DE LENGUA (ESCALADO A 100 PTS)
   # ---------------------------------------------------------
   if materia == "Lengua":
     map_len1 = {
@@ -230,7 +229,6 @@ if opcion == "Cargar Evaluación":
         2: "2 - En desarrollo: Recupera solo parte de la información relevante.",
         1: "1 - Inicial: Pierde o modifica el sentido del texto fuente.",
     }
-
     map_len2 = {
         4: (
             "4 - Avanzado: El texto se transforma completamente en un relato"
@@ -249,7 +247,6 @@ if opcion == "Cargar Evaluación":
             " transformación."
         ),
     }
-
     map_len3 = {
         4: (
             "4 - Avanzado: Construye una voz en primera persona consistente y"
@@ -259,7 +256,6 @@ if opcion == "Cargar Evaluación":
         2: "2 - En desarrollo: La voz aparece de manera parcial o irregular.",
         1: "1 - Inicial: No logra construir una voz narrativa.",
     }
-
     map_len4 = {
         4: (
             "4 - Avanzado: Utiliza el lenguaje técnico para construir"
@@ -278,7 +274,6 @@ if opcion == "Cargar Evaluación":
             " técnico."
         ),
     }
-
     map_len5 = {
         4: (
             "4 - Avanzado: Integra descripciones, metáforas o comparaciones"
@@ -291,7 +286,6 @@ if opcion == "Cargar Evaluación":
         2: "2 - En desarrollo: Los recursos son escasos o poco pertinentes.",
         1: "1 - Inicial: No utiliza recursos literarios significativos.",
     }
-
     map_len6 = {
         4: (
             "4 - Avanzado: Presenta una secuencia clara, coherente y"
@@ -307,7 +301,6 @@ if opcion == "Cargar Evaluación":
         ),
         1: "1 - Inicial: La organización dificulta la comprensión.",
     }
-
     map_len7 = {
         4: "4 - Avanzado: Emplea correctamente la normativa ortográfica.",
         3: (
@@ -325,7 +318,6 @@ if opcion == "Cargar Evaluación":
     }
 
     st.markdown("### BLOQUE A: Comprender para transformar (40%)")
-
     with st.container(border=True):
       st.markdown("#### 1. Apropiación del texto fuente (20%)")
       c1 = st.radio(
@@ -351,7 +343,6 @@ if opcion == "Cargar Evaluación":
       )
 
     st.markdown("### BLOQUE B: Escribir para construir sentido (40%)")
-
     with st.container(border=True):
       st.markdown("#### 3. Voz narrativa")
       c3 = st.radio(
@@ -389,7 +380,6 @@ if opcion == "Cargar Evaluación":
       )
 
     st.markdown("### BLOQUE C: Comunicar con claridad (20%)")
-
     with st.container(border=True):
       st.markdown("#### 6. Organización del relato (10%)")
       c6 = st.radio(
@@ -414,16 +404,16 @@ if opcion == "Cargar Evaluación":
           "Observaciones / Justificación:", key="obs_c7", height=70
       )
 
-    promedio_calculado = round(
+    promedio_base4 = (
         (c1 * 0.20)
         + (c2 * 0.20)
         + (c3 * 0.1333)
         + (c4 * 0.1333)
         + (c5 * 0.1334)
         + (c6 * 0.10)
-        + (c7 * 0.10),
-        2,
+        + (c7 * 0.10)
     )
+    puntaje_100 = round((promedio_base4 / 4) * 100, 2)
 
     eval_respuestas = {
         "c1_desc": map_len1[c1],
@@ -443,7 +433,7 @@ if opcion == "Cargar Evaluación":
     }
 
   # ---------------------------------------------------------
-  # RÚBRICA DE MATEMÁTICA
+  # RÚBRICA DE MATEMÁTICA (ESCALADO A 100 PTS)
   # ---------------------------------------------------------
   elif materia == "Matemática":
     map_mat1 = {
@@ -462,7 +452,6 @@ if opcion == "Cargar Evaluación":
         2: "2 - Básico: La figura es muy básica con representación incompleta.",
         1: "1 - Inicial: La figura no es clara y presenta muchos errores.",
     }
-
     map_mat2 = {
         5: (
             "5 - Destacado: Problema original, explícito y de integración"
@@ -485,7 +474,6 @@ if opcion == "Cargar Evaluación":
             " problemática."
         ),
     }
-
     map_mat3 = {
         5: (
             "5 - Destacado: Procedimiento impecable, utilizando datos y"
@@ -508,7 +496,6 @@ if opcion == "Cargar Evaluación":
             " la situación."
         ),
     }
-
     map_mat4 = {
         5: (
             "5 - Destacado: La utilización del lenguaje presenta gran"
@@ -527,7 +514,6 @@ if opcion == "Cargar Evaluación":
     }
 
     st.markdown("### 📐 Criterios de Evaluación: Matemática")
-
     with st.container(border=True):
       st.markdown(
           "#### 1. Construcción y Representación de la Figura Tridimensional"
@@ -582,9 +568,8 @@ if opcion == "Cargar Evaluación":
           "Observaciones / Justificación:", key="obs_mat4", height=70
       )
 
-    promedio_calculado = round(
-        (c1 * 0.20) + (c2 * 0.30) + (c3 * 0.30) + (c4 * 0.20), 2
-    )
+    promedio_base5 = (c1 * 0.20) + (c2 * 0.30) + (c3 * 0.30) + (c4 * 0.20)
+    puntaje_100 = round((promedio_base5 / 5) * 100, 2)
 
     eval_respuestas = {
         "c1_desc": map_mat1[c1],
@@ -597,35 +582,85 @@ if opcion == "Cargar Evaluación":
         "obs4": obs4,
     }
 
+  # ---------------------------------------------------------
+  # RÚBRICAS DE TECNOLOGÍA DE LA REPRESENTACIÓN (TDR1 Y TDR2 - ESCALADO A 100 PTS)
+  # ---------------------------------------------------------
   else:
+    st.markdown(f"### ⚙️ Criterios de Evaluación: {materia}")
+
+    if "Nivel 1" in materia:
+      lbl1 = "1. Normalización Básica (35%)"
+      lbl2 = "2. Proyección y Visualización Ortogonal (35%)"
+      lbl3 = "3. Prolijidad y Calidad Gráfica (30%)"
+    else:
+      lbl1 = "1. Modelado y Vistas Complejas (35%)"
+      lbl2 = "2. Aplicación Avanzada de Normas (35%)"
+      lbl3 = "3. Interpretación y Resolución de Conjuntos (30%)"
+
     with st.container(border=True):
-      c1 = st.radio("Criterio 1", [1, 2, 3, 4], key="gen_c1")
+      st.markdown(f"#### {lbl1}")
+      c1 = st.radio(
+          "Nivel:",
+          [4, 3, 2, 1],
+          format_func=lambda x: {
+              4: "4 - Avanzado (Excelente aplicación)",
+              3: "3 - Satisfactorio (Correcta aplicación con mínimos detalles)",
+              2: "2 - En desarrollo (Aplicación parcial o incompleta)",
+              1: "1 - Inicial (Dificultades significativas)",
+          }[x],
+          key="tdr_c1",
+      )
       obs1 = st.text_area(
-          "Observaciones Criterio 1:", key="obs_gen1", height=70
+          "Observaciones / Justificación:", key="obs_tdr1", height=70
       )
 
     with st.container(border=True):
-      c2 = st.radio("Criterio 2", [1, 2, 3, 4], key="gen_c2")
+      st.markdown(f"#### {lbl2}")
+      c2 = st.radio(
+          "Nivel:",
+          [4, 3, 2, 1],
+          format_func=lambda x: {
+              4: "4 - Avanzado (Excelente proyección)",
+              3: "3 - Satisfactorio (Proyección adecuada)",
+              2: "2 - En desarrollo (Proyección parcial)",
+              1: "1 - Inicial (Errores en la proyección)",
+          }[x],
+          key="tdr_c2",
+      )
       obs2 = st.text_area(
-          "Observaciones Criterio 2:", key="obs_gen2", height=70
+          "Observaciones / Justificación:", key="obs_tdr2", height=70
       )
 
     with st.container(border=True):
-      c3 = st.radio("Criterio 3", [1, 2, 3, 4], key="gen_c3")
+      st.markdown(f"#### {lbl3}")
+      c3 = st.radio(
+          "Nivel:",
+          [4, 3, 2, 1],
+          format_func=lambda x: {
+              4: "4 - Avanzado (Alta calidad y prolijidad)",
+              3: "3 - Satisfactorio (Prolijidad adecuada)",
+              2: "2 - En desarrollo (Prolijidad mejorable)",
+              1: "1 - Inicial (Baja calidad gráfica)",
+          }[x],
+          key="tdr_c3",
+      )
       obs3 = st.text_area(
-          "Observaciones Criterio 3:", key="obs_gen3", height=70
+          "Observaciones / Justificación:", key="obs_tdr3", height=70
       )
 
-    promedio_calculado = round((c1 + c2 + c3) / 3, 2)
+    promedio_base4 = (c1 * 0.35) + (c2 * 0.35) + (c3 * 0.30)
+    puntaje_100 = round((promedio_base4 / 4) * 100, 2)
+
     eval_respuestas = {
-        "c1_desc": f"Nivel {c1}",
+        "c1_desc": f"Nivel {c1} - {lbl1}",
         "obs1": obs1,
-        "c2_desc": f"Nivel {c2}",
+        "c2_desc": f"Nivel {c2} - {lbl2}",
         "obs2": obs2,
-        "c3_desc": f"Nivel {c3}",
+        "c3_desc": f"Nivel {c3} - {lbl3}",
         "obs3": obs3,
     }
 
+  st.metric(label="Puntaje Total Ponderado (sobre 100)", value=f"{puntaje_100} / 100 pts")
   st.divider()
 
   if st.button("💾 Guardar Evaluación", type="primary"):
@@ -639,14 +674,14 @@ if opcion == "Cargar Evaluación":
           "materia": materia,
           "evaluador_id": dni_evaluador,
           "evaluador_nombre": f"Evaluador DNI {dni_evaluador}",
-          "promedio": promedio_calculado,
+          "promedio": puntaje_100,  # Se envía el puntaje escalado a 100 a la columna Promedio
           "respuestas": eval_respuestas,
       }
       try:
         requests.post(WEBAPP_URL, json=payload, timeout=10)
         st.success(
-            f"✅ Evaluación guardada con éxito (Promedio:"
-            f" {promedio_calculado})!"
+            f"✅ Evaluación guardada con éxito (Puntaje Total: {puntaje_100} /"
+            " 100 pts)!"
         )
         st.cache_data.clear()
       except Exception:
