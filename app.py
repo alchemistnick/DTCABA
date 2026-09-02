@@ -200,7 +200,7 @@ if opcion == "Cargar Evaluación":
         st.error("⚠️ Error de conexión al guardar la evaluación.")
 
 # ---------------------------------------------------------
-# 2. GENERADOR DE CÓDIGOS PARA DUPLAS (BÚSQUEDA DOBLE)
+# 2. GENERADOR DE CÓDIGOS PARA DUPLAS (CON ESCUELA Y NIVEL)
 # ---------------------------------------------------------
 elif opcion == "Generar Códigos Únicos":
   st.header("Generador de Códigos para Duplas")
@@ -209,9 +209,17 @@ elif opcion == "Generar Códigos Únicos":
   if clave == ADMIN_PASSWORD:
     st.success("🔓 Acceso habilitado.")
 
-    prefijo = st.selectbox(
-        "Materia de Evaluación", ["MAT", "LEN", "TDR1", "TDR2"]
-    )
+    col_mat, col_niv = st.columns(2)
+    with col_mat:
+      prefijo = st.selectbox(
+          "Materia de Evaluación", ["MAT", "LEN", "TDR1", "TDR2"]
+      )
+    with col_niv:
+      nivel_dupla = st.selectbox(
+          "Nivel / Categoría de la Dupla",
+          ["Nivel 1", "Nivel 2", "Ciclo Básico", "Ciclo Superior"],
+      )
+
     st.divider()
 
     col_m1, col_m2 = st.columns(2)
@@ -234,9 +242,11 @@ elif opcion == "Generar Códigos Únicos":
           esc1_def = res1.get("escuela", "")
           mail1_def = res1.get("email", "")
           punt1_def = res1.get("puntaje_anterior", "N/A")
+          if res1.get("nivel") and res1.get("nivel") != "Nivel General":
+            st.caption(f"📌 **Nivel Padrón:** {res1.get('nivel')}")
 
       nom1 = st.text_input("Nombre y Apellido 1", value=n1_def)
-      esc1 = st.text_input("Escuela 1", value=esc1_def)
+      esc1 = st.text_input("Escuela / Institución 1", value=esc1_def)
       mail1 = st.text_input("Correo Electrónico 1", value=mail1_def)
       punt1 = st.text_input("Puntaje Institucional 1", value=str(punt1_def))
 
@@ -258,9 +268,11 @@ elif opcion == "Generar Códigos Únicos":
           esc2_def = res2.get("escuela", "")
           mail2_def = res2.get("email", "")
           punt2_def = res2.get("puntaje_anterior", "N/A")
+          if res2.get("nivel") and res2.get("nivel") != "Nivel General":
+            st.caption(f"📌 **Nivel Padrón:** {res2.get('nivel')}")
 
       nom2 = st.text_input("Nombre y Apellido 2", value=n2_def)
-      esc2 = st.text_input("Escuela 2", value=esc2_def)
+      esc2 = st.text_input("Escuela / Institución 2", value=esc2_def)
       mail2 = st.text_input("Correo Electrónico 2", value=mail2_def)
       punt2 = st.text_input("Puntaje Institucional 2", value=str(punt2_def))
 
@@ -289,6 +301,7 @@ elif opcion == "Generar Códigos Únicos":
             "fecha": fecha_actual,
             "codigo_unico": codigo_generado,
             "materia": materia_nombre,
+            "nivel_dupla": nivel_dupla,
             # Integrante 1
             "dni1": dni1,
             "estudiante1": nom1,
@@ -306,7 +319,7 @@ elif opcion == "Generar Códigos Únicos":
         try:
           requests.post(WEBAPP_URL, json=payload_codigo, timeout=10)
           st.success(
-              f"✅ Código de Dupla Generado: **{codigo_generado}**"
+              f"✅ Código Generado: **{codigo_generado}** ({nivel_dupla})"
           )
           st.code(codigo_generado, language="text")
           st.cache_data.clear()
@@ -315,7 +328,6 @@ elif opcion == "Generar Códigos Únicos":
 
   elif clave != "":
     st.error("❌ Contraseña incorrecta.")
-
 # ---------------------------------------------------------
 # 3. PANEL DE ADMINISTRACIÓN
 # ---------------------------------------------------------
