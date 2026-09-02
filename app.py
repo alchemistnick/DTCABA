@@ -174,7 +174,7 @@ def buscar_estudiantes_por_dni(dni):
 
 
 # ---------------------------------------------------------
-# 1. CARGAR EVALUACIÓN (RÚBRICAS ORDENADAS Y ESTRUCTURADAS)
+# 1. CARGAR EVALUACIÓN (CON DESCRIPCIÓN COMPLETA DE NIVEL SELECCIONADO)
 # ---------------------------------------------------------
 if opcion == "Cargar Evaluación":
   st.header("Carga de Evaluación")
@@ -215,30 +215,123 @@ if opcion == "Cargar Evaluación":
   st.subheader(f"📋 Rúbrica de Evaluación: {materia}")
 
   # ---------------------------------------------------------
-  # RÚBRICA DE LENGUA (ORDENADA POR BLOQUES Y CRITERIOS)
+  # RÚBRICA DE LENGUA
   # ---------------------------------------------------------
   if materia == "Lengua":
+    map_len1 = {
+        4: (
+            "4 - Avanzado: Conserva e integra el sentido central del texto"
+            " técnico."
+        ),
+        3: (
+            "3 - Satisfactorio: Conserva ideas principales con pequeñas"
+            " simplificaciones."
+        ),
+        2: "2 - En desarrollo: Recupera solo parte de la información relevante.",
+        1: "1 - Inicial: Pierde o modifica el sentido del texto fuente.",
+    }
+
+    map_len2 = {
+        4: (
+            "4 - Avanzado: El texto se transforma completamente en un relato"
+            " literario."
+        ),
+        3: (
+            "3 - Satisfactorio: Predomina el relato aunque mantiene rasgos"
+            " expositivos."
+        ),
+        2: (
+            "2 - En desarrollo: Alterna explicación y narración sin"
+            " integrarlas."
+        ),
+        1: (
+            "1 - Inicial: Predomina el texto expositivo o no logra la"
+            " transformación."
+        ),
+    }
+
+    map_len3 = {
+        4: (
+            "4 - Avanzado: Construye una voz en primera persona consistente y"
+            " verosímil."
+        ),
+        3: "3 - Satisfactorio: La voz se sostiene con algunas inconsistencias.",
+        2: "2 - En desarrollo: La voz aparece de manera parcial o irregular.",
+        1: "1 - Inicial: No logra construir una voz narrativa.",
+    }
+
+    map_len4 = {
+        4: (
+            "4 - Avanzado: Utiliza el lenguaje técnico para construir"
+            " experiencias y emociones."
+        ),
+        3: (
+            "3 - Satisfactorio: Integra el vocabulario técnico de manera"
+            " pertinente."
+        ),
+        2: (
+            "2 - En desarrollo: El lenguaje técnico aparece de forma aislada o"
+            " forzada."
+        ),
+        1: (
+            "1 - Inicial: No incorpora o utiliza incorrectamente el lenguaje"
+            " técnico."
+        ),
+    }
+
+    map_len5 = {
+        4: (
+            "4 - Avanzado: Integra descripciones, metáforas o comparaciones"
+            " enriquecedoras."
+        ),
+        3: (
+            "3 - Satisfactorio: Utiliza algunos recursos expresivos"
+            " adecuados."
+        ),
+        2: "2 - En desarrollo: Los recursos son escasos o poco pertinentes.",
+        1: "1 - Inicial: No utiliza recursos literarios significativos.",
+    }
+
+    map_len6 = {
+        4: (
+            "4 - Avanzado: Presenta una secuencia clara, coherente y"
+            " cohesionada."
+        ),
+        3: (
+            "3 - Satisfactorio: El relato es comprensible con pequeñas"
+            " dificultades."
+        ),
+        2: (
+            "2 - En desarrollo: La organización presenta reiteraciones o"
+            " saltos."
+        ),
+        1: "1 - Inicial: La organización dificulta la comprensión.",
+    }
+
+    map_len7 = {
+        4: "4 - Avanzado: Emplea correctamente la normativa ortográfica.",
+        3: (
+            "3 - Satisfactorio: Presenta pocos errores que no dificultan la"
+            " lectura."
+        ),
+        2: (
+            "2 - En desarrollo: Presenta errores que dificultan la lectura en"
+            " parte."
+        ),
+        1: (
+            "1 - Inicial: Los errores afectan significativamente la"
+            " comprensión."
+        ),
+    }
+
     st.markdown("### BLOQUE A: Comprender para transformar (40%)")
 
     with st.container(border=True):
       st.markdown("#### 1. Apropiación del texto fuente (20%)")
       c1 = st.radio(
-          "Seleccione el Nivel Alcanzado:",
+          "Nivel:",
           [4, 3, 2, 1],
-          format_func=lambda x: {
-              4: "4 - Avanzado: Conserva e integra el sentido central del texto técnico.",
-              3: (
-                  "3 - Satisfactorio: Conserva ideas principales con pequeñas"
-                  " simplificaciones."
-              ),
-              2: (
-                  "2 - En desarrollo: Recupera solo parte de la información"
-                  " relevante."
-              ),
-              1: (
-                  "1 - Inicial: Pierde o modifica el sentido del texto fuente."
-              ),
-          }[x],
+          format_func=lambda x: map_len1[x],
           key="len_c1",
       )
       obs1 = st.text_area(
@@ -248,26 +341,9 @@ if opcion == "Cargar Evaluación":
     with st.container(border=True):
       st.markdown("#### 2. Transformación del género (20%)")
       c2 = st.radio(
-          "Seleccione el Nivel Alcanzado:",
+          "Nivel:",
           [4, 3, 2, 1],
-          format_func=lambda x: {
-              4: (
-                  "4 - Avanzado: El texto se transforma completamente en un"
-                  " relato literario."
-              ),
-              3: (
-                  "3 - Satisfactorio: Predomina el relato aunque mantiene"
-                  " rasgos expositivos."
-              ),
-              2: (
-                  "2 - En desarrollo: Alterna explicación y narración sin"
-                  " integrarlas."
-              ),
-              1: (
-                  "1 - Inicial: Predomina el texto expositivo o no logra la"
-                  " transformación."
-              ),
-          }[x],
+          format_func=lambda x: map_len2[x],
           key="len_c2",
       )
       obs2 = st.text_area(
@@ -279,23 +355,9 @@ if opcion == "Cargar Evaluación":
     with st.container(border=True):
       st.markdown("#### 3. Voz narrativa")
       c3 = st.radio(
-          "Seleccione el Nivel Alcanzado:",
+          "Nivel:",
           [4, 3, 2, 1],
-          format_func=lambda x: {
-              4: (
-                  "4 - Avanzado: Construye una voz en primera persona"
-                  " consistente y verosímil."
-              ),
-              3: (
-                  "3 - Satisfactorio: La voz se sostiene con algunas"
-                  " inconsistencias."
-              ),
-              2: (
-                  "2 - En desarrollo: La voz aparece de manera parcial o"
-                  " irregular."
-              ),
-              1: "1 - Inicial: No logra construir una voz narrativa.",
-          }[x],
+          format_func=lambda x: map_len3[x],
           key="len_c3",
       )
       obs3 = st.text_area(
@@ -305,26 +367,9 @@ if opcion == "Cargar Evaluación":
     with st.container(border=True):
       st.markdown("#### 4. Resignificación del lenguaje técnico")
       c4 = st.radio(
-          "Seleccione el Nivel Alcanzado:",
+          "Nivel:",
           [4, 3, 2, 1],
-          format_func=lambda x: {
-              4: (
-                  "4 - Avanzado: Utiliza el lenguaje técnico para construir"
-                  " experiencias y emociones."
-              ),
-              3: (
-                  "3 - Satisfactorio: Integra el vocabulario técnico de manera"
-                  " pertinente."
-              ),
-              2: (
-                  "2 - En desarrollo: El lenguaje técnico aparece de forma"
-                  " aislada o forzada."
-              ),
-              1: (
-                  "1 - Inicial: No incorpora o utiliza incorrectamente el"
-                  " lenguaje técnico."
-              ),
-          }[x],
+          format_func=lambda x: map_len4[x],
           key="len_c4",
       )
       obs4 = st.text_area(
@@ -334,25 +379,9 @@ if opcion == "Cargar Evaluación":
     with st.container(border=True):
       st.markdown("#### 5. Construcción literaria")
       c5 = st.radio(
-          "Seleccione el Nivel Alcanzado:",
+          "Nivel:",
           [4, 3, 2, 1],
-          format_func=lambda x: {
-              4: (
-                  "4 - Avanzado: Integra descripciones, metáforas o"
-                  " comparaciones enriquecedoras."
-              ),
-              3: (
-                  "3 - Satisfactorio: Utiliza algunos recursos expresivos"
-                  " adecuados."
-              ),
-              2: (
-                  "2 - En desarrollo: Los recursos son escasos o poco"
-                  " pertinentes."
-              ),
-              1: (
-                  "1 - Inicial: No utiliza recursos literarios significativos."
-              ),
-          }[x],
+          format_func=lambda x: map_len5[x],
           key="len_c5",
       )
       obs5 = st.text_area(
@@ -364,23 +393,9 @@ if opcion == "Cargar Evaluación":
     with st.container(border=True):
       st.markdown("#### 6. Organización del relato (10%)")
       c6 = st.radio(
-          "Seleccione el Nivel Alcanzado:",
+          "Nivel:",
           [4, 3, 2, 1],
-          format_func=lambda x: {
-              4: (
-                  "4 - Avanzado: Presenta una secuencia clara, coherente y"
-                  " cohesionada."
-              ),
-              3: (
-                  "3 - Satisfactorio: El relato es comprensible con pequeñas"
-                  " dificultades."
-              ),
-              2: (
-                  "2 - En desarrollo: La organización presenta reiteraciones o"
-                  " saltos."
-              ),
-              1: "1 - Inicial: La organización dificulta la comprensión.",
-          }[x],
+          format_func=lambda x: map_len6[x],
           key="len_c6",
       )
       obs6 = st.text_area(
@@ -390,23 +405,9 @@ if opcion == "Cargar Evaluación":
     with st.container(border=True):
       st.markdown("#### 7. Normativa (10%)")
       c7 = st.radio(
-          "Seleccione el Nivel Alcanzado:",
+          "Nivel:",
           [4, 3, 2, 1],
-          format_func=lambda x: {
-              4: "4 - Avanzado: Emplea correctamente la normativa ortográfica.",
-              3: (
-                  "3 - Satisfactorio: Presenta pocos errores que no dificultan"
-                  " la lectura."
-              ),
-              2: (
-                  "2 - En desarrollo: Presenta errores que dificultan la"
-                  " lectura en parte."
-              ),
-              1: (
-                  "1 - Inicial: Los errores afectan significativamente la"
-                  " comprensión."
-              ),
-          }[x],
+          format_func=lambda x: map_len7[x],
           key="len_c7",
       )
       obs7 = st.text_area(
@@ -425,26 +426,106 @@ if opcion == "Cargar Evaluación":
     )
 
     eval_respuestas = {
-        "c1": c1,
+        "c1_desc": map_len1[c1],
         "obs1": obs1,
-        "c2": c2,
+        "c2_desc": map_len2[c2],
         "obs2": obs2,
-        "c3": c3,
+        "c3_desc": map_len3[c3],
         "obs3": obs3,
-        "c4": c4,
+        "c4_desc": map_len4[c4],
         "obs4": obs4,
-        "c5": c5,
+        "c5_desc": map_len5[c5],
         "obs5": obs5,
-        "c6": c6,
+        "c6_desc": map_len6[c6],
         "obs6": obs6,
-        "c7": c7,
+        "c7_desc": map_len7[c7],
         "obs7": obs7,
     }
 
   # ---------------------------------------------------------
-  # RÚBRICA DE MATEMÁTICA (ORDENADA EN CONTENEDORES INDEPENDIENTES)
+  # RÚBRICA DE MATEMÁTICA
   # ---------------------------------------------------------
   elif materia == "Matemática":
+    map_mat1 = {
+        5: (
+            "5 - Destacado: Figura original y de alta complejidad con"
+            " excelente representación."
+        ),
+        4: (
+            "4 - Avanzado: Figura tridimensional bien construida, muestra"
+            " originalidad y calidad."
+        ),
+        3: (
+            "3 - Satisfactorio: La figura es adecuada y realizada de manera"
+            " correcta."
+        ),
+        2: "2 - Básico: La figura es muy básica con representación incompleta.",
+        1: "1 - Inicial: La figura no es clara y presenta muchos errores.",
+    }
+
+    map_mat2 = {
+        5: (
+            "5 - Destacado: Problema original, explícito y de integración"
+            " impecable."
+        ),
+        4: (
+            "4 - Avanzado: Situación problemática bien planteada con"
+            " coherencia."
+        ),
+        3: (
+            "3 - Satisfactorio: El problema es correcto aunque la figura no"
+            " sea central."
+        ),
+        2: (
+            "2 - Básico: El problema presenta inconsistencias en su"
+            " desarrollo."
+        ),
+        1: (
+            "1 - Inicial: No logra contextualizar en una situación"
+            " problemática."
+        ),
+    }
+
+    map_mat3 = {
+        5: (
+            "5 - Destacado: Procedimiento impecable, utilizando datos y"
+            " justificando cada paso."
+        ),
+        4: (
+            "4 - Avanzado: Aplica el procedimiento correcto y presenta"
+            " justificación sólida."
+        ),
+        3: (
+            "3 - Satisfactorio: El planteo es correcto pero con algunas"
+            " imprecisiones."
+        ),
+        2: (
+            "2 - Básico: Reconoce datos pero presenta problemas al plantear el"
+            " problema."
+        ),
+        1: (
+            "1 - Inicial: No reconoce los datos necesarios para poder plantear"
+            " la situación."
+        ),
+    }
+
+    map_mat4 = {
+        5: (
+            "5 - Destacado: La utilización del lenguaje presenta gran"
+            " precisión y soltura."
+        ),
+        4: (
+            "4 - Avanzado: Utiliza de forma correcta y formal el lenguaje"
+            " técnico."
+        ),
+        3: "3 - Satisfactorio: Exposición comprensible, cumple con la consigna.",
+        2: (
+            "2 - Básico: Utiliza lenguaje informal o impreciso en su"
+            " explicación."
+        ),
+        1: "1 - Inicial: La presentación es desorganizada y no cumple pautas.",
+    }
+
     st.markdown("### 📐 Criterios de Evaluación: Matemática")
 
     with st.container(border=True):
@@ -453,30 +534,9 @@ if opcion == "Cargar Evaluación":
           " (20%)"
       )
       c1 = st.radio(
-          "Seleccione el Nivel Alcanzado:",
+          "Nivel:",
           [5, 4, 3, 2, 1],
-          format_func=lambda x: {
-              5: (
-                  "5 - Destacado: Figura original y de alta complejidad con"
-                  " excelente representación."
-              ),
-              4: (
-                  "4 - Avanzado: Figura tridimensional bien construida,"
-                  " muestra originalidad y calidad."
-              ),
-              3: (
-                  "3 - Satisfactorio: La figura es adecuada y realizada de"
-                  " manera correcta."
-              ),
-              2: (
-                  "2 - Básico: La figura es muy básica con representación"
-                  " incompleta."
-              ),
-              1: (
-                  "1 - Inicial: La figura no es clara y presenta muchos"
-                  " errores."
-              ),
-          }[x],
+          format_func=lambda x: map_mat1[x],
           key="mat_c1",
       )
       obs1 = st.text_area(
@@ -489,30 +549,9 @@ if opcion == "Cargar Evaluación":
           " (30%)"
       )
       c2 = st.radio(
-          "Seleccione el Nivel Alcanzado:",
+          "Nivel:",
           [5, 4, 3, 2, 1],
-          format_func=lambda x: {
-              5: (
-                  "5 - Destacado: Problema original, explícito y de integración"
-                  " impecable."
-              ),
-              4: (
-                  "4 - Avanzado: Situación problemática bien planteada con"
-                  " coherencia."
-              ),
-              3: (
-                  "3 - Satisfactorio: El problema es correcto aunque la figura"
-                  " no sea central."
-              ),
-              2: (
-                  "2 - Básico: El problema presenta inconsistencias en su"
-                  " desarrollo."
-              ),
-              1: (
-                  "1 - Inicial: No logra contextualizar en una situación"
-                  " problemática."
-              ),
-          }[x],
+          format_func=lambda x: map_mat2[x],
           key="mat_c2",
       )
       obs2 = st.text_area(
@@ -520,34 +559,11 @@ if opcion == "Cargar Evaluación":
       )
 
     with st.container(border=True):
-      st.markdown(
-          "#### 3. Resolución y Justificación del Problema (30%)"
-      )
+      st.markdown("#### 3. Resolución y Justificación del Problema (30%)")
       c3 = st.radio(
-          "Seleccione el Nivel Alcanzado:",
+          "Nivel:",
           [5, 4, 3, 2, 1],
-          format_func=lambda x: {
-              5: (
-                  "5 - Destacado: Procedimiento impecable, utilizando datos y"
-                  " justificando cada paso."
-              ),
-              4: (
-                  "4 - Avanzado: Aplica el procedimiento correcto y presenta"
-                  " justificación sólida."
-              ),
-              3: (
-                  "3 - Satisfactorio: El planteo es correcto pero con algunas"
-                  " imprecisiones."
-              ),
-              2: (
-                  "2 - Básico: Reconoce datos pero presenta problemas al"
-                  " plantear el problema."
-              ),
-              1: (
-                  "1 - Inicial: No reconoce los datos necesarios para poder"
-                  " plantear la situación."
-              ),
-          }[x],
+          format_func=lambda x: map_mat3[x],
           key="mat_c3",
       )
       obs3 = st.text_area(
@@ -557,30 +573,9 @@ if opcion == "Cargar Evaluación":
     with st.container(border=True):
       st.markdown("#### 4. Presentación y Comunicación (20%)")
       c4 = st.radio(
-          "Seleccione el Nivel Alcanzado:",
+          "Nivel:",
           [5, 4, 3, 2, 1],
-          format_func=lambda x: {
-              5: (
-                  "5 - Destacado: La utilización del lenguaje presenta gran"
-                  " precisión y soltura."
-              ),
-              4: (
-                  "4 - Avanzado: Utiliza de forma correcta y formal el"
-                  " lenguaje técnico."
-              ),
-              3: (
-                  "3 - Satisfactorio: Exposición comprensible, cumple con la"
-                  " consigna."
-              ),
-              2: (
-                  "2 - Básico: Utiliza lenguaje informal o impreciso en su"
-                  " explicación."
-              ),
-              1: (
-                  "1 - Inicial: La presentación es desorganizada y no cumple"
-                  " pautas."
-              ),
-          }[x],
+          format_func=lambda x: map_mat4[x],
           key="mat_c4",
       )
       obs4 = st.text_area(
@@ -592,13 +587,13 @@ if opcion == "Cargar Evaluación":
     )
 
     eval_respuestas = {
-        "c1": c1,
+        "c1_desc": map_mat1[c1],
         "obs1": obs1,
-        "c2": c2,
+        "c2_desc": map_mat2[c2],
         "obs2": obs2,
-        "c3": c3,
+        "c3_desc": map_mat3[c3],
         "obs3": obs3,
-        "c4": c4,
+        "c4_desc": map_mat4[c4],
         "obs4": obs4,
     }
 
@@ -623,11 +618,11 @@ if opcion == "Cargar Evaluación":
 
     promedio_calculado = round((c1 + c2 + c3) / 3, 2)
     eval_respuestas = {
-        "c1": c1,
+        "c1_desc": f"Nivel {c1}",
         "obs1": obs1,
-        "c2": c2,
+        "c2_desc": f"Nivel {c2}",
         "obs2": obs2,
-        "c3": c3,
+        "c3_desc": f"Nivel {c3}",
         "obs3": obs3,
     }
 
@@ -656,7 +651,6 @@ if opcion == "Cargar Evaluación":
         st.cache_data.clear()
       except Exception:
         st.error("⚠️ Error de conexión al guardar la evaluación.")
-
 # ---------------------------------------------------------
 # 2. GENERADOR DE CÓDIGOS PARA DUPLAS (UNIK CÓDIGOS)
 # ---------------------------------------------------------
