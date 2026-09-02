@@ -4,7 +4,7 @@ import pandas as pd
 import requests
 import streamlit as st
 
-WEBAPP_URL ="https://script.google.com/macros/s/AKfycbxzK-CwHkCjYhqKp4WYcIbJMvM7cLaeHn6u5jKclM1510KrA0HbN-JWnaFuY3t5Pws-MA/exec"
+WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzWbC7Icr9L6CxTUYUHaOvAvYGFH8VojioKIZ53YSEr1Cn6VaPzgSYHGLKEz9h39-oUSA/exec"
 SHEET_ID_EVALS = "1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk"
 
 CARACTERES_SEGUROS = "BCDFGHJKLMNPQRSTVWXYZ0123456789"
@@ -25,67 +25,31 @@ st.markdown(
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap');
 
-    html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
-    }
-
+    html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     :root {
         --primary: #4F46E5;
         --primary-dark: #3730A3;
         --bg-app: linear-gradient(180deg, #F5F6FB 0%, #EEF1FA 100%);
         --bg-card: #FFFFFF;
-        --bg-input: #F9FAFB;
         --border-color: #E5E7EB;
         --text-main: #1F2937;
     }
-
-    .stApp {
-        background: var(--bg-app) !important;
-    }
-
+    .stApp { background: var(--bg-app) !important; }
     .app-header {
         background: linear-gradient(135deg, var(--primary) 0%, #312E81 100%);
-        padding: 2rem 1.5rem;
-        border-radius: 20px;
-        margin-bottom: 2rem;
-        color: white;
-        text-align: center;
+        padding: 2rem 1.5rem; border-radius: 20px; margin-bottom: 2rem; color: white; text-align: center;
     }
-    .app-header h1 {
-        font-family: 'Poppins', sans-serif;
-        font-size: 2.5rem;
-        font-weight: 800;
-        margin: 0;
-        color: #FFFFFF !important;
-    }
-    .app-header p {
-        margin: 0.2rem 0 0 0;
-        color: #E0E7FF !important;
-    }
-
+    .app-header h1 { font-family: 'Poppins', sans-serif; font-size: 2.5rem; font-weight: 800; margin: 0; color: #FFFFFF !important; }
+    .app-header p { margin: 0.2rem 0 0 0; color: #E0E7FF !important; }
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        background: #FFFFFF !important;
-        border-radius: 16px;
-        border: 1px solid #E5E7EB !important;
-        padding: 1rem;
+        background: #FFFFFF !important; border-radius: 16px; border: 1px solid #E5E7EB !important; padding: 1rem;
     }
-
     .stButton > button[kind="primary"] {
         background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%) !important;
-        color: #FFFFFF !important;
-        border: none;
-        border-radius: 12px;
-        padding: 0.65rem 1.5rem;
-        font-weight: 600;
-        width: 100%;
+        color: #FFFFFF !important; border: none; border-radius: 12px; padding: 0.65rem 1.5rem; font-weight: 600; width: 100%;
     }
-
-    section[data-testid="stSidebar"] {
-        background: #1E1B4B !important;
-    }
-    section[data-testid="stSidebar"] * {
-        color: #FFFFFF !important;
-    }
+    section[data-testid="stSidebar"] { background: #1E1B4B !important; }
+    section[data-testid="stSidebar"] * { color: #FFFFFF !important; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -98,7 +62,7 @@ st.markdown(
     """
     <div class="app-header">
         <h1>📐 Desafíos Técnicos⚙️</h1>
-        <p>Plataforma de Evaluación y Gestión</p>
+        <p>Plataforma de Evaluación y Gestión de Duplas</p>
     </div>
     """,
     unsafe_allow_html=True,
@@ -122,25 +86,24 @@ def leer_pestana(sheet_id, nombre_pestana):
     return pd.DataFrame()
 
 
-def buscar_estudiantes_por_dni(dni_búsqueda):
+def buscar_estudiante_en_padron(dni):
   try:
-    dni_limpio = str(dni_búsqueda).strip().replace(".", "").replace(" ", "")
+    dni_limpio = str(dni).strip().replace(".", "").replace(" ", "")
+    if not dni_limpio:
+      return None
     payload = {"action": "buscar_dni", "dni": dni_limpio}
-    res = requests.post(WEBAPP_URL, json=payload, timeout=25)
+    res = requests.post(WEBAPP_URL, json=payload, timeout=20)
     if res.status_code == 200:
-      try:
-        data = res.json()
-        if data.get("status") == "success":
-          return data.get("coincidencias", [])
-      except Exception:
-        pass
+      data = res.json()
+      if data.get("status") == "success" and data.get("coincidencias"):
+        return data.get("coincidencias")[0]
   except Exception:
     pass
-  return []
+  return None
 
 
 # ---------------------------------------------------------
-# 1. CARGAR EVALUACIÓN (CON DNI DE EVALUADOR DIRECTO)
+# 1. CARGAR EVALUACIÓN
 # ---------------------------------------------------------
 if opcion == "Cargar Evaluación":
   st.header("Carga de Evaluación")
@@ -181,21 +144,29 @@ if opcion == "Cargar Evaluación":
   st.subheader(f"📋 Rúbrica: {materia}")
 
   if materia == "Matemática":
-    label_c1 = "Criterio 1: Planteo y Razonamiento"
-    label_c2 = "Criterio 2: Operatoria y Precisión"
-    label_c3 = "Criterio 3: Interpretación de Resultados"
+    label_c1, label_c2, label_c3 = (
+        "Criterio 1: Planteo y Razonamiento",
+        "Criterio 2: Operatoria y Precisión",
+        "Criterio 3: Interpretación de Resultados",
+    )
   elif materia == "Lengua":
-    label_c1 = "Criterio 1: Comprensión Lectora y Coherencia"
-    label_c2 = "Criterio 2: Cohesión y Estructuración"
-    label_c3 = "Criterio 3: Ortografía y Gramática"
+    label_c1, label_c2, label_c3 = (
+        "Criterio 1: Comprensión Lectora y Coherencia",
+        "Criterio 2: Cohesión y Estructuración",
+        "Criterio 3: Ortografía y Gramática",
+    )
   elif materia == "Tecnología de la Representación Nivel 1":
-    label_c1 = "Criterio 1: Normalización Básica"
-    label_c2 = "Criterio 2: Proyección Ortogonal"
-    label_c3 = "Criterio 3: Prolijidad y Calidad Gráfica"
+    label_c1, label_c2, label_c3 = (
+        "Criterio 1: Normalización Básica",
+        "Criterio 2: Proyección Ortogonal",
+        "Criterio 3: Prolijidad y Calidad Gráfica",
+    )
   else:
-    label_c1 = "Criterio 1: Modelado / Vistas Complejas"
-    label_c2 = "Criterio 2: Aplicación de Normas"
-    label_c3 = "Criterio 3: Resolución de Conjuntos"
+    label_c1, label_c2, label_c3 = (
+        "Criterio 1: Modelado / Vistas Complejas",
+        "Criterio 2: Aplicación de Normas",
+        "Criterio 3: Resolución de Conjuntos",
+    )
 
   with st.container(border=True):
     c1 = st.radio(label_c1, [1, 2, 3, 4], horizontal=True)
@@ -221,103 +192,85 @@ if opcion == "Cargar Evaluación":
           "c3": c3,
           "promedio": promedio,
       }
-
       try:
-        res = requests.post(WEBAPP_URL, json=payload, timeout=10)
-        st.success(
-            f"✅ Evaluación guardada con éxito para el examen **{codigo_unico}**!"
-        )
+        requests.post(WEBAPP_URL, json=payload, timeout=10)
+        st.success(f"✅ Evaluación guardada para el examen **{codigo_unico}**!")
         st.cache_data.clear()
       except Exception:
-        st.error(
-            "⚠️ No se pudo enviar el registro. Revisa la conexión e intenta"
-            " nuevamente."
-        )
+        st.error("⚠️ Error de conexión al guardar la evaluación.")
 
 # ---------------------------------------------------------
-# 2. GENERADOR DE CÓDIGOS CON BÚSQUEDA EN PADRÓN
+# 2. GENERADOR DE CÓDIGOS PARA DUPLAS (BÚSQUEDA DOBLE)
 # ---------------------------------------------------------
 elif opcion == "Generar Códigos Únicos":
-  st.header("Generador de Códigos Únicos")
+  st.header("Generador de Códigos para Duplas")
   clave = st.text_input("Contraseña de Acceso", type="password")
 
   if clave == ADMIN_PASSWORD:
     st.success("🔓 Acceso habilitado.")
-    st.subheader("🔍 Búsqueda en Padrón de Encuentros Educativos")
 
-    dni_input = st.text_input(
-        "DNI del Estudiante (presione Enter para buscar)"
-    ).strip()
+    prefijo = st.selectbox(
+        "Materia de Evaluación", ["MAT", "LEN", "TDR1", "TDR2"]
+    )
+    st.divider()
 
-    nombre_defecto = ""
-    escuela_defecto = ""
-    puntaje_defecto = "N/A"
+    col_m1, col_m2 = st.columns(2)
 
-    if dni_input:
-      with st.spinner("Buscando DNI en el padrón..."):
-        coincidencias = buscar_estudiantes_por_dni(dni_input)
+    # INTEGRANTE 1
+    with col_m1:
+      st.subheader("👤 Integrante 1")
+      dni1 = (
+          st.text_input("DNI Integrante 1", key="dni1")
+          .strip()
+          .replace(".", "")
+      )
 
-      if len(coincidencias) == 1:
-        estudiante_sel = coincidencias[0]
-        nombre_defecto = estudiante_sel.get("nombre", "")
-        escuela_defecto = estudiante_sel.get("escuela", "")
-        puntaje_defecto = estudiante_sel.get("puntaje_anterior", "N/A")
+      n1_def, esc1_def, mail1_def, punt1_def = "", "", "", "N/A"
+      if dni1:
+        res1 = buscar_estudiante_en_padron(dni1)
+        if res1:
+          st.success("✅ Encontrado en padrón")
+          n1_def = res1.get("nombre", "")
+          esc1_def = res1.get("escuela", "")
+          mail1_def = res1.get("email", "")
+          punt1_def = res1.get("puntaje_anterior", "N/A")
 
-        st.info(
-            f"ℹ️ **Estudiante Encontrado:** {nombre_defecto} | **Escuela:**"
-            f" {escuela_defecto}"
-        )
-        col_m1, col_m2 = st.columns(2)
-        with col_m1:
-          if estudiante_sel.get("evento"):
-            st.caption(f"📌 **Inscripción:** {estudiante_sel['evento']}")
-        with col_m2:
-          st.metric(
-              label="Puntaje Instancia Institucional", value=puntaje_defecto
-          )
+      nom1 = st.text_input("Nombre y Apellido 1", value=n1_def)
+      esc1 = st.text_input("Escuela 1", value=esc1_def)
+      mail1 = st.text_input("Correo Electrónico 1", value=mail1_def)
+      punt1 = st.text_input("Puntaje Institucional 1", value=str(punt1_def))
 
-      elif len(coincidencias) > 1:
+    # INTEGRANTE 2
+    with col_m2:
+      st.subheader("👤 Integrante 2")
+      dni2 = (
+          st.text_input("DNI Integrante 2", key="dni2")
+          .strip()
+          .replace(".", "")
+      )
+
+      n2_def, esc2_def, mail2_def, punt2_def = "", "", "", "N/A"
+      if dni2:
+        res2 = buscar_estudiante_en_padron(dni2)
+        if res2:
+          st.success("✅ Encontrado en padrón")
+          n2_def = res2.get("nombre", "")
+          esc2_def = res2.get("escuela", "")
+          mail2_def = res2.get("email", "")
+          punt2_def = res2.get("puntaje_anterior", "N/A")
+
+      nom2 = st.text_input("Nombre y Apellido 2", value=n2_def)
+      esc2 = st.text_input("Escuela 2", value=esc2_def)
+      mail2 = st.text_input("Correo Electrónico 2", value=mail2_def)
+      punt2 = st.text_input("Puntaje Institucional 2", value=str(punt2_def))
+
+    st.divider()
+
+    if st.button("🎲 Generar Código de Dupla", type="primary"):
+      if not dni1 or not nom1 or not dni2 or not nom2:
         st.warning(
-            f"⚠️ Se encontraron **{len(coincidencias)} registros** para este"
-            " DNI."
+            "⚠️ Debes completar los datos de ambos integrantes de la dupla."
         )
-        opciones_map = {
-            f"Opción {i+1} - {c.get('nombre', '')} [{c.get('escuela', '')}] -"
-            f" Puntaje: {c.get('puntaje_anterior', 'N/A')}": c
-            for i, c in enumerate(coincidencias)
-        }
-        eleccion = st.selectbox(
-            "Seleccione el registro a utilizar:",
-            options=list(opciones_map.keys()),
-        )
-        estudiante_sel = opciones_map[eleccion]
-        nombre_defecto = estudiante_sel.get("nombre", "")
-        escuela_defecto = estudiante_sel.get("escuela", "")
-        puntaje_defecto = estudiante_sel.get("puntaje_anterior", "N/A")
-      else:
-        st.warning(
-            "⚠️ No se encontró el DNI en el padrón. Puedes completar los datos"
-            " manualmente."
-        )
-
-    with st.container(border=True):
-      col_a, col_b = st.columns(2)
-      with col_a:
-        dni_estudiante = st.text_input("DNI Estudiante", value=dni_input)
-        nombre_estudiante = st.text_input(
-            "Nombre y Apellido", value=nombre_defecto
-        )
-      with col_b:
-        escuela_estudiante = st.text_input(
-            "Escuela / Institución", value=escuela_defecto
-        )
-        prefijo = st.selectbox(
-            "Materia de Evaluación", ["MAT", "LEN", "TDR1", "TDR2"]
-        )
-
-    if st.button("🎲 Generar Código", type="primary"):
-      if not dni_estudiante or not nombre_estudiante or not escuela_estudiante:
-        st.warning("⚠️ Completa DNI, Nombre y Escuela para continuar.")
       else:
         aleatorio = "".join(random.choices(CARACTERES_SEGUROS, k=4))
         codigo_generado = f"{prefijo}-2026-{aleatorio}"
@@ -332,23 +285,33 @@ elif opcion == "Generar Códigos Únicos":
         materia_nombre = mapa_materias.get(prefijo, prefijo)
 
         payload_codigo = {
-            "action": "guardar_codigo",
+            "action": "guardar_codigo_dupla",
             "fecha": fecha_actual,
-            "dni": dni_estudiante,
             "codigo_unico": codigo_generado,
-            "estudiante": nombre_estudiante,
-            "escuela": escuela_estudiante,
             "materia": materia_nombre,
-            "puntaje_institucional": puntaje_defecto,
+            # Integrante 1
+            "dni1": dni1,
+            "estudiante1": nom1,
+            "escuela1": esc1,
+            "email1": mail1,
+            "puntaje1": punt1,
+            # Integrante 2
+            "dni2": dni2,
+            "estudiante2": nom2,
+            "escuela2": esc2,
+            "email2": mail2,
+            "puntaje2": punt2,
         }
 
         try:
           requests.post(WEBAPP_URL, json=payload_codigo, timeout=10)
-          st.success(f"✅ Código Generado: **{codigo_generado}**")
+          st.success(
+              f"✅ Código de Dupla Generado: **{codigo_generado}**"
+          )
           st.code(codigo_generado, language="text")
           st.cache_data.clear()
         except Exception:
-          st.error("Error al registrar el código en Google Sheets.")
+          st.error("Error al guardar el código en Google Sheets.")
 
   elif clave != "":
     st.error("❌ Contraseña incorrecta.")
