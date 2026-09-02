@@ -102,7 +102,7 @@ def buscar_estudiantes_por_dni(dni):
 
 
 # ---------------------------------------------------------
-# 1. CARGAR EVALUACIÓN
+# 1. CARGAR EVALUACIÓN (CON OBSERVACIONES Y PONDERACIÓN LENGUA)
 # ---------------------------------------------------------
 if opcion == "Cargar Evaluación":
   st.header("Carga de Evaluación")
@@ -123,7 +123,7 @@ if opcion == "Cargar Evaluación":
       codigo_unico = (
           st.text_input(
               "Código Único del Examen",
-              placeholder="Ej: MAT-2026-X8K9",
+              placeholder="Ej: LEN-2026-X8K9",
               key="eval_codigo",
           )
           .strip()
@@ -133,52 +133,230 @@ if opcion == "Cargar Evaluación":
     materia = st.selectbox(
         "Materia",
         [
-            "Matemática",
             "Lengua",
+            "Matemática",
             "Tecnología de la Representación Nivel 1",
             "Tecnología de la Representación Nivel 2",
         ],
     )
 
-  st.subheader(f"📋 Rúbrica: {materia}")
+  st.subheader(f"📋 Rúbrica de Evaluación: {materia}")
 
-  if materia == "Matemática":
-    label_c1, label_c2, label_c3 = (
-        "Criterio 1: Planteo y Razonamiento",
-        "Criterio 2: Operatoria y Precisión",
-        "Criterio 3: Interpretación de Resultados",
+  # ---------------------------------------------------------
+  # RÚBRICA ESPECÍFICA DE LENGUA
+  # ---------------------------------------------------------
+  if materia == "Lengua":
+    st.markdown("### A. Comprender para transformar (40%)")
+
+    with st.container(border=True):
+      st.markdown("**1. Apropiación del texto fuente** *(Ponderación 20%)*")
+      c1 = st.radio(
+          "Seleccione el nivel:",
+          [4, 3, 2, 1],
+          format_func=lambda x: {
+              4: "4 - Avanzado (Conserva e integra el sentido central)",
+              3: (
+                  "3 - Satisfactorio (Conserva ideas principales con pequeñas"
+                  " simplificaciones)"
+              ),
+              2: "2 - En desarrollo (Recupera solo parte de la información)",
+              1: "1 - Inicial (Pierde o modifica el sentido del texto)",
+          }[x],
+          horizontal=True,
+          key="len_c1",
+      )
+      obs1 = st.text_area(
+          "Observaciones para Apropiación del texto fuente:",
+          key="obs_c1",
+          height=70,
+      )
+
+      st.divider()
+
+      st.markdown("**2. Transformación del género** *(Ponderación 20%)*")
+      c2 = st.radio(
+          "Seleccione el nivel:",
+          [4, 3, 2, 1],
+          format_func=lambda x: {
+              4: "4 - Avanzado (Se transforma completamente en relato)",
+              3: "3 - Satisfactorio (Predomina el relato con rasgos expositivos)",
+              2: "2 - En desarrollo (Alterna explicación y narración sin integrar)",
+              1: "1 - Inicial (Predomina texto expositivo / no transforma)",
+          }[x],
+          horizontal=True,
+          key="len_c2",
+      )
+      obs2 = st.text_area(
+          "Observaciones para Transformación del género:", key="obs_c2", height=70
+      )
+
+    st.markdown("### B. Escribir para construir sentido (40%)")
+
+    with st.container(border=True):
+      st.markdown("**3. Voz narrativa**")
+      c3 = st.radio(
+          "Seleccione el nivel:",
+          [4, 3, 2, 1],
+          format_func=lambda x: {
+              4: "4 - Avanzado (Voz consistente y verosímil)",
+              3: "3 - Satisfactorio (Voz se sostiene con inconsistencias)",
+              2: "2 - En desarrollo (Voz de manera parcial o irregular)",
+              1: "1 - Inicial (No logra construir voz narrativa)",
+          }[x],
+          horizontal=True,
+          key="len_c3",
+      )
+      obs3 = st.text_area(
+          "Observaciones para Voz narrativa:", key="obs_c3", height=70
+      )
+
+      st.divider()
+
+      st.markdown("**4. Resignificación del lenguaje técnico**")
+      c4 = st.radio(
+          "Seleccione el nivel:",
+          [4, 3, 2, 1],
+          format_func=lambda x: {
+              4: "4 - Avanzado (Construye experiencias/emociones/vínculos)",
+              3: "3 - Satisfactorio (Integra vocabulario de manera pertinente)",
+              2: "2 - En desarrollo (Lenguaje aparece aislado o forzado)",
+              1: "1 - Inicial (No incorpora o utiliza incorrectamente)",
+          }[x],
+          horizontal=True,
+          key="len_c4",
+      )
+      obs4 = st.text_area(
+          "Observaciones para Resignificación del lenguaje técnico:",
+          key="obs_c4",
+          height=70,
+      )
+
+      st.divider()
+
+      st.markdown("**5. Construcción literaria**")
+      c5 = st.radio(
+          "Seleccione el nivel:",
+          [4, 3, 2, 1],
+          format_func=lambda x: {
+              4: "4 - Avanzado (Integra descripciones, metáforas o comparaciones)",
+              3: "3 - Satisfactorio (Utiliza recursos expresivos adecuados)",
+              2: "2 - En desarrollo (Recursos escasos o poco pertinentes)",
+              1: "1 - Inicial (No utiliza recursos literarios significativos)",
+          }[x],
+          horizontal=True,
+          key="len_c5",
+      )
+      obs5 = st.text_area(
+          "Observaciones para Construcción literaria:", key="obs_c5", height=70
+      )
+
+    st.markdown("### C. Comunicar con claridad (20%)")
+
+    with st.container(border=True):
+      st.markdown("**6. Organización del relato** *(Ponderación 10%)*")
+      c6 = st.radio(
+          "Seleccione el nivel:",
+          [4, 3, 2, 1],
+          format_func=lambda x: {
+              4: "4 - Avanzado (Secuencia clara, coherente y cohesionada)",
+              3: (
+                  "3 - Satisfactorio (Relato comprensible con pequeñas"
+                  " dificultades)"
+              ),
+              2: "2 - En desarrollo (Reiteraciones o saltos)",
+              1: "1 - Inicial (Organización dificulta la comprensión)",
+          }[x],
+          horizontal=True,
+          key="len_c6",
+      )
+      obs6 = st.text_area(
+          "Observaciones para Organización del relato:", key="obs_c6", height=70
+      )
+
+      st.divider()
+
+      st.markdown("**7. Normativa** *(Ponderación 10%)*")
+      c7 = st.radio(
+          "Seleccione el nivel:",
+          [4, 3, 2, 1],
+          format_func=lambda x: {
+              4: "4 - Avanzado (Emplea correctamente la normativa)",
+              3: "3 - Satisfactorio (Pocos errores que no dificultan)",
+              2: "2 - En desarrollo (Errores que dificultan en parte)",
+              1: "1 - Inicial (Errores afectan significativamente)",
+          }[x],
+          horizontal=True,
+          key="len_c7",
+      )
+      obs7 = st.text_area(
+          "Observaciones para Normativa:", key="obs_c7", height=70
+      )
+
+    # Cálculo Ponderado exacto de Lengua: Bloque A (40%), Bloque B (40%), Bloque C (20%)
+    promedio_calculado = round(
+        (c1 * 0.20)
+        + (c2 * 0.20)
+        + (c3 * 0.1333)
+        + (c4 * 0.1333)
+        + (c5 * 0.1334)
+        + (c6 * 0.10)
+        + (c7 * 0.10),
+        2,
     )
-  elif materia == "Lengua":
-    label_c1, label_c2, label_c3 = (
-        "Criterio 1: Comprensión Lectora y Coherencia",
-        "Criterio 2: Cohesión y Estructuración",
-        "Criterio 3: Ortografía y Gramática",
-    )
-  elif materia == "Tecnología de la Representación Nivel 1":
-    label_c1, label_c2, label_c3 = (
-        "Criterio 1: Normalización Básica",
-        "Criterio 2: Proyección Ortogonal",
-        "Criterio 3: Prolijidad y Calidad Gráfica",
-    )
+
+    eval_respuestas = {
+        "c1": c1,
+        "obs1": obs1,
+        "c2": c2,
+        "obs2": obs2,
+        "c3": c3,
+        "obs3": obs3,
+        "c4": c4,
+        "obs4": obs4,
+        "c5": c5,
+        "obs5": obs5,
+        "c6": c6,
+        "obs6": obs6,
+        "c7": c7,
+        "obs7": obs7,
+    }
+
+  # ---------------------------------------------------------
+  # OTRAS MATERIAS (ESTRUCURA BASE DE 3 CRITERIOS Y OBSERVACIONES)
+  # ---------------------------------------------------------
   else:
-    label_c1, label_c2, label_c3 = (
-        "Criterio 1: Modelado / Vistas Complejas",
-        "Criterio 2: Aplicación de Normas",
-        "Criterio 3: Resolución de Conjuntos",
-    )
+    with st.container(border=True):
+      c1 = st.radio("Criterio 1", [1, 2, 3, 4], horizontal=True, key="gen_c1")
+      obs1 = st.text_area(
+          "Observaciones Criterio 1:", key="obs_gen1", height=70
+      )
+      st.divider()
+      c2 = st.radio("Criterio 2", [1, 2, 3, 4], horizontal=True, key="gen_c2")
+      obs2 = st.text_area(
+          "Observaciones Criterio 2:", key="obs_gen2", height=70
+      )
+      st.divider()
+      c3 = st.radio("Criterio 3", [1, 2, 3, 4], horizontal=True, key="gen_c3")
+      obs3 = st.text_area(
+          "Observaciones Criterio 3:", key="obs_gen3", height=70
+      )
 
-  with st.container(border=True):
-    c1 = st.radio(label_c1, [1, 2, 3, 4], horizontal=True)
-    st.divider()
-    c2 = st.radio(label_c2, [1, 2, 3, 4], horizontal=True)
-    st.divider()
-    c3 = st.radio(label_c3, [1, 2, 3, 4], horizontal=True)
+    promedio_calculado = round((c1 + c2 + c3) / 3, 2)
+    eval_respuestas = {
+        "c1": c1,
+        "obs1": obs1,
+        "c2": c2,
+        "obs2": obs2,
+        "c3": c3,
+        "obs3": obs3,
+    }
+
+  st.divider()
 
   if st.button("💾 Guardar Evaluación", type="primary"):
     if not dni_evaluador or not codigo_unico:
       st.warning("⚠️ Debes ingresar el DNI del evaluador y el Código Único.")
     else:
-      promedio = round((c1 + c2 + c3) / 3, 2)
       payload = {
           "action": "evaluacion",
           "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -186,18 +364,18 @@ if opcion == "Cargar Evaluación":
           "materia": materia,
           "evaluador_id": dni_evaluador,
           "evaluador_nombre": f"Evaluador DNI {dni_evaluador}",
-          "c1": c1,
-          "c2": c2,
-          "c3": c3,
-          "promedio": promedio,
+          "promedio": promedio_calculado,
+          "respuestas": eval_respuestas,
       }
       try:
         requests.post(WEBAPP_URL, json=payload, timeout=10)
-        st.success(f"✅ Evaluación guardada para el examen **{codigo_unico}**!")
+        st.success(
+            f"✅ Evaluación guardada con éxito (Promedio:"
+            f" {promedio_calculado})!"
+        )
         st.cache_data.clear()
       except Exception:
         st.error("⚠️ Error de conexión al guardar la evaluación.")
-
 # ---------------------------------------------------------
 # 2. GENERADOR DE CÓDIGOS PARA DUPLAS (CON DETECCIÓN EXACTA DE ENCABEZADOS)
 # ---------------------------------------------------------
