@@ -377,7 +377,7 @@ if opcion == "Cargar Evaluación":
       except Exception:
         st.error("⚠️ Error de conexión al guardar la evaluación.")
 # ---------------------------------------------------------
-# 2. GENERADOR DE CÓDIGOS PARA DUPLAS (CON DETECCIÓN EXACTA DE ENCABEZADOS)
+# 2. GENERADOR DE CÓDIGOS PARA DUPLAS (CÓDIGO ALFANUMÉRICO DE 6 DÍGITOS SIN GUIONES)
 # ---------------------------------------------------------
 elif opcion == "Generar Códigos Únicos":
   st.header("Generador de Códigos para Duplas")
@@ -453,7 +453,9 @@ elif opcion == "Generar Códigos Únicos":
       nom1 = st.text_input("Nombre y Apellido 1", value=n1_def)
       esc1 = st.text_input("Escuela Técnica Nº 1", value=esc1_def)
       mail1 = st.text_input("Correo Electrónico 1", value=mail1_def)
-      insc1 = st.text_input("Inscripción a Desafío de... (1)", value=str(insc1_def))
+      insc1 = st.text_input(
+          "Inscripción a Desafío de... (1)", value=str(insc1_def)
+      )
       niv1 = st.text_input("Nivel de la dupla (1)", value=str(niv1_def))
       punt1 = st.text_input("Puntaje Institucional 1", value=str(punt1_def))
 
@@ -517,7 +519,9 @@ elif opcion == "Generar Códigos Únicos":
       nom2 = st.text_input("Nombre y Apellido 2", value=n2_def)
       esc2 = st.text_input("Escuela Técnica Nº 2", value=esc2_def)
       mail2 = st.text_input("Correo Electrónico 2", value=mail2_def)
-      insc2 = st.text_input("Inscripción a Desafío de... (2)", value=str(insc2_def))
+      insc2 = st.text_input(
+          "Inscripción a Desafío de... (2)", value=str(insc2_def)
+      )
       niv2 = st.text_input("Nivel de la dupla (2)", value=str(niv2_def))
       punt2 = st.text_input("Puntaje Institucional 2", value=str(punt2_def))
 
@@ -529,8 +533,13 @@ elif opcion == "Generar Códigos Únicos":
             "⚠️ Debes completar los datos de ambos integrantes de la dupla."
         )
       else:
-        aleatorio = "".join(random.choices(CARACTERES_SEGUROS, k=4))
-        codigo_generado = f"{prefijo}-2026-{aleatorio}"
+        # Generación de 3 caracteres aleatorios + últimos 3 dígitos del DNI1
+        tres_aleatorios = "".join(random.choices(CARACTERES_SEGUROS, k=3))
+        ultimos_tres_dni = (
+            dni1[-3:] if len(dni1) >= 3 else dni1.zfill(3)
+        )  # Extrae últimos 3 dígitos del DNI
+        codigo_generado = f"{tres_aleatorios}{ultimos_tres_dni}"  # Código de 6 dígitos sin guiones
+
         fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         mapa_materias = {
@@ -541,8 +550,12 @@ elif opcion == "Generar Códigos Únicos":
         }
         materia_nombre = mapa_materias.get(prefijo, prefijo)
 
-        nivel_consolidado = f"Int1: {niv1} | Int2: {niv2}" if niv1 != niv2 else niv1
-        inscripcion_consolidada = f"Int1: {insc1} | Int2: {insc2}" if insc1 != insc2 else insc1
+        nivel_consolidado = (
+            f"Int1: {niv1} | Int2: {niv2}" if niv1 != niv2 else niv1
+        )
+        inscripcion_consolidada = (
+            f"Int1: {insc1} | Int2: {insc2}" if insc1 != insc2 else insc1
+        )
 
         payload_codigo = {
             "action": "guardar_codigo_dupla",
@@ -568,8 +581,8 @@ elif opcion == "Generar Códigos Únicos":
         try:
           requests.post(WEBAPP_URL, json=payload_codigo, timeout=10)
           st.success(
-              f"✅ Código de Dupla Generado: **{codigo_generado}** (Nivel:"
-              f" {nivel_consolidado})"
+              f"✅ Código de Dupla Generado: **{codigo_generado}** (Asociado al"
+              f" DNI ...{ultimos_tres_dni})"
           )
           st.code(codigo_generado, language="text")
           st.cache_data.clear()
@@ -578,7 +591,6 @@ elif opcion == "Generar Códigos Únicos":
 
   elif clave != "":
     st.error("❌ Contraseña incorrecta.")
-
 # ---------------------------------------------------------
 # 3. PANEL DE ADMINISTRACIÓN
 # ---------------------------------------------------------
