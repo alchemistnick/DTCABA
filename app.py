@@ -7,7 +7,7 @@ import streamlit as st
 # ---------------------------------------------------------
 # CONFIGURACIÓN DIRECTA DE SERVIDORES Y HOJAS
 # ---------------------------------------------------------
-WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzt19tpSOAd8HVEW6q8CU5-d9sK9H7jKGnmgI23HVW-aJ3IIqLDL2M3IiAJcwhTCaU0YQ/exec"
+WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxz4dHeaMpymbVSzcKQbL9uGjkEDhS6KyY1SSmiiGw3X5DtqoxKF3O0lNjm29R2hAtJ/exec"
 SHEET_ID_EVALS = "1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk"
 ADMIN_PASSWORD = "admin123"
 
