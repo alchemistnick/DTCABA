@@ -164,11 +164,42 @@ def buscar_estudiantes_por_dni(dni):
   return []
 
 
+def obtener_lista_codigos():
+  """Obtiene la lista de códigos únicos registrados desde Google Sheets."""
+  df_codigos = leer_pestana(SHEET_ID_EVALS, "Base_codigos")
+  if not df_codigos.empty and "Codigo_Unico" in df_codigos.columns:
+    df_clean = df_codigos.dropna(subset=["Codigo_Unico"]).copy()
+    df_clean["Codigo_Unico"] = (
+        df_clean["Codigo_Unico"].astype(str).str.strip().str.upper()
+    )
+
+    # Crear lista con formato descriptivo opcional para el desplegable
+    opciones = []
+    mapa_detalles = {}
+
+    for _, row in df_clean.iterrows():
+      cod = row["Codigo_Unico"]
+      mat = row.get("Materia", "N/A")
+      e1 = row.get("Estudiante_1", "")
+      e2 = row.get("Estudiante_2", "")
+      dupla_str = f"{e1} / {e2}".strip(" /")
+
+      label = f"{cod} - {mat}" + (f" ({dupla_str})" if dupla_str else "")
+      opciones.append(label)
+      mapa_detalles[label] = {"codigo": cod, "materia": mat}
+
+    return opciones, mapa_detalles
+  return [], {}
+
+
 # ---------------------------------------------------------
-# 1. CARGAR EVALUACIÓN (PONDERACIÓN SOBRE 100 PUNTOS)
+# 1. CARGAR EVALUACIÓN (DESPLEGABLE DE CÓDIGOS REGISTRADOS)
 # ---------------------------------------------------------
 if opcion == "Cargar Evaluación":
   st.header("Carga de Evaluación")
+
+  # Obtener códigos registrados
+  lista_opciones_codigos, mapa_codigos_info = obtener_lista_codigos()
 
   with st.container(border=True):
     col1, col2 = st.columns(2)
@@ -182,25 +213,50 @@ if opcion == "Cargar Evaluación":
           .strip()
           .replace(".", "")
       )
+
     with col2:
-      codigo_unico = (
-          st.text_input(
-              "Código Único del Examen",
-              placeholder="Ej: X8K198",
-              key="eval_codigo",
-          )
-          .strip()
-          .upper()
-      )
+      if lista_opciones_codigos:
+        opcion_seleccionada = st.selectbox(
+            "Código Único del Examen",
+            options=["-- Seleccionar Código --"] + lista_opciones_codigos,
+            key="eval_codigo_select",
+        )
+
+        if opcion_seleccionada != "-- Seleccionar Código --":
+          codigo_unico = mapa_codigos_info[opcion_seleccionada]["codigo"]
+          materia_sugerida = mapa_codigos_info[opcion_seleccionada]["materia"]
+        else:
+          codigo_unico = ""
+          materia_sugerida = "Lengua"
+      else:
+        codigo_unico = (
+            st.text_input(
+                "Código Único del Examen",
+                placeholder="Ej: X8K198",
+                key="eval_codigo",
+            )
+            .strip()
+            .upper()
+        )
+        materia_sugerida = "Lengua"
+
+    # Selector de Materia (intenta preseleccionar la materia del código si existe)
+    materias_disponibles = [
+        "Lengua",
+        "Matemática",
+        "Tecnología de la Representación Nivel 1",
+        "Tecnología de la Representación Nivel 2",
+    ]
+
+    idx_materia = 0
+    if materia_sugerida in materias_disponibles:
+      idx_materia = materias_disponibles.index(materia_sugerida)
 
     materia = st.selectbox(
         "Materia",
-        [
-            "Lengua",
-            "Matemática",
-            "Tecnología de la Representación Nivel 1",
-            "Tecnología de la Representación Nivel 2",
-        ],
+        options=materias_disponibles,
+        index=idx_materia,
+        key="eval_materia",
     )
 
   st.subheader(f"📋 Rúbrica de Evaluación: {materia}")
