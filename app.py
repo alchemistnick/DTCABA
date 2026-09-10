@@ -183,12 +183,12 @@ def obtener_lista_codigos():
 
 
 # ---------------------------------------------------------
-# 1. CARGAR EVALUACIÓN (BÚSQUEDA Y SELECCIÓN DE CÓDIGO SOLO)
+# 1. CARGAR EVALUACIÓN (CON VALIDACIÓN ESTRICTA DE CÓDIGO)
 # ---------------------------------------------------------
 if opcion == "Cargar Evaluación":
   st.header("Carga de Evaluación")
 
-  # Obtener lista con solo códigos únicos
+  # Obtener lista con solo códigos únicos registrados
   lista_codigos = obtener_lista_codigos()
 
   with st.container(border=True):
@@ -253,6 +253,19 @@ if opcion == "Cargar Evaluación":
         ],
         key="eval_materia",
     )
+
+  # ---------------------------------------------------------
+  # VALIDACIÓN: SI EL CÓDIGO NO ESTÁ REGISTRADO, BLOQUEA Y NO DEJA SEGUIR
+  # ---------------------------------------------------------
+  if not codigo_unico:
+    st.info("💡 Por favor, selecciona o ingresa el Código Único del Examen.")
+    st.stop()
+  elif lista_codigos and codigo_unico not in lista_codigos:
+    st.error(
+        f"❌ El código **'{codigo_unico}'** NO figura registrado en la base de"
+        " datos. Verifícalo antes de continuar."
+    )
+    st.stop()
 
   st.subheader(f"📋 Rúbrica de Evaluación: {materia}")
 
