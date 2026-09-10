@@ -165,41 +165,31 @@ def buscar_estudiantes_por_dni(dni):
 
 
 def obtener_lista_codigos():
-  """Obtiene la lista de códigos únicos registrados desde Google Sheets."""
+  """Obtiene la lista de solo los códigos únicos registrados (sin nombres)."""
   df_codigos = leer_pestana(SHEET_ID_EVALS, "Base_codigos")
   if not df_codigos.empty and "Codigo_Unico" in df_codigos.columns:
-    df_clean = df_codigos.dropna(subset=["Codigo_Unico"]).copy()
-    df_clean["Codigo_Unico"] = (
-        df_clean["Codigo_Unico"].astype(str).str.strip().str.upper()
+    codigos_limpios = (
+        df_codigos["Codigo_Unico"]
+        .dropna()
+        .astype(str)
+        .str.strip()
+        .str.upper()
+        .unique()
+        .tolist()
     )
-
-    # Crear lista con formato descriptivo opcional para el desplegable
-    opciones = []
-    mapa_detalles = {}
-
-    for _, row in df_clean.iterrows():
-      cod = row["Codigo_Unico"]
-      mat = row.get("Materia", "N/A")
-      e1 = row.get("Estudiante_1", "")
-      e2 = row.get("Estudiante_2", "")
-      dupla_str = f"{e1} / {e2}".strip(" /")
-
-      label = f"{cod} - {mat}" + (f" ({dupla_str})" if dupla_str else "")
-      opciones.append(label)
-      mapa_detalles[label] = {"codigo": cod, "materia": mat}
-
-    return opciones, mapa_detalles
-  return [], {}
+    codigos_limpios.sort()
+    return codigos_limpios
+  return []
 
 
 # ---------------------------------------------------------
-# 1. CARGAR EVALUACIÓN (DESPLEGABLE DE CÓDIGOS REGISTRADOS)
+# 1. CARGAR EVALUACIÓN (BÚSQUEDA Y SELECCIÓN DE CÓDIGO SOLO)
 # ---------------------------------------------------------
 if opcion == "Cargar Evaluación":
   st.header("Carga de Evaluación")
 
-  # Obtener códigos registrados
-  lista_opciones_codigos, mapa_codigos_info = obtener_lista_codigos()
+  # Obtener lista con solo códigos únicos
+  lista_codigos = obtener_lista_codigos()
 
   with st.container(border=True):
     col1, col2 = st.columns(2)
@@ -215,47 +205,52 @@ if opcion == "Cargar Evaluación":
       )
 
     with col2:
-      if lista_opciones_codigos:
-        opcion_seleccionada = st.selectbox(
+      if lista_codigos:
+        opciones_desplegable = (
+            ["-- Buscar o seleccionar código --"]
+            + lista_codigos
+            + ["✏️ Tipear código manualmente"]
+        )
+
+        seleccion = st.selectbox(
             "Código Único del Examen",
-            options=["-- Seleccionar Código --"] + lista_opciones_codigos,
+            options=opciones_desplegable,
             key="eval_codigo_select",
         )
 
-        if opcion_seleccionada != "-- Seleccionar Código --":
-          codigo_unico = mapa_codigos_info[opcion_seleccionada]["codigo"]
-          materia_sugerida = mapa_codigos_info[opcion_seleccionada]["materia"]
+        if seleccion == "✏️ Tipear código manualmente":
+          codigo_unico = (
+              st.text_input(
+                  "Escribe el Código Único",
+                  placeholder="Ej: X8K198",
+                  key="eval_codigo_manual",
+              )
+              .strip()
+              .upper()
+          )
+        elif seleccion != "-- Buscar o seleccionar código --":
+          codigo_unico = seleccion
         else:
           codigo_unico = ""
-          materia_sugerida = "Lengua"
       else:
         codigo_unico = (
             st.text_input(
                 "Código Único del Examen",
                 placeholder="Ej: X8K198",
-                key="eval_codigo",
+                key="eval_codigo_directo",
             )
             .strip()
             .upper()
         )
-        materia_sugerida = "Lengua"
-
-    # Selector de Materia (intenta preseleccionar la materia del código si existe)
-    materias_disponibles = [
-        "Lengua",
-        "Matemática",
-        "Tecnología de la Representación Nivel 1",
-        "Tecnología de la Representación Nivel 2",
-    ]
-
-    idx_materia = 0
-    if materia_sugerida in materias_disponibles:
-      idx_materia = materias_disponibles.index(materia_sugerida)
 
     materia = st.selectbox(
         "Materia",
-        options=materias_disponibles,
-        index=idx_materia,
+        [
+            "Lengua",
+            "Matemática",
+            "Tecnología de la Representación Nivel 1",
+            "Tecnología de la Representación Nivel 2",
+        ],
         key="eval_materia",
     )
 
