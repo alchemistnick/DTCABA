@@ -543,7 +543,7 @@ if opcion == "Cargar Evaluación":
             " justificación parcial."
         ),
         2: (
-            "2 - Básico: La procedimiento es correcto no presenta justificación" "
+            "2 - Básico: La procedimiento es correcto no presenta justificación"
         ),
         1: (
             "1 - Inicial: No presenta procedimiento ni justificación"."
