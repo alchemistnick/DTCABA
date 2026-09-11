@@ -554,8 +554,7 @@ if opcion == "Cargar Evaluación":
             "5 - Destacado: Utiliza términos, símbolos y expresiones matemáticas de forma precisa y rigurosa."
         ),
         4: (
-            "4 - Avanzado: Utiliza términos, símbolos y expresiones matemáticas de forma correcta en su mayoría".
-            
+            "4 - Avanzado: Utiliza términos, símbolos y expresiones matemáticas de forma correcta en su mayoría".    
         ),
         3: "3 - Satisfactorio: Muestra un uso impreciso o escazo de términos, símbolos de expresiones matemáticas",
         2: (
