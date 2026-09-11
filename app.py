@@ -296,7 +296,7 @@ if opcion == "Cargar Evaluación":
         ),
         2: (
             "2 - En desarrollo: Alterna explicación y narración sin"
-            " integrarlas."
+            " integrarlas completamente."
         ),
         1: (
             "1 - Inicial: Predomina el texto expositivo o no logra la"
@@ -308,14 +308,14 @@ if opcion == "Cargar Evaluación":
             "4 - Avanzado: Construye una voz en primera persona consistente y"
             " verosímil."
         ),
-        3: "3 - Satisfactorio: La voz se sostiene con algunas inconsistencias.",
-        2: "2 - En desarrollo: La voz aparece de manera parcial o irregular.",
+        3: "3 - Satisfactorio: La voz se sostiene con algunas inconsistencias (ruptura de registro, de focalización, contradicción en la actitud).",
+        2: "2 - En desarrollo: La voz aparece de manera parcial o irregular (no presenta uniformidad en la voz en todos los párrafos).",
         1: "1 - Inicial: No logra construir una voz narrativa.",
     }
     map_len4 = {
         4: (
             "4 - Avanzado: Utiliza el lenguaje técnico para construir"
-            " experiencias y emociones."
+            " experiencias y emociones o vínculos."
         ),
         3: (
             "3 - Satisfactorio: Integra el vocabulario técnico de manera"
@@ -333,23 +333,23 @@ if opcion == "Cargar Evaluación":
     map_len5 = {
         4: (
             "4 - Avanzado: Integra descripciones, metáforas o comparaciones"
-            " enriquecedoras."
+            " que enriquecen el relato."
         ),
         3: (
             "3 - Satisfactorio: Utiliza algunos recursos expresivos"
             " adecuados."
         ),
-        2: "2 - En desarrollo: Los recursos son escasos o poco pertinentes.",
+        2: "2 - En desarrollo: Utiliza un recurso expresivo (metáfora o descripción) de forma adecuada.",
         1: "1 - Inicial: No utiliza recursos literarios significativos.",
     }
     map_len6 = {
         4: (
             "4 - Avanzado: Presenta una secuencia clara, coherente y"
-            " cohesionada."
+            " cohesiva."
         ),
         3: (
             "3 - Satisfactorio: El relato es comprensible con pequeñas"
-            " dificultades."
+            " dificultades que implican ambigüedades o desorden en la claridad lógica."
         ),
         2: (
             "2 - En desarrollo: La organización presenta reiteraciones o"
@@ -358,14 +358,13 @@ if opcion == "Cargar Evaluación":
         1: "1 - Inicial: La organización dificulta la comprensión.",
     }
     map_len7 = {
-        4: "4 - Avanzado: Emplea correctamente la normativa ortográfica.",
+        4: "4 - Avanzado: Emplea correctamente ortografía, puntuación y síntaxis.",
         3: (
-            "3 - Satisfactorio: Presenta pocos errores que no dificultan la"
-            " lectura."
+            "3 - Satisfactorio: Presenta errores que no dificultan la"
+            " comprensión."
         ),
         2: (
-            "2 - En desarrollo: Presenta errores que dificultan la lectura en"
-            " parte."
+            "2 - En desarrollo: Presenta errores que dificultan parcialmente la comprensión."
         ),
         1: (
             "1 - Inicial: Los errores afectan significativamente la"
