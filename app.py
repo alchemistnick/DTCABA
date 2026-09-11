@@ -494,39 +494,38 @@ if opcion == "Cargar Evaluación":
   elif materia == "Matemática":
     map_mat1 = {
         5: (
-            "5 - Destacado: Figura original y de alta complejidad con"
-            " excelente representación."
+            "5 - Destacado: Figura original y de alta complejidad "
+            " en la representación."
         ),
         4: (
             "4 - Avanzado: Figura tridimensional bien construida, muestra"
-            " originalidad y calidad."
+            " originalidad."
         ),
         3: (
             "3 - Satisfactorio: La figura es adecuada y realizada de manera"
             " correcta."
         ),
-        2: "2 - Básico: La figura es muy básica con representación incompleta.",
-        1: "1 - Inicial: La figura no es clara y presenta muchos errores.",
+        2: "2 - Básico: La figura es no presenta complejidad.",
+        1: "1 - Inicial: La figura no es original y presenta errores de representación.",
     }
     map_mat2 = {
         5: (
-            "5 - Destacado: Problema original, explícito y de integración"
-            " impecable."
+            "5 - Destacado: Problema original, explícito la intervención de la figura y de integración" "de disciplinas."
         ),
         4: (
-            "4 - Avanzado: Situación problemática bien planteada con"
-            " coherencia."
+            "4 - Avanzado: Situación problemática planteada es"
+            " explícita en la intervención de la figura y de integración de disciplinas."
         ),
         3: (
-            "3 - Satisfactorio: El problema es correcto aunque la figura no"
-            " sea central."
+            "3 - Satisfactorio: El problema es correcto pero no se evidencia"
+            " la figura construida."
         ),
         2: (
-            "2 - Básico: El problema presenta inconsistencias en su"
-            " desarrollo."
+            "2 - Básico: El problema presenta inconsistencias"
+            " desde el punto de vista matemático."
         ),
         1: (
-            "1 - Inicial: No logra contextualizar en una situación"
+            "1 - Inicial: No logra contextualizar la situación"
             " problemática."
         ),
     }
