@@ -551,19 +551,17 @@ if opcion == "Cargar Evaluación":
     }
     map_mat4 = {
         5: (
-            "5 - Destacado: La utilización del lenguaje presenta gran"
-            " precisión y soltura."
+            "5 - Destacado: Utiliza términos, símbolos y expresiones matemáticas de forma precisa y rigurosa."
         ),
         4: (
-            "4 - Avanzado: Utiliza de forma correcta y formal el lenguaje"
-            " técnico."
+            "4 - Avanzado: Utiliza términos, símbolos y expresiones matemáticas de forma correcta en su mayoría".
+            
         ),
-        3: "3 - Satisfactorio: Exposición comprensible, cumple con la consigna.",
+        3: "3 - Satisfactorio: Muestra un uso impreciso o escazo de términos, símbolos de expresiones matemáticas",
         2: (
-            "2 - Básico: Utiliza lenguaje informal o impreciso en su"
-            " explicación."
+            "2 - Básico: Explica el desarrollo de forma coloquial o ambigua."
         ),
-        1: "1 - Inicial: La presentación es desorganizada y no cumple pautas.",
+        1: "1 - Inicial: La comunicación del desarrollo es imprecisa",
     }
 
     st.markdown("### 📐 Criterios de Evaluación: Matemática")
