@@ -546,7 +546,7 @@ if opcion == "Cargar Evaluación":
             "2 - Básico: La procedimiento es correcto no presenta justificación"
         ),
         1: (
-            "1 - Inicial: No presenta procedimiento ni justificación"."
+            "1 - Inicial: No presenta procedimiento ni justificación."
         ),
     }
     map_mat4 = {
