@@ -531,24 +531,22 @@ if opcion == "Cargar Evaluación":
     }
     map_mat3 = {
         5: (
-            "5 - Destacado: Procedimiento impecable, utilizando datos y"
-            " justificando cada paso."
+            "5 - Destacado: Procedimiento es completo, utiliza datos y"
+            " justifica cada paso."
         ),
         4: (
-            "4 - Avanzado: Aplica el procedimiento correcto y presenta"
-            " justificación sólida."
+            "4 - Avanzado: Aplica el procedimiento correcto y "
+            " justifica cada paso."
         ),
         3: (
-            "3 - Satisfactorio: El planteo es correcto pero con algunas"
-            " imprecisiones."
+            "3 - Satisfactorio: El procedimient es correcto pero con "
+            " justificación parcial."
         ),
         2: (
-            "2 - Básico: Reconoce datos pero presenta problemas al plantear el"
-            " problema."
+            "2 - Básico: La procedimiento es correcto no presenta justificación" "
         ),
         1: (
-            "1 - Inicial: No reconoce los datos necesarios para poder plantear"
-            " la situación."
+            "1 - Inicial: No presenta procedimiento ni justificación"."
         ),
     }
     map_mat4 = {
