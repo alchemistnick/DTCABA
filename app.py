@@ -193,7 +193,7 @@ def obtener_lista_codigos():
 
 
 # ---------------------------------------------------------
-# 1. CARGAR EVALUACIÓN (CON RESET AUTOMÁTICO AL GUARDAR)
+# 1. CARGAR EVALUACIÓN (RESET COMPLETO DE CAMPOS CABECERA Y RÚBRICA)
 # ---------------------------------------------------------
 if opcion == "Cargar Evaluación":
   st.header("Carga de Evaluación")
@@ -540,8 +540,20 @@ if opcion == "Cargar Evaluación":
       try:
         requests.post(WEBAPP_URL, json=payload, timeout=10)
         st.session_state["eval_guardada_exito"] = True
-        st.cache_data.clear()
-        st.rerun()  # Limpia la pantalla reiniciando todos los inputs de la rúbrica
+        
+        # Limpieza explícita del DNI evaluador, campos de código y rúbrica
+        keys_a_limpiar = [
+            "eval_dni", "eval_codigo_select", "eval_codigo_manual", "eval_codigo_directo",
+            "len_c1", "obs_c1", "len_c2", "obs_c2", "len_c3", "obs_c3", 
+            "len_c4", "obs_c4", "len_c5", "obs_c5", "len_c6", "obs_c6", "len_c7", "obs_c7",
+            "mat_c1", "obs_mat1", "mat_c2", "obs_mat2", "mat_c3", "obs_mat3", "mat_c4", "obs_mat4",
+            "tdr_c1", "obs_tdr1", "tdr_c2", "obs_tdr2", "tdr_c3", "obs_tdr3"
+        ]
+        for k in keys_a_limpiar:
+          if k in st.session_state:
+            del st.session_state[k]
+
+        st.rerun()
       except Exception:
         st.error("⚠️ Error de conexión al guardar la evaluación.")
 
@@ -682,7 +694,7 @@ elif opcion == "Generar Códigos Únicos":
                 guardado_exitoso = True
                 st.success(f"✅ Código Único Generado: **{codigo_generado}** (DNI ...{ultimos_tres_dni})")
                 st.code(codigo_generado, language="text")
-                st.cache_data.clear()
+                obtener_lista_codigos.clear()
               elif respuesta.get("message") == "DUPLICADO":
                 continue
               else:
