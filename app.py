@@ -145,17 +145,19 @@ opcion = st.sidebar.radio(
     label_visibility="collapsed",
 )
 
-
-@st.cache_data(ttl=15, show_spinner=False)
+# ---------------------------------------------------------
+# FUNCIONES CON CACHÉ DE ALTO RENDIMIENTO (OPTIMIZADO)
+# ---------------------------------------------------------
+@st.cache_data(ttl=600, show_spinner=False)
 def leer_pestana(sheet_id, nombre_pestana):
   try:
-    timestamp = int(datetime.now().timestamp())
+    timestamp = int(datetime.now().timestamp() / 600)  # Agrupa peticiones cada 10 min
     url_csv = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={nombre_pestana}&t={timestamp}"
     return pd.read_csv(url_csv)
   except Exception:
     return pd.DataFrame()
 
-
+@st.cache_data(ttl=600, show_spinner=False)
 def buscar_estudiantes_por_dni(dni):
   try:
     dni_limpio = str(dni).strip().replace(".", "").replace(" ", "")
@@ -171,9 +173,9 @@ def buscar_estudiantes_por_dni(dni):
     pass
   return []
 
-
+@st.cache_data(ttl=600, show_spinner=False)
 def obtener_lista_codigos():
-  """Obtiene la lista de solo los códigos únicos registrados (sin nombres)."""
+  """Obtiene la lista de solo los códigos únicos registrados con caché de 10 min."""
   df_codigos = leer_pestana(SHEET_ID_EVALS, "Base_codigos")
   if not df_codigos.empty and "Codigo_Unico" in df_codigos.columns:
     codigos_limpios = (
@@ -191,12 +193,16 @@ def obtener_lista_codigos():
 
 
 # ---------------------------------------------------------
-# 1. CARGAR EVALUACIÓN (CON VALIDACIÓN ESTRICTA DE CÓDIGO)
+# 1. CARGAR EVALUACIÓN (CON RESET AUTOMÁTICO AL GUARDAR)
 # ---------------------------------------------------------
 if opcion == "Cargar Evaluación":
   st.header("Carga de Evaluación")
 
-  # Obtener lista con solo códigos únicos registrados
+  # Muestra mensaje de éxito si viene de un guardado previo
+  if st.session_state.get("eval_guardada_exito"):
+    st.success("✅ ¡Evaluación guardada con éxito! El formulario se ha reiniciado.")
+    st.session_state["eval_guardada_exito"] = False
+
   lista_codigos = obtener_lista_codigos()
 
   with st.container(border=True):
@@ -262,9 +268,7 @@ if opcion == "Cargar Evaluación":
         key="eval_materia",
     )
 
-  # ---------------------------------------------------------
   # VALIDACIÓN: SI EL CÓDIGO NO ESTÁ REGISTRADO, BLOQUEA Y NO DEJA SEGUIR
-  # ---------------------------------------------------------
   if not codigo_unico:
     st.info("💡 Por favor, selecciona o ingresa el Código Único del Examen.")
     st.stop()
@@ -282,190 +286,85 @@ if opcion == "Cargar Evaluación":
   # ---------------------------------------------------------
   if materia == "Lengua":
     map_len1 = {
-        4: (
-            "4 - Avanzado: Conserva e integra el sentido central del texto"
-            " técnico."
-        ),
-        3: (
-            "3 - Satisfactorio: Conserva ideas principales con pequeñas"
-            " simplificaciones."
-        ),
+        4: "4 - Avanzado: Conserva e integra el sentido central del texto técnico.",
+        3: "3 - Satisfactorio: Conserva ideas principales con pequeñas simplificaciones.",
         2: "2 - En desarrollo: Recupera solo parte de la información relevante.",
         1: "1 - Inicial: Pierde o modifica el sentido del texto fuente.",
     }
     map_len2 = {
-        4: (
-            "4 - Avanzado: El texto se transforma completamente en un relato"
-            " literario."
-        ),
-        3: (
-            "3 - Satisfactorio: Predomina el relato aunque mantiene rasgos"
-            " expositivos."
-        ),
-        2: (
-            "2 - En desarrollo: Alterna explicación y narración sin"
-            " integrarlas completamente."
-        ),
-        1: (
-            "1 - Inicial: Predomina el texto expositivo o no logra la"
-            " transformación."
-        ),
+        4: "4 - Avanzado: El texto se transforma completamente en un relato literario.",
+        3: "3 - Satisfactorio: Predomina el relato aunque mantiene rasgos expositivos.",
+        2: "2 - En desarrollo: Alterna explicación y narración sin integrarlas completamente.",
+        1: "1 - Inicial: Predomina el texto expositivo o no logra la transformación.",
     }
     map_len3 = {
-        4: (
-            "4 - Avanzado: Construye una voz en primera persona consistente y"
-            " verosímil."
-        ),
+        4: "4 - Avanzado: Construye una voz en primera persona consistente y verosímil.",
         3: "3 - Satisfactorio: La voz se sostiene con algunas inconsistencias (ruptura de registro, de focalización, contradicción en la actitud).",
         2: "2 - En desarrollo: La voz aparece de manera parcial o irregular (no presenta uniformidad en la voz en todos los párrafos).",
         1: "1 - Inicial: No logra construir una voz narrativa.",
     }
     map_len4 = {
-        4: (
-            "4 - Avanzado: Utiliza el lenguaje técnico para construir"
-            " experiencias y emociones o vínculos."
-        ),
-        3: (
-            "3 - Satisfactorio: Integra el vocabulario técnico de manera"
-            " pertinente."
-        ),
-        2: (
-            "2 - En desarrollo: El lenguaje técnico aparece de forma aislada o"
-            " forzada."
-        ),
-        1: (
-            "1 - Inicial: No incorpora o utiliza incorrectamente el lenguaje"
-            " técnico."
-        ),
+        4: "4 - Avanzado: Utiliza el lenguaje técnico para construir experiencias y emociones o vínculos.",
+        3: "3 - Satisfactorio: Integra el vocabulario técnico de manera pertinente.",
+        2: "2 - En desarrollo: El lenguaje técnico aparece de forma aislada o forzada.",
+        1: "1 - Inicial: No incorpora o utiliza incorrectamente el lenguaje técnico.",
     }
     map_len5 = {
-        4: (
-            "4 - Avanzado: Integra descripciones, metáforas o comparaciones"
-            " que enriquecen el relato."
-        ),
-        3: (
-            "3 - Satisfactorio: Utiliza algunos recursos expresivos"
-            " adecuados."
-        ),
+        4: "4 - Avanzado: Integra descripciones, metáforas o comparaciones que enriquecen el relato.",
+        3: "3 - Satisfactorio: Utiliza algunos recursos expresivos adecuados.",
         2: "2 - En desarrollo: Utiliza un recurso expresivo (metáfora o descripción) de forma adecuada.",
         1: "1 - Inicial: No utiliza recursos literarios significativos.",
     }
     map_len6 = {
-        4: (
-            "4 - Avanzado: Presenta una secuencia clara, coherente y"
-            " cohesiva."
-        ),
-        3: (
-            "3 - Satisfactorio: El relato es comprensible con pequeñas"
-            " dificultades que implican ambigüedades o desorden en la claridad lógica."
-        ),
-        2: (
-            "2 - En desarrollo: La organización presenta reiteraciones o"
-            " saltos."
-        ),
+        4: "4 - Avanzado: Presenta una secuencia clara, coherente y cohesiva.",
+        3: "3 - Satisfactorio: El relato es comprensible con pequeñas dificultades que implican ambigüedades o desorden en la claridad lógica.",
+        2: "2 - En desarrollo: La organización presenta reiteraciones o saltos.",
         1: "1 - Inicial: La organización dificulta la comprensión.",
     }
     map_len7 = {
         4: "4 - Avanzado: Emplea correctamente ortografía, puntuación y síntaxis.",
-        3: (
-            "3 - Satisfactorio: Presenta errores que no dificultan la"
-            " comprensión."
-        ),
-        2: (
-            "2 - En desarrollo: Presenta errores que dificultan parcialmente la comprensión."
-        ),
-        1: (
-            "1 - Inicial: Los errores afectan significativamente la"
-            " comprensión."
-        ),
+        3: "3 - Satisfactorio: Presenta errores que no dificultan la comprensión.",
+        2: "2 - En desarrollo: Presenta errores que dificultan parcialmente la comprensión.",
+        1: "1 - Inicial: Los errores afectan significativamente la comprensión.",
     }
 
     st.markdown("### BLOQUE A: Comprender para transformar (40%)")
     with st.container(border=True):
       st.markdown("#### 1. Apropiación del texto fuente (20%)")
-      c1 = st.radio(
-          "Nivel:",
-          [4, 3, 2, 1],
-          format_func=lambda x: map_len1[x],
-          key="len_c1",
-      )
-      obs1 = st.text_area(
-          "Observaciones / Justificación:", key="obs_c1", height=70
-      )
+      c1 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len1[x], key="len_c1")
+      obs1 = st.text_area("Observaciones / Justificación:", key="obs_c1", height=70)
 
     with st.container(border=True):
       st.markdown("#### 2. Transformación del género (20%)")
-      c2 = st.radio(
-          "Nivel:",
-          [4, 3, 2, 1],
-          format_func=lambda x: map_len2[x],
-          key="len_c2",
-      )
-      obs2 = st.text_area(
-          "Observaciones / Justificación:", key="obs_c2", height=70
-      )
+      c2 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len2[x], key="len_c2")
+      obs2 = st.text_area("Observaciones / Justificación:", key="obs_c2", height=70)
 
     st.markdown("### BLOQUE B: Escribir para construir sentido (40%)")
     with st.container(border=True):
       st.markdown("#### 3. Voz narrativa")
-      c3 = st.radio(
-          "Nivel:",
-          [4, 3, 2, 1],
-          format_func=lambda x: map_len3[x],
-          key="len_c3",
-      )
-      obs3 = st.text_area(
-          "Observaciones / Justificación:", key="obs_c3", height=70
-      )
+      c3 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len3[x], key="len_c3")
+      obs3 = st.text_area("Observaciones / Justificación:", key="obs_c3", height=70)
 
     with st.container(border=True):
       st.markdown("#### 4. Resignificación del lenguaje técnico")
-      c4 = st.radio(
-          "Nivel:",
-          [4, 3, 2, 1],
-          format_func=lambda x: map_len4[x],
-          key="len_c4",
-      )
-      obs4 = st.text_area(
-          "Observaciones / Justificación:", key="obs_c4", height=70
-      )
+      c4 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len4[x], key="len_c4")
+      obs4 = st.text_area("Observaciones / Justificación:", key="obs_c4", height=70)
 
     with st.container(border=True):
       st.markdown("#### 5. Construcción literaria")
-      c5 = st.radio(
-          "Nivel:",
-          [4, 3, 2, 1],
-          format_func=lambda x: map_len5[x],
-          key="len_c5",
-      )
-      obs5 = st.text_area(
-          "Observaciones / Justificación:", key="obs_c5", height=70
-      )
+      c5 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len5[x], key="len_c5")
+      obs5 = st.text_area("Observaciones / Justificación:", key="obs_c5", height=70)
 
     st.markdown("### BLOQUE C: Comunicar con claridad (20%)")
     with st.container(border=True):
       st.markdown("#### 6. Organización del relato (10%)")
-      c6 = st.radio(
-          "Nivel:",
-          [4, 3, 2, 1],
-          format_func=lambda x: map_len6[x],
-          key="len_c6",
-      )
-      obs6 = st.text_area(
-          "Observaciones / Justificación:", key="obs_c6", height=70
-      )
+      c6 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len6[x], key="len_c6")
+      obs6 = st.text_area("Observaciones / Justificación:", key="obs_c6", height=70)
 
     with st.container(border=True):
       st.markdown("#### 7. Normativa (10%)")
-      c7 = st.radio(
-          "Nivel:",
-          [4, 3, 2, 1],
-          format_func=lambda x: map_len7[x],
-          key="len_c7",
-      )
-      obs7 = st.text_area(
-          "Observaciones / Justificación:", key="obs_c7", height=70
-      )
+      c7 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len7[x], key="len_c7")
+      obs7 = st.text_area("Observaciones / Justificación:", key="obs_c7", height=70)
 
     promedio_base4 = (
         (c1 * 0.20)
@@ -479,20 +378,13 @@ if opcion == "Cargar Evaluación":
     puntaje_100 = round((promedio_base4 / 4) * 100, 2)
 
     eval_respuestas = {
-        "c1_desc": map_len1[c1],
-        "obs1": obs1,
-        "c2_desc": map_len2[c2],
-        "obs2": obs2,
-        "c3_desc": map_len3[c3],
-        "obs3": obs3,
-        "c4_desc": map_len4[c4],
-        "obs4": obs4,
-        "c5_desc": map_len5[c5],
-        "obs5": obs5,
-        "c6_desc": map_len6[c6],
-        "obs6": obs6,
-        "c7_desc": map_len7[c7],
-        "obs7": obs7,
+        "c1_desc": map_len1[c1], "obs1": obs1,
+        "c2_desc": map_len2[c2], "obs2": obs2,
+        "c3_desc": map_len3[c3], "obs3": obs3,
+        "c4_desc": map_len4[c4], "obs4": obs4,
+        "c5_desc": map_len5[c5], "obs5": obs5,
+        "c6_desc": map_len6[c6], "obs6": obs6,
+        "c7_desc": map_len7[c7], "obs7": obs7,
     }
 
   # ---------------------------------------------------------
@@ -500,143 +392,63 @@ if opcion == "Cargar Evaluación":
   # ---------------------------------------------------------
   elif materia == "Matemática":
     map_mat1 = {
-        5: (
-            "5 - Destacado: Figura original y de alta complejidad "
-            " en la representación."
-        ),
-        4: (
-            "4 - Avanzado: Figura tridimensional bien construida, muestra"
-            " originalidad."
-        ),
-        3: (
-            "3 - Satisfactorio: La figura es adecuada y realizada de manera"
-            " correcta."
-        ),
+        5: "5 - Destacado: Figura original y de alta complejidad en la representación.",
+        4: "4 - Avanzado: Figura tridimensional bien construida, muestra originalidad.",
+        3: "3 - Satisfactorio: La figura es adecuada y realizada de manera correcta.",
         2: "2 - Básico: La figura es no presenta complejidad.",
         1: "1 - Inicial: La figura no es original y presenta errores de representación.",
     }
     map_mat2 = {
-        5: (
-            "5 - Destacado: Problema original, explícito la intervención de la figura y de integración" "de disciplinas."
-        ),
-        4: (
-            "4 - Avanzado: Situación problemática planteada es"
-            " explícita en la intervención de la figura y de integración de disciplinas."
-        ),
-        3: (
-            "3 - Satisfactorio: El problema es correcto pero no se evidencia"
-            " la figura construida."
-        ),
-        2: (
-            "2 - Básico: El problema presenta inconsistencias"
-            " desde el punto de vista matemático."
-        ),
-        1: (
-            "1 - Inicial: No logra contextualizar la situación"
-            " problemática."
-        ),
+        5: "5 - Destacado: Problema original, explícito la intervención de la figura y de integración de disciplinas.",
+        4: "4 - Avanzado: Situación problemática planteada es explícita en la intervención de la figura y de integración de disciplinas.",
+        3: "3 - Satisfactorio: El problema es correcto pero no se evidencia la figura construida.",
+        2: "2 - Básico: El problema presenta inconsistencias desde el punto de vista matemático.",
+        1: "1 - Inicial: No logra contextualizar la situación problemática.",
     }
     map_mat3 = {
-        5: (
-            "5 - Destacado: Procedimiento es completo, utiliza datos y"
-            " justifica cada paso."
-        ),
-        4: (
-            "4 - Avanzado: Aplica el procedimiento correcto y "
-            " justifica cada paso."
-        ),
-        3: (
-            "3 - Satisfactorio: El procedimient es correcto pero con "
-            " justificación parcial."
-        ),
-        2: (
-            "2 - Básico: La procedimiento es correcto no presenta justificación"
-        ),
-        1: (
-            "1 - Inicial: No presenta procedimiento ni justificación."
-        ),
+        5: "5 - Destacado: Procedimiento es completo, utiliza datos y justifica cada paso.",
+        4: "4 - Avanzado: Aplica el procedimiento correcto y justifica cada paso.",
+        3: "3 - Satisfactorio: El procedimient es correcto pero con justificación parcial.",
+        2: "2 - Básico: La procedimiento es correcto no presenta justificación",
+        1: "1 - Inicial: No presenta procedimiento ni justificación.",
     }
     map_mat4 = {
-        5: (
-            "5 - Destacado: Utiliza términos, símbolos y expresiones matemáticas de forma precisa y rigurosa."
-        ),
-        4: (
-            "4 - Avanzado: Utiliza términos, símbolos y expresiones matemáticas de forma correcta en su mayoría."   
-        ),
+        5: "5 - Destacado: Utiliza términos, símbolos y expresiones matemáticas de forma precisa y rigurosa.",
+        4: "4 - Avanzado: Utiliza términos, símbolos y expresiones matemáticas de forma correcta en su mayoría.",
         3: "3 - Satisfactorio: Muestra un uso impreciso o escazo de términos, símbolos de expresiones matemáticas",
-        2: (
-            "2 - Básico: Explica el desarrollo de forma coloquial o ambigua."
-        ),
+        2: "2 - Básico: Explica el desarrollo de forma coloquial o ambigua.",
         1: "1 - Inicial: La comunicación del desarrollo es imprecisa",
     }
 
     st.markdown("### 📐 Criterios de Evaluación: Matemática")
     with st.container(border=True):
-      st.markdown(
-          "#### 1. Construcción y Representación de la Figura Tridimensional"
-          " (20%)"
-      )
-      c1 = st.radio(
-          "Nivel:",
-          [5, 4, 3, 2, 1],
-          format_func=lambda x: map_mat1[x],
-          key="mat_c1",
-      )
-      obs1 = st.text_area(
-          "Observaciones / Justificación:", key="obs_mat1", height=70
-      )
+      st.markdown("#### 1. Construcción y Representación de la Figura Tridimensional (20%)")
+      c1 = st.radio("Nivel:", [5, 4, 3, 2, 1], format_func=lambda x: map_mat1[x], key="mat_c1")
+      obs1 = st.text_area("Observaciones / Justificación:", key="obs_mat1", height=70)
 
     with st.container(border=True):
-      st.markdown(
-          "#### 2. Diseño del Problema Matemático e Interdisciplinariedad"
-          " (30%)"
-      )
-      c2 = st.radio(
-          "Nivel:",
-          [5, 4, 3, 2, 1],
-          format_func=lambda x: map_mat2[x],
-          key="mat_c2",
-      )
-      obs2 = st.text_area(
-          "Observaciones / Justificación:", key="obs_mat2", height=70
-      )
+      st.markdown("#### 2. Diseño del Problema Matemático e Interdisciplinariedad (30%)")
+      c2 = st.radio("Nivel:", [5, 4, 3, 2, 1], format_func=lambda x: map_mat2[x], key="mat_c2")
+      obs2 = st.text_area("Observaciones / Justificación:", key="obs_mat2", height=70)
 
     with st.container(border=True):
       st.markdown("#### 3. Resolución y Justificación del Problema (30%)")
-      c3 = st.radio(
-          "Nivel:",
-          [5, 4, 3, 2, 1],
-          format_func=lambda x: map_mat3[x],
-          key="mat_c3",
-      )
-      obs3 = st.text_area(
-          "Observaciones / Justificación:", key="obs_mat3", height=70
-      )
+      c3 = st.radio("Nivel:", [5, 4, 3, 2, 1], format_func=lambda x: map_mat3[x], key="mat_c3")
+      obs3 = st.text_area("Observaciones / Justificación:", key="obs_mat3", height=70)
 
     with st.container(border=True):
       st.markdown("#### 4. Presentación y Comunicación (20%)")
-      c4 = st.radio(
-          "Nivel:",
-          [5, 4, 3, 2, 1],
-          format_func=lambda x: map_mat4[x],
-          key="mat_c4",
-      )
-      obs4 = st.text_area(
-          "Observaciones / Justificación:", key="obs_mat4", height=70
-      )
+      c4 = st.radio("Nivel:", [5, 4, 3, 2, 1], format_func=lambda x: map_mat4[x], key="mat_c4")
+      obs4 = st.text_area("Observaciones / Justificación:", key="obs_mat4", height=70)
 
     promedio_base5 = (c1 * 0.20) + (c2 * 0.30) + (c3 * 0.30) + (c4 * 0.20)
     puntaje_100 = round((promedio_base5 / 5) * 100, 2)
 
     eval_respuestas = {
-        "c1_desc": map_mat1[c1],
-        "obs1": obs1,
-        "c2_desc": map_mat2[c2],
-        "obs2": obs2,
-        "c3_desc": map_mat3[c3],
-        "obs3": obs3,
-        "c4_desc": map_mat4[c4],
-        "obs4": obs4,
+        "c1_desc": map_mat1[c1], "obs1": obs1,
+        "c2_desc": map_mat2[c2], "obs2": obs2,
+        "c3_desc": map_mat3[c3], "obs3": obs3,
+        "c4_desc": map_mat4[c4], "obs4": obs4,
     }
 
   # ---------------------------------------------------------
@@ -667,9 +479,7 @@ if opcion == "Cargar Evaluación":
           }[x],
           key="tdr_c1",
       )
-      obs1 = st.text_area(
-          "Observaciones / Justificación:", key="obs_tdr1", height=70
-      )
+      obs1 = st.text_area("Observaciones / Justificación:", key="obs_tdr1", height=70)
 
     with st.container(border=True):
       st.markdown(f"#### {lbl2}")
@@ -684,9 +494,7 @@ if opcion == "Cargar Evaluación":
           }[x],
           key="tdr_c2",
       )
-      obs2 = st.text_area(
-          "Observaciones / Justificación:", key="obs_tdr2", height=70
-      )
+      obs2 = st.text_area("Observaciones / Justificación:", key="obs_tdr2", height=70)
 
     with st.container(border=True):
       st.markdown(f"#### {lbl3}")
@@ -701,25 +509,18 @@ if opcion == "Cargar Evaluación":
           }[x],
           key="tdr_c3",
       )
-      obs3 = st.text_area(
-          "Observaciones / Justificación:", key="obs_tdr3", height=70
-      )
+      obs3 = st.text_area("Observaciones / Justificación:", key="obs_tdr3", height=70)
 
     promedio_base4 = (c1 * 0.35) + (c2 * 0.35) + (c3 * 0.30)
     puntaje_100 = round((promedio_base4 / 4) * 100, 2)
 
     eval_respuestas = {
-        "c1_desc": f"Nivel {c1} - {lbl1}",
-        "obs1": obs1,
-        "c2_desc": f"Nivel {c2} - {lbl2}",
-        "obs2": obs2,
-        "c3_desc": f"Nivel {c3} - {lbl3}",
-        "obs3": obs3,
+        "c1_desc": f"Nivel {c1} - {lbl1}", "obs1": obs1,
+        "c2_desc": f"Nivel {c2} - {lbl2}", "obs2": obs2,
+        "c3_desc": f"Nivel {c3} - {lbl3}", "obs3": obs3,
     }
 
-  st.metric(
-      label="Puntaje Total Ponderado (sobre 100)", value=f"{puntaje_100} / 100 pts"
-  )
+  st.metric(label="Puntaje Total Ponderado (sobre 100)", value=f"{puntaje_100} / 100 pts")
   st.divider()
 
   if st.button("💾 Guardar Evaluación", type="primary"):
@@ -738,11 +539,9 @@ if opcion == "Cargar Evaluación":
       }
       try:
         requests.post(WEBAPP_URL, json=payload, timeout=10)
-        st.success(
-            f"✅ Evaluación guardada con éxito (Puntaje Total: {puntaje_100} /"
-            " 100 pts)!"
-        )
+        st.session_state["eval_guardada_exito"] = True
         st.cache_data.clear()
+        st.rerun()  # Limpia la pantalla reiniciando todos los inputs de la rúbrica
       except Exception:
         st.error("⚠️ Error de conexión al guardar la evaluación.")
 
@@ -756,9 +555,7 @@ elif opcion == "Generar Códigos Únicos":
   if clave == ADMIN_PASSWORD:
     st.success("🔓 Acceso habilitado.")
 
-    prefijo = st.selectbox(
-        "Materia de Evaluación", ["MAT", "LEN", "TDR1", "TDR2"]
-    )
+    prefijo = st.selectbox("Materia de Evaluación", ["MAT", "LEN", "TDR1", "TDR2"])
     st.divider()
 
     col_m1, col_m2 = st.columns(2)
@@ -766,20 +563,9 @@ elif opcion == "Generar Códigos Únicos":
     # INTEGRANTE 1
     with col_m1:
       st.subheader("👤 Integrante 1")
-      dni1 = (
-          st.text_input("DNI Integrante 1", key="dni1")
-          .strip()
-          .replace(".", "")
-      )
+      dni1 = st.text_input("DNI Integrante 1", key="dni1").strip().replace(".", "")
 
-      n1_def, esc1_def, mail1_def, punt1_def, niv1_def, insc1_def = (
-          "",
-          "",
-          "",
-          "N/A",
-          "N/A",
-          "N/A",
-      )
+      n1_def, esc1_def, mail1_def, punt1_def, niv1_def, insc1_def = "", "", "", "N/A", "N/A", "N/A"
 
       if dni1:
         coincidencias1 = buscar_estudiantes_por_dni(dni1)
@@ -788,64 +574,35 @@ elif opcion == "Generar Códigos Únicos":
           c = coincidencias1[0]
           st.success("✅ Encontrado en padrón")
           n1_def, esc1_def, mail1_def, punt1_def, niv1_def, insc1_def = (
-              c.get("nombre", ""),
-              c.get("escuela", ""),
-              c.get("email", ""),
-              c.get("puntaje_anterior", "N/A"),
-              c.get("nivel", "N/A"),
-              c.get("inscripcion", "N/A"),
+              c.get("nombre", ""), c.get("escuela", ""), c.get("email", ""),
+              c.get("puntaje_anterior", "N/A"), c.get("nivel", "N/A"), c.get("inscripcion", "N/A")
           )
         elif len(coincidencias1) > 1:
-          st.warning(
-              f"⚠️ DNI duplicado: {len(coincidencias1)} registros encontrados."
-          )
+          st.warning(f"⚠️ DNI duplicado: {len(coincidencias1)} registros encontrados.")
           opciones1 = {
-              f"Reg {i+1} ({c.get('fecha','')}) - {c.get('escuela','')} -"
-              f" Desafío: {c.get('inscripcion','N/A')} - Nivel:"
-              f" {c.get('nivel','N/A')}": c
+              f"Reg {i+1} ({c.get('fecha','')}) - {c.get('escuela','')} - Desafío: {c.get('inscripcion','N/A')} - Nivel: {c.get('nivel','N/A')}": c
               for i, c in enumerate(coincidencias1)
           }
-          sel1 = st.selectbox(
-              "Seleccionar inscripción Integrante 1:",
-              options=list(opciones1.keys()),
-              key="sel1",
-          )
+          sel1 = st.selectbox("Seleccionar inscripción Integrante 1:", options=list(opciones1.keys()), key="sel1")
           c = opciones1[sel1]
           n1_def, esc1_def, mail1_def, punt1_def, niv1_def, insc1_def = (
-              c.get("nombre", ""),
-              c.get("escuela", ""),
-              c.get("email", ""),
-              c.get("puntaje_anterior", "N/A"),
-              c.get("nivel", "N/A"),
-              c.get("inscripcion", "N/A"),
+              c.get("nombre", ""), c.get("escuela", ""), c.get("email", ""),
+              c.get("puntaje_anterior", "N/A"), c.get("nivel", "N/A"), c.get("inscripcion", "N/A")
           )
 
       nom1 = st.text_input("Nombre y Apellido 1", value=n1_def)
       esc1 = st.text_input("Escuela Técnica Nº 1", value=esc1_def)
       mail1 = st.text_input("Correo Electrónico 1", value=mail1_def)
-      insc1 = st.text_input(
-          "Inscripción a Desafío de... (1)", value=str(insc1_def)
-      )
+      insc1 = st.text_input("Inscripción a Desafío de... (1)", value=str(insc1_def))
       niv1 = st.text_input("Nivel de la dupla (1)", value=str(niv1_def))
       punt1 = st.text_input("Puntaje Institucional 1", value=str(punt1_def))
 
     # INTEGRANTE 2
     with col_m2:
       st.subheader("👤 Integrante 2")
-      dni2 = (
-          st.text_input("DNI Integrante 2", key="dni2")
-          .strip()
-          .replace(".", "")
-      )
+      dni2 = st.text_input("DNI Integrante 2", key="dni2").strip().replace(".", "")
 
-      n2_def, esc2_def, mail2_def, punt2_def, niv2_def, insc2_def = (
-          "",
-          "",
-          "",
-          "N/A",
-          "N/A",
-          "N/A",
-      )
+      n2_def, esc2_def, mail2_def, punt2_def, niv2_def, insc2_def = "", "", "", "N/A", "N/A", "N/A"
 
       if dni2:
         coincidencias2 = buscar_estudiantes_por_dni(dni2)
@@ -854,44 +611,26 @@ elif opcion == "Generar Códigos Únicos":
           c = coincidencias2[0]
           st.success("✅ Encontrado en padrón")
           n2_def, esc2_def, mail2_def, punt2_def, niv2_def, insc2_def = (
-              c.get("nombre", ""),
-              c.get("escuela", ""),
-              c.get("email", ""),
-              c.get("puntaje_anterior", "N/A"),
-              c.get("nivel", "N/A"),
-              c.get("inscripcion", "N/A"),
+              c.get("nombre", ""), c.get("escuela", ""), c.get("email", ""),
+              c.get("puntaje_anterior", "N/A"), c.get("nivel", "N/A"), c.get("inscripcion", "N/A")
           )
         elif len(coincidencias2) > 1:
-          st.warning(
-              f"⚠️ DNI duplicado: {len(coincidencias2)} registros encontrados."
-          )
+          st.warning(f"⚠️ DNI duplicado: {len(coincidencias2)} registros encontrados.")
           opciones2 = {
-              f"Reg {i+1} ({c.get('fecha','')}) - {c.get('escuela','')} -"
-              f" Desafío: {c.get('inscripcion','N/A')} - Nivel:"
-              f" {c.get('nivel','N/A')}": c
+              f"Reg {i+1} ({c.get('fecha','')}) - {c.get('escuela','')} - Desafío: {c.get('inscripcion','N/A')} - Nivel: {c.get('nivel','N/A')}": c
               for i, c in enumerate(coincidencias2)
           }
-          sel2 = st.selectbox(
-              "Seleccionar inscripción Integrante 2:",
-              options=list(opciones2.keys()),
-              key="sel2",
-          )
+          sel2 = st.selectbox("Seleccionar inscripción Integrante 2:", options=list(opciones2.keys()), key="sel2")
           c = opciones2[sel2]
           n2_def, esc2_def, mail2_def, punt2_def, niv2_def, insc2_def = (
-              c.get("nombre", ""),
-              c.get("escuela", ""),
-              c.get("email", ""),
-              c.get("puntaje_anterior", "N/A"),
-              c.get("nivel", "N/A"),
-              c.get("inscripcion", "N/A"),
+              c.get("nombre", ""), c.get("escuela", ""), c.get("email", ""),
+              c.get("puntaje_anterior", "N/A"), c.get("nivel", "N/A"), c.get("inscripcion", "N/A")
           )
 
       nom2 = st.text_input("Nombre y Apellido 2", value=n2_def)
       esc2 = st.text_input("Escuela Técnica Nº 2", value=esc2_def)
       mail2 = st.text_input("Correo Electrónico 2", value=mail2_def)
-      insc2 = st.text_input(
-          "Inscripción a Desafío de... (2)", value=str(insc2_def)
-      )
+      insc2 = st.text_input("Inscripción a Desafío de... (2)", value=str(insc2_def))
       niv2 = st.text_input("Nivel de la dupla (2)", value=str(niv2_def))
       punt2 = st.text_input("Puntaje Institucional 2", value=str(punt2_def))
 
@@ -899,9 +638,7 @@ elif opcion == "Generar Códigos Únicos":
 
     if st.button("🎲 Generar Código de Dupla", type="primary"):
       if not dni1 or not nom1 or not dni2 or not nom2:
-        st.warning(
-            "⚠️ Debes completar los datos de ambos integrantes de la dupla."
-        )
+        st.warning("⚠️ Debes completar los datos de ambos integrantes de la dupla.")
       else:
         guardado_exitoso = False
         intentos = 0
@@ -923,12 +660,8 @@ elif opcion == "Generar Códigos Únicos":
           }
           materia_nombre = mapa_materias.get(prefijo, prefijo)
 
-          nivel_consolidado = (
-              f"Int1: {niv1} | Int2: {niv2}" if niv1 != niv2 else niv1
-          )
-          inscripcion_consolidada = (
-              f"Int1: {insc1} | Int2: {insc2}" if insc1 != insc2 else insc1
-          )
+          nivel_consolidado = f"Int1: {niv1} | Int2: {niv2}" if niv1 != niv2 else niv1
+          inscripcion_consolidada = f"Int1: {insc1} | Int2: {insc2}" if insc1 != insc2 else insc1
 
           payload_codigo = {
               "action": "guardar_codigo_dupla",
@@ -937,16 +670,8 @@ elif opcion == "Generar Códigos Únicos":
               "materia": materia_nombre,
               "inscripcion_desafio": inscripcion_consolidada,
               "nivel_dupla": nivel_consolidado,
-              "dni1": dni1,
-              "estudiante1": nom1,
-              "escuela1": esc1,
-              "email1": mail1,
-              "puntaje1": punt1,
-              "dni2": dni2,
-              "estudiante2": nom2,
-              "escuela2": esc2,
-              "email2": mail2,
-              "puntaje2": punt2,
+              "dni1": dni1, "estudiante1": nom1, "escuela1": esc1, "email1": mail1, "puntaje1": punt1,
+              "dni2": dni2, "estudiante2": nom2, "escuela2": esc2, "email2": mail2, "puntaje2": punt2,
           }
 
           try:
@@ -955,10 +680,7 @@ elif opcion == "Generar Códigos Únicos":
               respuesta = res.json()
               if respuesta.get("status") == "success":
                 guardado_exitoso = True
-                st.success(
-                    f"✅ Código Único Generado: **{codigo_generado}** (DNI"
-                    f" ...{ultimos_tres_dni})"
-                )
+                st.success(f"✅ Código Único Generado: **{codigo_generado}** (DNI ...{ultimos_tres_dni})")
                 st.code(codigo_generado, language="text")
                 st.cache_data.clear()
               elif respuesta.get("message") == "DUPLICADO":
