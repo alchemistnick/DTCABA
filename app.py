@@ -31,7 +31,7 @@ hide_streamlit_style = """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# ESTILOS CSS
+# ESTILOS CSS CON FORZADO TOTAL DE VISIBILIDAD EN SELECTBOX
 # ---------------------------------------------------------
 st.markdown(
     """
@@ -42,23 +42,30 @@ st.markdown(
         font-family: 'Inter', sans-serif; 
     }
 
+    /* BARRA LATERAL (SIDEBAR) BASE */
     section[data-testid="stSidebar"] { 
         background-color: #0F172A !important; 
     }
     section[data-testid="stSidebar"] * { 
         color: #F8FAFC !important; 
     }
-    
-    section[data-testid="stSidebar"] div[data-baseweb="select"] > div {
+
+    /* CORRECCIÓN DE CONTRASTE TOTAL EN SELECTBOX DE LA BARRA LATERAL */
+    section[data-testid="stSidebar"] div[data-baseweb="select"] {
         background-color: #1E293B !important;
-        color: #FFFFFF !important;
-        border: 1px solid #475569 !important;
         border-radius: 8px !important;
     }
     section[data-testid="stSidebar"] div[data-baseweb="select"] * {
+        background-color: transparent !important;
         color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+    }
+    section[data-testid="stSidebar"] div[data-baseweb="select"] [data-testid="stMarkdownContainer"] p {
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
     }
 
+    /* ENCABEZADO PRINCIPAL HERO */
     .app-header {
         background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%) !important;
         padding: 1.8rem 2rem; 
@@ -80,6 +87,7 @@ st.markdown(
         font-weight: 500;
     }
 
+    /* TARJETAS DE CONTENIDO */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background-color: var(--background-secondary, #FFFFFF) !important;
         border-radius: 14px;
@@ -88,6 +96,7 @@ st.markdown(
         margin-bottom: 1rem;
     }
 
+    /* TARJETA MÉTRICA PUNTAJE TOTAL */
     div[data-testid="stMetric"] {
         background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%) !important;
         padding: 1.2rem 1.8rem;
@@ -106,6 +115,7 @@ st.markdown(
         font-weight: 800;
     }
 
+    /* BOTONES PRINCIPALES */
     .stButton > button[kind="primary"] {
         background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
         color: #FFFFFF !important; 
@@ -374,7 +384,7 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                     st.error(f"Error de conexión: {e}")
 
     # ---------------------------------------------------------
-    # MÓDULO ACREDITACIÓN CON DATOS EDITABLES
+    # MÓDULO ACREDITACIÓN DE PRESENTES
     # ---------------------------------------------------------
     elif opcion == "📌 Acreditación de Presentes":
         st.header("📌 Módulo de Acreditación de Presentes al Evento")
@@ -481,7 +491,7 @@ elif evento_seleccionado == "🏆 Hackathon 2026":
 
         with st.container(border=True):
             st.markdown("#### 4. Coordinación y Logística (Máx. 15 pts)")
-            c4 = st.radio("Nivel:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_4")
+            c4 = st.radio("Nivel:", [15, 10, 5, 0], format_func=lambda x: map_10[x], key="hk_4")
 
         with st.container(border=True):
             st.markdown("#### 5. Atención a la Población (Máx. 15 pts)")
