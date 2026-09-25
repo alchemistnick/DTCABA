@@ -8,10 +8,9 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 # ---------------------------------------------------------
-# CONFIGURACIÓN E INICIALIZACIÓN DE FIREBASE
+# CONFIGURACIÓN E INICIALIZACIÓN DE FIREBASE Y WEBAPP
 # ---------------------------------------------------------
 WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwpYoAthfaViejGHAAThgQkAllbMrSsxfi-AC6vrcrtUtIeG-VtI5knuGPyGlGZhHl7tA/exec"
-WEBHOOK_HACKATHON = "https://script.google.com/macros/s/AKfycbyM8feFteFynfKVBk_L_ypJ6NP08ufGHODv6iGu8v7E8jkUoSRuic54mgPmYfvn2m5gEg/exec"
 ADMIN_PASSWORD = "admin123"
 
 CARACTERES_SEGUROS = "BCDFGHJKLMNPQRSTVWXYZ0123456789"
@@ -58,7 +57,7 @@ hide_streamlit_style = """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# ESTILOS CSS CONSERVADOS
+# ESTILOS CSS
 # ---------------------------------------------------------
 st.markdown(
     """
@@ -159,7 +158,7 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# FUNCIONES AUXILIARES
+# FUNCIONES AUXILIARES (PADRÓN OFICIAL VIA WEBAPP)
 # ---------------------------------------------------------
 @st.cache_data(ttl=600, show_spinner=False)
 def buscar_estudiantes_por_dni(dni):
@@ -336,8 +335,11 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
             st.success(st.session_state["exito_msj"])
             del st.session_state["exito_msj"]
 
+    # ---------------------------------------------------------
+    # GENERACIÓN DE EQUIPOS CON BÚSQUEDA AUTOMÁTICA EN PADRÓN OFICIAL
+    # ---------------------------------------------------------
     elif opcion == "Generar Códigos de Equipos":
-        st.header("Generador de Códigos para Equipos (Multi-Dupla)")
+        st.header("Generador de Códigos para Equipos / Duplas")
         clave = st.text_input("Contraseña de Acceso", type="password")
 
         if clave == ADMIN_PASSWORD:
@@ -443,7 +445,7 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                 st.warning("⚠️ No se encontró ningún estudiante con ese DNI en el padrón.")
 
 # ---------------------------------------------------------
-# EVENTO 2: HACKATHON 2026 (RÚBRICA COMPLETA DE 7 CRITERIOS)
+# EVENTO 2: HACKATHON 2026 (RÚBRICA COMPLETA Y ORIGINAL)
 # ---------------------------------------------------------
 elif evento_seleccionado == "🏆 Hackathon 2026":
     st.markdown(
@@ -592,7 +594,7 @@ elif evento_seleccionado == "🏆 Hackathon 2026":
                 st.warning("⚠️ No se encontró ningún participante con ese DNI en el padrón.")
 
 # ---------------------------------------------------------
-# PANEL DE ADMINISTRACIÓN Y CENTRO DE DESCARGAS EXCEL/CSV
+# PANEL DE ADMINISTRACIÓN Y REPORTE EXCEL / CSV
 # ---------------------------------------------------------
 if opcion in ["Panel de Administración", "Panel de Administración y Reportes"]:
     st.header("Panel de Administración y Reportes")
@@ -601,7 +603,6 @@ if opcion in ["Panel de Administración", "Panel de Administración y Reportes"]
     if clave == ADMIN_PASSWORD:
         st.success("🔓 Acceso de Administración concedido.")
 
-        # Consultar datos en vivo desde Firebase
         evals_data = [d.to_dict() for d in db.collection("evaluaciones").stream()]
         equipos_data = [d.to_dict() for d in db.collection("equipos").stream()]
         presentes_data = [d.to_dict() for d in db.collection("presentes").stream()]
