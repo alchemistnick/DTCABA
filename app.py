@@ -311,116 +311,225 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
             st.info("💡 Por favor, selecciona o ingresa el Código Único del Examen.")
             st.stop()
 
-        st.subheader(f"📋 Rúbrica con Descriptores: {materia}")
+        st.subheader(f"📋 Rúbrica de Evaluación: {materia}")
 
         # ---------------------------------------------------------
-        # RÚBRICAS DETALLADAS CON DESCRIPTORES CUALITATIVOS
+        # RÚBRICA DE LENGUA
         # ---------------------------------------------------------
         if materia == "Lengua":
-            desc_len_c1 = {
-                4: "4 - Avanzado: Comprende globalmente el texto fuente, selecciona ideas principales sin omisiones clave y mantiene coherencia conceptual.",
-                3: "3 - Satisfactorio: Comprende la idea central con leves omisiones secundarias que no alteran la interpretación general.",
-                2: "2 - En desarrollo: Identifica aspectos parciales del texto fuente; presenta confusiones en las ideas principales.",
-                1: "1 - Inicial: Dificultad severa en la comprensión del texto base; omite o malinterpreta el contenido principal."
+            map_len1 = {
+                4: "4 - Avanzado: Conserva e integra el sentido central del texto técnico.",
+                3: "3 - Satisfactorio: Conserva ideas principales con pequeñas simplificaciones.",
+                2: "2 - En desarrollo: Recupera solo parte de la información relevante.",
+                1: "1 - Inicial: Pierde o modifica el sentido del texto fuente.",
             }
-            desc_len_c2 = {
-                4: "4 - Avanzado: Reorganiza y adapta el texto al nuevo género con fluidez, adecuación discursiva y excelente cohesión.",
-                3: "3 - Satisfactorio: Adapta el género respetando las características principales con pequeñas imprecisiones formales.",
-                2: "2 - En desarrollo: Intento parcial de cambio de género; prevalece la estructura del texto original.",
-                1: "1 - Inicial: No logra realizar la transformación de género solicitada; copia o mantiene el formato base."
+            map_len2 = {
+                4: "4 - Avanzado: El texto se transforma completamente en un relato literario.",
+                3: "3 - Satisfactorio: Predomina el relato aunque mantiene rasgos expositivos.",
+                2: "2 - En desarrollo: Alterna explicación y narración sin integrarlas completamente.",
+                1: "1 - Inicial: Predomina el texto expositivo o no logra la transformación.",
             }
+            map_len3 = {
+                4: "4 - Avanzado: Construye una voz en primera persona consistente y verosímil.",
+                3: "3 - Satisfactorio: La voz se sostiene con algunas inconsistencias (ruptura de registro, de focalización, contradicción en la actitud).",
+                2: "2 - En desarrollo: La voz aparece de manera parcial o irregular (no presenta uniformidad en la voz en todos los párrafos).",
+                1: "1 - Inicial: No logra construir una voz narrativa.",
+            }
+            map_len4 = {
+                4: "4 - Avanzado: Utiliza el lenguaje técnico para construir experiencias y emociones o vínculos.",
+                3: "3 - Satisfactorio: Integra el vocabulario técnico de manera pertinente.",
+                2: "2 - En desarrollo: El lenguaje técnico aparece de forma aislada o forzada.",
+                1: "1 - Inicial: No incorpora o utiliza incorrectamente el lenguaje técnico.",
+            }
+            map_len5 = {
+                4: "4 - Avanzado: Integra descripciones, metáforas o comparaciones que enriquecen el relato.",
+                3: "3 - Satisfactorio: Utiliza algunos recursos expresivos adecuados.",
+                2: "2 - En desarrollo: Utiliza un recurso expresivo (metáfora o descripción) de forma adecuada.",
+                1: "1 - Inicial: No utiliza recursos literarios significativos.",
+            }
+            map_len6 = {
+                4: "4 - Avanzado: Presenta una secuencia clara, coherente y cohesiva.",
+                3: "3 - Satisfactorio: El relato es comprensible con pequeñas dificultades que implican ambigüedades o desorden en la claridad lógica.",
+                2: "2 - En desarrollo: La organización presenta reiteraciones o saltos.",
+                1: "1 - Inicial: La organización dificulta la comprensión.",
+            }
+            map_len7 = {
+                4: "4 - Avanzado: Emplea correctamente ortografía, puntuación y síntaxis.",
+                3: "3 - Satisfactorio: Presenta errores que no dificultan la comprensión.",
+                2: "2 - En desarrollo: Presenta errores que dificultan parcialmente la comprensión.",
+                1: "1 - Inicial: Los errores afectan significativamente la comprensión.",
+            }
+
+            st.markdown("### BLOQUE A: Comprender para transformar (40%)")
+            with st.container(border=True):
+                st.markdown("#### 1. Apropiación del texto fuente (20%)")
+                c1 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len1[x], key="len_c1")
+                obs1 = st.text_area("Observaciones / Justificación:", key="obs_c1", height=70)
 
             with st.container(border=True):
-                c1 = st.radio("1. Apropiación del texto fuente (50%):", [4, 3, 2, 1], format_func=lambda x: desc_len_c1[x], key="len_c1")
-                obs1 = st.text_area("Observaciones Apropiación:", key="obs_c1", height=70)
+                st.markdown("#### 2. Transformación del género (20%)")
+                c2 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len2[x], key="len_c2")
+                obs2 = st.text_area("Observaciones / Justificación:", key="obs_c2", height=70)
+
+            st.markdown("### BLOQUE B: Escribir para construir sentido (40%)")
+            with st.container(border=True):
+                st.markdown("#### 3. Voz narrativa")
+                c3 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len3[x], key="len_c3")
+                obs3 = st.text_area("Observaciones / Justificación:", key="obs_c3", height=70)
 
             with st.container(border=True):
-                c2 = st.radio("2. Transformación del género (50%):", [4, 3, 2, 1], format_func=lambda x: desc_len_c2[x], key="len_c2")
-                obs2 = st.text_area("Observaciones Transformación:", key="obs_c2", height=70)
+                st.markdown("#### 4. Resignificación del lenguaje técnico")
+                c4 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len4[x], key="len_c4")
+                obs4 = st.text_area("Observaciones / Justificación:", key="obs_c4", height=70)
 
-            puntaje_100 = round((((c1 * 0.5) + (c2 * 0.5)) / 4) * 100, 2)
+            with st.container(border=True):
+                st.markdown("#### 5. Construcción literaria")
+                c5 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len5[x], key="len_c5")
+                obs5 = st.text_area("Observaciones / Justificación:", key="obs_c5", height=70)
+
+            st.markdown("### BLOQUE C: Comunicar con claridad (20%)")
+            with st.container(border=True):
+                st.markdown("#### 6. Organización del relato (10%)")
+                c6 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len6[x], key="len_c6")
+                obs6 = st.text_area("Observaciones / Justificación:", key="obs_c6", height=70)
+
+            with st.container(border=True):
+                st.markdown("#### 7. Normativa (10%)")
+                c7 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len7[x], key="len_c7")
+                obs7 = st.text_area("Observaciones / Justificación:", key="obs_c7", height=70)
+
+            promedio_base4 = (
+                (c1 * 0.20)
+                + (c2 * 0.20)
+                + (c3 * 0.1333)
+                + (c4 * 0.1333)
+                + (c5 * 0.1334)
+                + (c6 * 0.10)
+                + (c7 * 0.10)
+            )
+            puntaje_100 = round((promedio_base4 / 4) * 100, 2)
+
             eval_respuestas = {
-                "criterio_1_apropiacion_texto_puntaje": c1,
-                "criterio_1_apropiacion_texto_descriptor": desc_len_c1[c1],
-                "criterio_1_apropiacion_texto_obs": obs1,
-                "criterio_2_transformacion_genero_puntaje": c2,
-                "criterio_2_transformacion_genero_descriptor": desc_len_c2[c2],
-                "criterio_2_transformacion_genero_obs": obs2
+                "c1_apropiacion_texto_pts": c1, "c1_apropiacion_texto_desc": map_len1[c1], "c1_obs": obs1,
+                "c2_transformacion_genero_pts": c2, "c2_transformacion_genero_desc": map_len2[c2], "c2_obs": obs2,
+                "c3_voz_narrativa_pts": c3, "c3_voz_narrativa_desc": map_len3[c3], "c3_obs": obs3,
+                "c4_resignificacion_tecnica_pts": c4, "c4_resignificacion_tecnica_desc": map_len4[c4], "c4_obs": obs4,
+                "c5_construccion_literaria_pts": c5, "c5_construccion_literaria_desc": map_len5[c5], "c5_obs": obs5,
+                "c6_organizacion_relato_pts": c6, "c6_organizacion_relato_desc": map_len6[c6], "c6_obs": obs6,
+                "c7_normativa_pts": c7, "c7_normativa_desc": map_len7[c7], "c7_obs": obs7,
             }
 
+        # ---------------------------------------------------------
+        # RÚBRICA DE MATEMÁTICA
+        # ---------------------------------------------------------
         elif materia == "Matemática":
-            desc_mat_c1 = {
-                5: "5 - Destacado: Traza, construye y representa modelos gráficos/geométricos de forma impecable con rigor técnico.",
-                4: "4 - Avanzado: Representación clara y correcta con mínimos detalles estéticos o imprecisiones menores.",
-                3: "3 - Satisfactorio: Representación comprensible pero con errores leves en escalas, proporciones o rotulado.",
-                2: "2 - Básico: Representación incompleta o con dificultades notables en la construcción geométrica.",
-                1: "1 - Inicial: No logra construir o representar adecuadamente el planteo matemático/gráfico."
+            map_mat1 = {
+                5: "5 - Destacado: Figura original y de alta complejidad en la representación.",
+                4: "4 - Avanzado: Figura tridimensional bien construida, muestra originalidad.",
+                3: "3 - Satisfactorio: La figura es adecuada y realizada de manera correcta.",
+                2: "2 - Básico: La figura es no presenta complejidad.",
+                1: "1 - Inicial: La figura no es original y presenta errores de representación.",
             }
-            desc_mat_c2 = {
-                5: "5 - Destacado: Aplica estrategias óptimas, resuelve correctamente todas las operaciones y justifica formalmente.",
-                4: "4 - Avanzado: Planteo y resolución correctos con leves errores de cálculo numérico que no invalidan el razonamiento.",
-                3: "3 - Satisfactorio: Aplica el procedimiento adecuado pero comete errores operativos en el desarrollo.",
-                2: "2 - Básico: Planteo confuso o uso de procedimientos inadecuados para el problema dado.",
-                1: "1 - Inicial: Sin estrategia de resolución o respuesta inconsistente sin fundamento."
+            map_mat2 = {
+                5: "5 - Destacado: Problema original, explícito la intervención de la figura y de integración de disciplinas.",
+                4: "4 - Avanzado: Situación problemática planteada es explícita en la intervención de la figura y de integración de disciplinas.",
+                3: "3 - Satisfactorio: El problema es correcto pero no se evidencia la figura construida.",
+                2: "2 - Básico: El problema presenta inconsistencias desde el punto de vista matemático.",
+                1: "1 - Inicial: No logra contextualizar la situación problemática.",
             }
+            map_mat3 = {
+                5: "5 - Destacado: Procedimiento es completo, utiliza datos y justifica cada paso.",
+                4: "4 - Avanzado: Aplica el procedimiento correcto y justifica cada paso.",
+                3: "3 - Satisfactorio: El procedimient es correcto pero con justificación parcial.",
+                2: "2 - Básico: La procedimiento es correcto no presenta justificación",
+                1: "1 - Inicial: No presenta procedimiento ni justificación.",
+            }
+            map_mat4 = {
+                5: "5 - Destacado: Utiliza términos, símbolos y expresiones matemáticas de forma precisa y rigurosa.",
+                4: "4 - Avanzado: Utiliza términos, símbolos y expresiones matemáticas de forma correcta en su mayoría.",
+                3: "3 - Satisfactorio: Muestra un uso impreciso o escazo de términos, símbolos de expresiones matemáticas",
+                2: "2 - Básico: Explica el desarrollo de forma coloquial o ambigua.",
+                1: "1 - Inicial: La comunicación del desarrollo es imprecisa",
+            }
+
+            st.markdown("### 📐 Criterios de Evaluación: Matemática")
+            with st.container(border=True):
+                st.markdown("#### 1. Construcción y Representación de la Figura Tridimensional (20%)")
+                c1 = st.radio("Nivel:", [5, 4, 3, 2, 1], format_func=lambda x: map_mat1[x], key="mat_c1")
+                obs1 = st.text_area("Observaciones / Justificación:", key="obs_mat1", height=70)
 
             with st.container(border=True):
-                c1 = st.radio("1. Construcción y Representación (50%):", [5, 4, 3, 2, 1], format_func=lambda x: desc_mat_c1[x], key="mat_c1")
-                obs1 = st.text_area("Observaciones Construcción:", key="obs_mat1", height=70)
+                st.markdown("#### 2. Diseño del Problema Matemático e Interdisciplinariedad (30%)")
+                c2 = st.radio("Nivel:", [5, 4, 3, 2, 1], format_func=lambda x: map_mat2[x], key="mat_c2")
+                obs2 = st.text_area("Observaciones / Justificación:", key="obs_mat2", height=70)
 
             with st.container(border=True):
-                c2 = st.radio("2. Resolución del Problema (50%):", [5, 4, 3, 2, 1], format_func=lambda x: desc_mat_c2[x], key="mat_c2")
-                obs2 = st.text_area("Observaciones Resolución:", key="obs_mat2", height=70)
+                st.markdown("#### 3. Resolución y Justificación del Problema (30%)")
+                c3 = st.radio("Nivel:", [5, 4, 3, 2, 1], format_func=lambda x: map_mat3[x], key="mat_c3")
+                obs3 = st.text_area("Observaciones / Justificación:", key="obs_mat3", height=70)
 
-            puntaje_100 = round((((c1 * 0.5) + (c2 * 0.5)) / 5) * 100, 2)
+            with st.container(border=True):
+                st.markdown("#### 4. Presentación y Comunicación (20%)")
+                c4 = st.radio("Nivel:", [5, 4, 3, 2, 1], format_func=lambda x: map_mat4[x], key="mat_c4")
+                obs4 = st.text_area("Observaciones / Justificación:", key="obs_mat4", height=70)
+
+            promedio_base5 = (c1 * 0.20) + (c2 * 0.30) + (c3 * 0.30) + (c4 * 0.20)
+            puntaje_100 = round((promedio_base5 / 5) * 100, 2)
+
             eval_respuestas = {
-                "criterio_1_construccion_representacion_puntaje": c1,
-                "criterio_1_construccion_representacion_descriptor": desc_mat_c1[c1],
-                "criterio_1_construccion_representacion_obs": obs1,
-                "criterio_2_resolucion_problema_puntaje": c2,
-                "criterio_2_resolucion_problema_descriptor": desc_mat_c2[c2],
-                "criterio_2_resolucion_problema_obs": obs2
+                "c1_construccion_figura_pts": c1, "c1_construccion_figura_desc": map_mat1[c1], "c1_obs": obs1,
+                "c2_diseno_problema_pts": c2, "c2_diseno_problema_desc": map_mat2[c2], "c2_obs": obs2,
+                "c3_resolucion_justificacion_pts": c3, "c3_resolucion_justificacion_desc": map_mat3[c3], "c3_obs": obs3,
+                "c4_comunicacion_matematica_pts": c4, "c4_comunicacion_matematica_desc": map_mat4[c4], "c4_obs": obs4,
             }
 
-        elif materia == "Tecnología de la Representación Nivel 1":
-            desc_tdr1 = {
-                4: "4 - Avanzado: Trazado limpio, empalmes perfectos, valorización de líneas impecable y aplicación exacta de normas IRAM.",
-                3: "3 - Satisfactorio: Buena calidad gráfica general con imprecisiones menores en el valor de línea o empalmes.",
-                2: "2 - Básico: Trazado irregular, falta de diferenciación en tipos de líneas o cotas incompletas.",
-                1: "1 - Inicial: Dibujo deficiente, no respeta cotas, normas básicas ni limpieza del trazado."
+        # ---------------------------------------------------------
+        # RÚBRICAS DE TECNOLOGÍA DE LA REPRESENTACIÓN
+        # ---------------------------------------------------------
+        else:
+            st.markdown(f"### ⚙️ Criterios de Evaluación: {materia}")
+
+            map_tdr_gen = {
+                4: "4 - Avanzado (Excelente aplicación)",
+                3: "3 - Satisfactorio (Correcta aplicación con mínimos detalles)",
+                2: "2 - En desarrollo (Aplicación parcial o incompleta)",
+                1: "1 - Inicial (Dificultades significativas)",
             }
 
-            with st.container(border=True):
-                c1 = st.radio("1. Precisión y Trazado Gráfico N1 (100%):", [4, 3, 2, 1], format_func=lambda x: desc_tdr1[x], key="tdr1_c1")
-                obs1 = st.text_area("Observaciones Nivel Gráfico N1:", key="obs_tdr1", height=70)
-            
-            puntaje_100 = round((c1 / 4) * 100, 2)
-            eval_respuestas = {
-                "criterio_1_precision_trazado_n1_puntaje": c1,
-                "criterio_1_precision_trazado_n1_descriptor": desc_tdr1[c1],
-                "criterio_1_precision_trazado_n1_obs": obs1
-            }
-
-        else: # Tecnología de la Representación Nivel 2
-            desc_tdr2 = {
-                4: "4 - Avanzado: Representación técnica compleja ejecutada a la perfección, acotado completo y dominio absoluto de cortes/vistas.",
-                3: "3 - Satisfactorio: Correcta resolución técnica con pequeños detalles a corregir en simbología o acotamiento.",
-                2: "2 - Básico: Dificultades en la proyección de vistas o cortes; omisión de convenciones gráficas estandarizadas.",
-                1: "1 - Inicial: Fallas estructurales en la representación tridimensional/plana; dibujo fuera de norma."
-            }
+            if "Nivel 1" in materia:
+                lbl1 = "1. Normalización Básica (35%)"
+                lbl2 = "2. Proyección y Visualización Ortogonal (35%)"
+                lbl3 = "3. Prolijidad y Calidad Gráfica (30%)"
+            else:
+                lbl1 = "1. Modelado y Vistas Complejas (35%)"
+                lbl2 = "2. Aplicación Avanzada de Normas (35%)"
+                lbl3 = "3. Interpretación y Resolución de Conjuntos (30%)"
 
             with st.container(border=True):
-                c1 = st.radio("1. Complejidad y Normalización Gráfica N2 (100%):", [4, 3, 2, 1], format_func=lambda x: desc_tdr2[x], key="tdr2_c1")
-                obs1 = st.text_area("Observaciones Nivel Gráfico N2:", key="obs_tdr2", height=70)
-            
-            puntaje_100 = round((c1 / 4) * 100, 2)
+                st.markdown(f"#### {lbl1}")
+                c1 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr_gen[x], key="tdr_c1")
+                obs1 = st.text_area("Observaciones / Justificación:", key="obs_tdr1", height=70)
+
+            with st.container(border=True):
+                st.markdown(f"#### {lbl2}")
+                c2 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr_gen[x], key="tdr_c2")
+                obs2 = st.text_area("Observaciones / Justificación:", key="obs_tdr2", height=70)
+
+            with st.container(border=True):
+                st.markdown(f"#### {lbl3}")
+                c3 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr_gen[x], key="tdr_c3")
+                obs3 = st.text_area("Observaciones / Justificación:", key="obs_tdr3", height=70)
+
+            promedio_base4 = (c1 * 0.35) + (c2 * 0.35) + (c3 * 0.30)
+            puntaje_100 = round((promedio_base4 / 4) * 100, 2)
+
             eval_respuestas = {
-                "criterio_1_normalizacion_grafica_n2_puntaje": c1,
-                "criterio_1_normalizacion_grafica_n2_descriptor": desc_tdr2[c1],
-                "criterio_1_normalizacion_grafica_n2_obs": obs1
+                "c1_criterio1_pts": c1, "c1_criterio1_desc": f"{lbl1} - {map_tdr_gen[c1]}", "c1_obs": obs1,
+                "c2_criterio2_pts": c2, "c2_criterio2_desc": f"{lbl2} - {map_tdr_gen[c2]}", "c2_obs": obs2,
+                "c3_criterio3_pts": c3, "c3_criterio3_desc": f"{lbl3} - {map_tdr_gen[c3]}", "c3_obs": obs3,
             }
 
-        st.metric(label="Puntaje Total", value=f"{puntaje_100} / 100 pts")
+        st.metric(label="Puntaje Total Ponderado (sobre 100)", value=f"{puntaje_100} / 100 pts")
 
         if st.button("💾 Guardar Evaluación", type="primary"):
             if not dni_evaluador or not codigo_unico:
@@ -569,7 +678,7 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                 st.warning("⚠️ No se encontró ningún estudiante con ese DNI en el padrón.")
 
 # ---------------------------------------------------------
-# EVENTO 2: HACKATHON 2026 (7 CRITERIOS CON DESCRIPTORES)
+# EVENTO 2: HACKATHON 2026
 # ---------------------------------------------------------
 elif evento_seleccionado == "🏆 Hackathon 2026":
     st.markdown(
@@ -595,16 +704,16 @@ elif evento_seleccionado == "🏆 Hackathon 2026":
         st.subheader("📊 Criterios de Evaluación Hackathon")
 
         desc_hk_15 = {
-            15: "15 pts - Excelente: Modela detalladamente el entorno, identificando variables clave, riesgos y restricciones con precisión técnica.",
-            10: "10 pts - Satisfactorio: Define adecuadamente el contexto y las variables principales sin profundizar en restricciones secundarias.",
-            5: "5 pts - En Desarrollo: Presentación superficial del escenario con vacíos significativos en el análisis de contexto.",
-            0: "0 pts - Inicial: No caracteriza el escenario ni define el contexto del problema."
+            15: "15 pts - Excelente (Supera ampliamente las expectativas)",
+            10: "10 pts - Satisfactorio (Cumple correctamente con el criterio)",
+            5: "5 pts - En Desarrollo (Presenta aspectos incompletos)",
+            0: "0 pts - Inicial (No cumple con el criterio)"
         }
 
         desc_hk_10 = {
-            10: "10 pts - Excelente: Integra herramientas, marcos y saberes de múltiples especialidades de forma fluida y sinérgica.",
-            5: "5 pts - Satisfactorio: Combina saberes de más de una disciplina con una integración funcional pero básica.",
-            0: "0 pts - Inicial: Enfoque unidisciplinar sin cruce significativo de áreas."
+            10: "10 pts - Excelente (Integración total y profunda)",
+            5: "5 pts - Satisfactorio (Integración parcial de disciplinas)",
+            0: "0 pts - Inicial (Sin enfoque interdisciplinario)"
         }
 
         with st.container(border=True):
@@ -647,19 +756,19 @@ elif evento_seleccionado == "🏆 Hackathon 2026":
             else:
                 eval_respuestas_hk = {
                     "criterio_1_escenario_pts": c1,
-                    "criterio_1_escenario_descriptor": desc_hk_15[c1],
+                    "criterio_1_escenario_desc": desc_hk_15[c1],
                     "criterio_2_infraestructura_energia_pts": c2,
-                    "criterio_2_infraestructura_energia_descriptor": desc_hk_15[c2],
+                    "criterio_2_infraestructura_energia_desc": desc_hk_15[c2],
                     "criterio_3_comunicacion_info_pts": c3,
-                    "criterio_3_comunicacion_info_descriptor": desc_hk_15[c3],
+                    "criterio_3_comunicacion_info_desc": desc_hk_15[c3],
                     "criterio_4_coordinacion_logistica_pts": c4,
-                    "criterio_4_coordinacion_logistica_descriptor": desc_hk_15[c4],
+                    "criterio_4_coordinacion_logistica_desc": desc_hk_15[c4],
                     "criterio_5_atencion_poblacion_pts": c5,
-                    "criterio_5_atencion_poblacion_descriptor": desc_hk_15[c5],
+                    "criterio_5_atencion_poblacion_desc": desc_hk_15[c5],
                     "criterio_6_operacion_emergencia_pts": c6,
-                    "criterio_6_operacion_emergencia_descriptor": desc_hk_15[c6],
+                    "criterio_6_operacion_emergencia_desc": desc_hk_15[c6],
                     "criterio_7_enfoque_interdisciplinario_pts": c7,
-                    "criterio_7_enfoque_interdisciplinario_descriptor": desc_hk_10[c7],
+                    "criterio_7_enfoque_interdisciplinario_desc": desc_hk_10[c7],
                     "observaciones_generales": observaciones
                 }
 
