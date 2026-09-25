@@ -31,7 +31,7 @@ hide_streamlit_style = """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# ESTILOS ADAPTABLES
+# ESTILOS ADAPTABLES COMPATIBLES CON MODO OSCURO Y MODO CLARO
 # ---------------------------------------------------------
 st.markdown(
     """
@@ -42,15 +42,29 @@ st.markdown(
         font-family: 'Inter', sans-serif; 
     }
 
+    /* Variables Tema Claro por Defecto */
     :root {
-        --primary: #4F46E5;
-        --primary-dark: #3730A3;
+        --primary-btn: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
         --header-bg: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
         --card-bg: #FFFFFF;
-        --card-border: #E5E7EB;
-        --text-color: #1F2937;
+        --card-border: #CBD5E1;
+        --text-color: #0F172A;
+        --metric-bg: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
     }
 
+    /* Variables Tema Oscuro Automático */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --primary-btn: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+            --header-bg: linear-gradient(135deg, #020617 0%, #0F172A 100%);
+            --card-bg: #1E293B;
+            --card-border: #334155;
+            --text-color: #F8FAFC;
+            --metric-bg: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+        }
+    }
+
+    /* Header Principal */
     .app-header {
         background: var(--header-bg);
         padding: 1.5rem 2rem; 
@@ -58,7 +72,7 @@ st.markdown(
         margin-bottom: 2rem; 
         color: #FFFFFF !important; 
         text-align: center;
-        box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.2);
+        box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.3);
     }
     .app-header h1 { 
         font-family: 'Poppins', sans-serif; 
@@ -72,27 +86,54 @@ st.markdown(
         color: #94A3B8 !important; 
     }
 
+    /* Tarjetas de Contenido (Adapta texto e interior al modo oscuro) */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background-color: var(--card-bg) !important;
-        border-radius: 16px;
+        border-radius: 14px;
         border: 1px solid var(--card-border) !important;
         padding: 1.25rem;
         margin-bottom: 1rem;
     }
 
+    div[data-testid="stVerticalBlockBorderWrapper"] *,
+    .stRadio label, .stMarkdown p, .stMarkdown h3, .stMarkdown h4 {
+        color: var(--text-color) !important;
+    }
+
+    /* Métrica de Puntaje Total */
+    div[data-testid="stMetric"] {
+        background: var(--metric-bg) !important;
+        padding: 1.2rem 1.8rem;
+        border-radius: 12px;
+        border: 1px solid var(--card-border) !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        margin: 1.5rem 0;
+    }
+    div[data-testid="stMetric"] label {
+        color: var(--text-color) !important;
+        font-weight: 600;
+    }
+    div[data-testid="stMetric"] div[data-testid="stMetricValue"] {
+        color: #38BDF8 !important;
+        font-weight: 800;
+    }
+
+    /* Botón Principal */
     .stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
+        background: var(--primary-btn) !important;
         color: #FFFFFF !important; 
         border: none; 
         border-radius: 10px; 
         padding: 0.75rem 1.5rem; 
         font-weight: 600; 
         width: 100%;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
     }
 
+    /* Sidebar Oscura Estilizada */
     section[data-testid="stSidebar"] { 
-        background-color: #0F172A !important; 
+        background-color: #020617 !important; 
     }
     section[data-testid="stSidebar"] * { 
         color: #F8FAFC !important; 
@@ -284,7 +325,6 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                     if res.status_code == 200:
                         st.session_state["exito_msj"] = f"✅ ¡Evaluación del código {codigo_unico} guardada con éxito!"
                         
-                        # RESETEO DE CAMPOS AL GUARDAR
                         for k in ["eval_dni", "eval_codigo_select", "eval_codigo_manual", "eval_codigo_directo", 
                                   "len_c1", "obs_c1", "len_c2", "obs_c2", "mat_c1", "obs_mat1", "mat_c2", "obs_mat2", "tdr_c1", "obs_tdr1"]:
                             if k in st.session_state:
@@ -293,7 +333,6 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                 except Exception as e:
                     st.error(f"Error al conectar: {e}")
 
-        # Mensaje de éxito colocado en la parte inferior
         if "exito_msj" in st.session_state:
             st.success(st.session_state["exito_msj"])
             del st.session_state["exito_msj"]
@@ -356,7 +395,7 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                     st.error(f"Error de conexión: {e}")
 
 # ---------------------------------------------------------
-# EVENTO 2: HACKATHON 2026
+# EVENTO 2: HACKATHON 2026 (FORMATO DE RÚBRICA CON TARJETAS Y RADIO)
 # ---------------------------------------------------------
 elif evento_seleccionado == "🏆 Hackathon 2026":
     st.markdown(
@@ -370,26 +409,62 @@ elif evento_seleccionado == "🏆 Hackathon 2026":
     )
 
     if opcion == "Cargar Evaluación Hackathon":
-        st.markdown("### 📋 Datos Generales")
-        col1, col2 = st.columns(2)
-        with col1:
-            evaluador = st.text_input("Evaluador*", placeholder="Ej. Gustavo", key="hk_eval")
-        with col2:
-            equipo = st.text_input("Equipo / Proyecto*", placeholder="Ej. Nicolas", key="hk_equipo")
+        with st.container(border=True):
+            col1, col2 = st.columns(2)
+            with col1:
+                evaluador = st.text_input("Evaluador*", placeholder="Ej. Gustavo", key="hk_eval")
+            with col2:
+                equipo = st.text_input("Equipo / Proyecto*", placeholder="Ej. Nicolas", key="hk_equipo")
 
-        st.markdown("### 📊 Criterios de Evaluación")
-        c1 = st.slider("1. Escenario", 0, 15, 10, key="hk_1")
-        c2 = st.slider("2. Infraestructura y Energía", 0, 15, 10, key="hk_2")
-        c3 = st.slider("3. Comunicación e Información", 0, 15, 10, key="hk_3")
-        c4 = st.slider("4. Coordinación y Logística", 0, 15, 10, key="hk_4")
-        c5 = st.slider("5. Atención a la Población", 0, 15, 10, key="hk_5")
-        c6 = st.slider("6. Operación de Emergencia", 0, 15, 10, key="hk_6")
-        c7 = st.slider("7. Enfoque Interdisciplinario", 0, 10, 5, key="hk_7")
+        st.subheader("📊 Criterios de Evaluación")
+
+        # Mapas de Opciones para las Rúbricas
+        map_15 = {
+            15: "15 - Excelente (Supera ampliamente las expectativas)",
+            10: "10 - Satisfactorio (Cumple correctamente con el criterio)",
+            5: "5 - En Desarrollo (Presenta aspectos incompletos)",
+            0: "0 - Inicial (No cumple con el criterio)"
+        }
+
+        map_10 = {
+            10: "10 - Excelente (Integración total y profunda)",
+            5: "5 - Satisfactorio (Integración parcial de disciplinas)",
+            0: "0 - Inicial (Sin enfoque interdisciplinario)"
+        }
+
+        with st.container(border=True):
+            st.markdown("#### 1. Escenario (Máx. 15 pts)")
+            c1 = st.radio("Nivel:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_1")
+
+        with st.container(border=True):
+            st.markdown("#### 2. Infraestructura y Energía (Máx. 15 pts)")
+            c2 = st.radio("Nivel:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_2")
+
+        with st.container(border=True):
+            st.markdown("#### 3. Comunicación e Información (Máx. 15 pts)")
+            c3 = st.radio("Nivel:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_3")
+
+        with st.container(border=True):
+            st.markdown("#### 4. Coordinación y Logística (Máx. 15 pts)")
+            c4 = st.radio("Nivel:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_4")
+
+        with st.container(border=True):
+            st.markdown("#### 5. Atención a la Población (Máx. 15 pts)")
+            c5 = st.radio("Nivel:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_5")
+
+        with st.container(border=True):
+            st.markdown("#### 6. Operación de Emergencia (Máx. 15 pts)")
+            c6 = st.radio("Nivel:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_6")
+
+        with st.container(border=True):
+            st.markdown("#### 7. Enfoque Interdisciplinario (Máx. 10 pts)")
+            c7 = st.radio("Nivel:", [10, 5, 0], format_func=lambda x: map_10[x], key="hk_7")
 
         total_score = c1 + c2 + c3 + c4 + c5 + c6 + c7
-        st.metric(label="🎯 Puntaje Total", value=f"{total_score} pts")
+        st.metric(label="🎯 Puntaje Total Hackathon", value=f"{total_score} / 100 pts")
 
-        observaciones = st.text_area("💬 Observaciones", placeholder="Comentarios...", key="hk_obs")
+        with st.container(border=True):
+            observaciones = st.text_area("💬 Observaciones / Justificación", placeholder="Escribe tus comentarios...", key="hk_obs", height=100)
 
         if st.button("🚀 Guardar Evaluación Hackathon", type="primary"):
             if not evaluador.strip() or not equipo.strip():
@@ -422,7 +497,7 @@ elif evento_seleccionado == "🏆 Hackathon 2026":
                 except Exception as e:
                     st.error(f"Error de conexión: {e}")
 
-        # Mensaje de confirmación en la parte inferior
+        # Mensaje de confirmación colocado en la parte inferior
         if "exito_msj_hk" in st.session_state:
             st.success(st.session_state["exito_msj_hk"])
             st.balloons()
@@ -442,7 +517,7 @@ if opcion == "Panel de Administración":
             if not df_evals.empty:
                 st.dataframe(df_evals, use_container_width=True)
             else:
-                st.info("No hay evaluaciones registadas aún.")
+                st.info("No hay evaluaciones registradas aún.")
 
         with tab2:
             df_codigos = leer_pestana(SHEET_ID_EVALS, "Base_codigos")
