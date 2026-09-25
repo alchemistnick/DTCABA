@@ -199,7 +199,7 @@ def aplanar_equipos(equipos_list):
     return pd.DataFrame(filas_aplanadas)
 
 def generar_excel_descarga(dict_raw_data):
-    """Genera un archivo Excel desglosando subEstructuras en columnas individuales."""
+    """Genera un archivo Excel desglosando subestructuras en columnas individuales."""
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
         # Pestaña Evaluaciones (normaliza json anidado como 'respuestas')
@@ -318,32 +318,68 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
 
         st.subheader(f"📋 Rúbrica de Evaluación: {materia}")
 
+        # ---------------------------------------------------------
+        # RÚBRICAS ESPECÍFICAS DTCABA
+        # ---------------------------------------------------------
         if materia == "Lengua":
-            map_len1 = {4: "4 - Avanzado", 3: "3 - Satisfactorio", 2: "2 - En desarrollo", 1: "1 - Inicial"}
-            c1 = st.radio("Apropiación del texto fuente (20%):", [4, 3, 2, 1], format_func=lambda x: map_len1[x], key="len_c1")
-            obs1 = st.text_area("Observaciones:", key="obs_c1", height=70)
+            map_len = {4: "4 - Avanzado", 3: "3 - Satisfactorio", 2: "2 - En desarrollo", 1: "1 - Inicial"}
+            c1 = st.radio("1. Apropiación del texto fuente (20%):", [4, 3, 2, 1], format_func=lambda x: map_len[x], key="len_c1")
+            obs1 = st.text_area("Observaciones Apropiación:", key="obs_c1", height=70)
 
-            c2 = st.radio("Transformación del género (20%):", [4, 3, 2, 1], format_func=lambda x: map_len1[x], key="len_c2")
-            obs2 = st.text_area("Observaciones:", key="obs_c2", height=70)
+            c2 = st.radio("2. Transformación del género (20%):", [4, 3, 2, 1], format_func=lambda x: map_len[x], key="len_c2")
+            obs2 = st.text_area("Observaciones Transformación:", key="obs_c2", height=70)
 
             puntaje_100 = round((((c1 * 0.5) + (c2 * 0.5)) / 4) * 100, 2)
-            eval_respuestas = {"c1_desc": map_len1[c1], "obs1": obs1, "c2_desc": map_len1[c2], "obs2": obs2}
+            eval_respuestas = {
+                "apropiacion_texto_puntaje": c1,
+                "apropiacion_texto_desc": map_len[c1],
+                "apropiacion_texto_obs": obs1,
+                "transformacion_genero_puntaje": c2,
+                "transformacion_genero_desc": map_len[c2],
+                "transformacion_genero_obs": obs2
+            }
 
         elif materia == "Matemática":
-            map_mat1 = {5: "5 - Destacado", 4: "4 - Avanzado", 3: "3 - Satisfactorio", 2: "2 - Básico", 1: "1 - Inicial"}
-            c1 = st.radio("Construcción y Representación (50%):", [5, 4, 3, 2, 1], format_func=lambda x: map_mat1[x], key="mat_c1")
-            obs1 = st.text_area("Observaciones:", key="obs_mat1", height=70)
+            map_mat = {5: "5 - Destacado", 4: "4 - Avanzado", 3: "3 - Satisfactorio", 2: "2 - Básico", 1: "1 - Inicial"}
+            c1 = st.radio("1. Construcción y Representación (50%):", [5, 4, 3, 2, 1], format_func=lambda x: map_mat[x], key="mat_c1")
+            obs1 = st.text_area("Observaciones Construcción:", key="obs_mat1", height=70)
 
-            c2 = st.radio("Resolución del Problema (50%):", [5, 4, 3, 2, 1], format_func=lambda x: map_mat1[x], key="mat_c2")
-            obs2 = st.text_area("Observaciones:", key="obs_mat2", height=70)
+            c2 = st.radio("2. Resolución del Problema (50%):", [5, 4, 3, 2, 1], format_func=lambda x: map_mat[x], key="mat_c2")
+            obs2 = st.text_area("Observaciones Resolución:", key="obs_mat2", height=70)
 
             puntaje_100 = round((((c1 * 0.5) + (c2 * 0.5)) / 5) * 100, 2)
-            eval_respuestas = {"c1_desc": map_mat1[c1], "obs1": obs1, "c2_desc": map_mat1[c2], "obs2": obs2}
-        else:
-            c1 = st.radio("Nivel Gráfico (100%):", [4, 3, 2, 1], key="tdr_c1")
-            obs1 = st.text_area("Observaciones:", key="obs_tdr1", height=70)
+            eval_respuestas = {
+                "construccion_representacion_puntaje": c1,
+                "construccion_representacion_desc": map_mat[c1],
+                "construccion_representacion_obs": obs1,
+                "resolucion_problema_puntaje": c2,
+                "resolucion_problema_desc": map_mat[c2],
+                "resolucion_problema_obs": obs2
+            }
+
+        elif materia == "Tecnología de la Representación Nivel 1":
+            map_tdr = {4: "4 - Avanzado", 3: "3 - Satisfactorio", 2: "2 - Básico", 1: "1 - Inicial"}
+            c1 = st.radio("1. Precisión y Trazado Gráfico Nivel 1 (100%):", [4, 3, 2, 1], format_func=lambda x: map_tdr[x], key="tdr1_c1")
+            obs1 = st.text_area("Observaciones Nivel Gráfico N1:", key="obs_tdr1", height=70)
+            
             puntaje_100 = round((c1 / 4) * 100, 2)
-            eval_respuestas = {"c1_desc": f"Nivel {c1}", "obs1": obs1}
+            eval_respuestas = {
+                "precision_trazado_n1_puntaje": c1,
+                "precision_trazado_n1_desc": map_tdr[c1],
+                "precision_trazado_n1_obs": obs1
+            }
+
+        else: # Tecnología de la Representación Nivel 2
+            map_tdr = {4: "4 - Avanzado", 3: "3 - Satisfactorio", 2: "2 - Básico", 1: "1 - Inicial"}
+            c1 = st.radio("1. Complejidad y Normalización Gráfica Nivel 2 (100%):", [4, 3, 2, 1], format_func=lambda x: map_tdr[x], key="tdr2_c1")
+            obs1 = st.text_area("Observaciones Nivel Gráfico N2:", key="obs_tdr2", height=70)
+            
+            puntaje_100 = round((c1 / 4) * 100, 2)
+            eval_respuestas = {
+                "normalizacion_grafica_n2_puntaje": c1,
+                "normalizacion_grafica_n2_desc": map_tdr[c1],
+                "normalizacion_grafica_n2_obs": obs1
+            }
 
         st.metric(label="Puntaje Total", value=f"{puntaje_100} / 100 pts")
 
@@ -494,7 +530,7 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                 st.warning("⚠️ No se encontró ningún estudiante con ese DNI en el padrón.")
 
 # ---------------------------------------------------------
-# EVENTO 2: HACKATHON 2026
+# EVENTO 2: HACKATHON 2026 (RÚBRICA OFICIAL DE 7 CRITERIOS)
 # ---------------------------------------------------------
 elif evento_seleccionado == "🏆 Hackathon 2026":
     st.markdown(
@@ -517,48 +553,48 @@ elif evento_seleccionado == "🏆 Hackathon 2026":
             with col3:
                 especialidad_hk = st.text_input("Especialidad del Proyecto", placeholder="Ej. Computación", key="hk_esp")
 
-        st.subheader("📊 Criterios de Evaluación")
+        st.subheader("📊 Criterios de Evaluación Hackathon")
 
         map_15 = {
-            15: "15 - Excelente (Supera ampliamente las expectativas)",
-            10: "10 - Satisfactorio (Cumple correctamente con el criterio)",
-            5: "5 - En Desarrollo (Presenta aspectos incompletos)",
-            0: "0 - Inicial (No cumple con el criterio)"
+            15: "15 pts - Excelente (Supera ampliamente las expectativas)",
+            10: "10 pts - Satisfactorio (Cumple correctamente con el criterio)",
+            5: "5 pts - En Desarrollo (Presenta aspectos incompletos)",
+            0: "0 pts - Inicial (No cumple con el criterio)"
         }
 
         map_10 = {
-            10: "10 - Excelente (Integración total y profunda)",
-            5: "5 - Satisfactorio (Integración parcial de disciplinas)",
-            0: "0 - Inicial (Sin enfoque interdisciplinario)"
+            10: "10 pts - Excelente (Integración total y profunda)",
+            5: "5 pts - Satisfactorio (Integración parcial de disciplinas)",
+            0: "0 pts - Inicial (Sin enfoque interdisciplinario)"
         }
 
         with st.container(border=True):
             st.markdown("#### 1. Escenario (Máx. 15 pts)")
-            c1 = st.radio("Nivel:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_1")
+            c1 = st.radio("Nivel Escenario:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_1")
 
         with st.container(border=True):
             st.markdown("#### 2. Infraestructura y Energía (Máx. 15 pts)")
-            c2 = st.radio("Nivel:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_2")
+            c2 = st.radio("Nivel Infraestructura:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_2")
 
         with st.container(border=True):
             st.markdown("#### 3. Comunicación e Información (Máx. 15 pts)")
-            c3 = st.radio("Nivel:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_3")
+            c3 = st.radio("Nivel Comunicación:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_3")
 
         with st.container(border=True):
             st.markdown("#### 4. Coordinación y Logística (Máx. 15 pts)")
-            c4 = st.radio("Nivel:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_4")
+            c4 = st.radio("Nivel Coordinación:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_4")
 
         with st.container(border=True):
             st.markdown("#### 5. Atención a la Población (Máx. 15 pts)")
-            c5 = st.radio("Nivel:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_5")
+            c5 = st.radio("Nivel Atención:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_5")
 
         with st.container(border=True):
             st.markdown("#### 6. Operación de Emergencia (Máx. 15 pts)")
-            c6 = st.radio("Nivel:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_6")
+            c6 = st.radio("Nivel Operación:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_6")
 
         with st.container(border=True):
             st.markdown("#### 7. Enfoque Interdisciplinario (Máx. 10 pts)")
-            c7 = st.radio("Nivel:", [10, 5, 0], format_func=lambda x: map_10[x], key="hk_7")
+            c7 = st.radio("Nivel Interdisciplinario:", [10, 5, 0], format_func=lambda x: map_10[x], key="hk_7")
 
         total_score = c1 + c2 + c3 + c4 + c5 + c6 + c7
         st.metric(label="🎯 Puntaje Total Hackathon", value=f"{total_score} / 100 pts")
@@ -570,21 +606,25 @@ elif evento_seleccionado == "🏆 Hackathon 2026":
             if not evaluador.strip() or not equipo.strip():
                 st.warning("⚠️ Por favor completa el Evaluador y el Equipo.")
             else:
+                eval_respuestas_hk = {
+                    "criterio_1_escenario_pts": c1,
+                    "criterio_2_infraestructura_energia_pts": c2,
+                    "criterio_3_comunicacion_info_pts": c3,
+                    "criterio_4_coordinacion_logistica_pts": c4,
+                    "criterio_5_atencion_poblacion_pts": c5,
+                    "criterio_6_operacion_emergencia_pts": c6,
+                    "criterio_7_enfoque_interdisciplinario_pts": c7,
+                    "observaciones": observaciones
+                }
+
                 doc_eval_hk = {
                     "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     "evaluador": evaluador,
                     "equipo": equipo,
                     "evento": "Hackathon 2026",
                     "especialidad": especialidad_hk if especialidad_hk.strip() else "General",
-                    "escenario": c1,
-                    "infraestructura_energia": c2,
-                    "comunicacion_info": c3,
-                    "coordinacion_logistica": c4,
-                    "atencion_poblacion": c5,
-                    "operacion_emergencia": c6,
-                    "enfoque_interdisciplinario": c7,
                     "promedio": total_score,
-                    "observaciones": observaciones
+                    "respuestas": eval_respuestas_hk
                 }
                 db.collection("evaluaciones").add(doc_eval_hk)
                 st.session_state["exito_msj_hk"] = f"✅ ¡Evaluación del equipo '{equipo}' guardada correctamente en Firebase!"
