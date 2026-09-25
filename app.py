@@ -150,7 +150,7 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# FUNCIONES AUXILIARES (PADRÓN Y EXPORTACIÓN APLANADA)
+# FUNCIONES AUXILIARES
 # ---------------------------------------------------------
 @st.cache_data(ttl=600, show_spinner=False)
 def buscar_estudiantes_por_dni(dni):
@@ -177,7 +177,6 @@ def obtener_lista_codigos_fb():
         return []
 
 def aplanar_equipos(equipos_list):
-    """Desglosa la lista de integrantes en columnas independientes por integrante."""
     filas_aplanadas = []
     for eq in equipos_list:
         base = {
@@ -199,24 +198,20 @@ def aplanar_equipos(equipos_list):
     return pd.DataFrame(filas_aplanadas)
 
 def generar_excel_descarga(dict_raw_data):
-    """Genera un archivo Excel desglosando subestructuras en columnas individuales."""
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
-        # Pestaña Evaluaciones (normaliza json anidado como 'respuestas')
         if dict_raw_data.get("Evaluaciones"):
             df_evals = pd.json_normalize(dict_raw_data["Evaluaciones"])
             df_evals.to_excel(writer, sheet_name="Evaluaciones", index=False)
         else:
             pd.DataFrame().to_excel(writer, sheet_name="Evaluaciones", index=False)
 
-        # Pestaña Equipos (aplana lista de integrantes)
         if dict_raw_data.get("Equipos"):
             df_equipos = aplanar_equipos(dict_raw_data["Equipos"])
             df_equipos.to_excel(writer, sheet_name="Equipos", index=False)
         else:
             pd.DataFrame().to_excel(writer, sheet_name="Equipos", index=False)
 
-        # Pestaña Presentes Acreditados
         if dict_raw_data.get("Presentes_Acreditados"):
             df_presentes = pd.DataFrame(dict_raw_data["Presentes_Acreditados"])
             df_presentes.to_excel(writer, sheet_name="Presentes_Acreditados", index=False)
@@ -316,69 +311,113 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
             st.info("💡 Por favor, selecciona o ingresa el Código Único del Examen.")
             st.stop()
 
-        st.subheader(f"📋 Rúbrica de Evaluación: {materia}")
+        st.subheader(f"📋 Rúbrica con Descriptores: {materia}")
 
         # ---------------------------------------------------------
-        # RÚBRICAS ESPECÍFICAS DTCABA
+        # RÚBRICAS DETALLADAS CON DESCRIPTORES CUALITATIVOS
         # ---------------------------------------------------------
         if materia == "Lengua":
-            map_len = {4: "4 - Avanzado", 3: "3 - Satisfactorio", 2: "2 - En desarrollo", 1: "1 - Inicial"}
-            c1 = st.radio("1. Apropiación del texto fuente (20%):", [4, 3, 2, 1], format_func=lambda x: map_len[x], key="len_c1")
-            obs1 = st.text_area("Observaciones Apropiación:", key="obs_c1", height=70)
+            desc_len_c1 = {
+                4: "4 - Avanzado: Comprende globalmente el texto fuente, selecciona ideas principales sin omisiones clave y mantiene coherencia conceptual.",
+                3: "3 - Satisfactorio: Comprende la idea central con leves omisiones secundarias que no alteran la interpretación general.",
+                2: "2 - En desarrollo: Identifica aspectos parciales del texto fuente; presenta confusiones en las ideas principales.",
+                1: "1 - Inicial: Dificultad severa en la comprensión del texto base; omite o malinterpreta el contenido principal."
+            }
+            desc_len_c2 = {
+                4: "4 - Avanzado: Reorganiza y adapta el texto al nuevo género con fluidez, adecuación discursiva y excelente cohesión.",
+                3: "3 - Satisfactorio: Adapta el género respetando las características principales con pequeñas imprecisiones formales.",
+                2: "2 - En desarrollo: Intento parcial de cambio de género; prevalece la estructura del texto original.",
+                1: "1 - Inicial: No logra realizar la transformación de género solicitada; copia o mantiene el formato base."
+            }
 
-            c2 = st.radio("2. Transformación del género (20%):", [4, 3, 2, 1], format_func=lambda x: map_len[x], key="len_c2")
-            obs2 = st.text_area("Observaciones Transformación:", key="obs_c2", height=70)
+            with st.container(border=True):
+                c1 = st.radio("1. Apropiación del texto fuente (50%):", [4, 3, 2, 1], format_func=lambda x: desc_len_c1[x], key="len_c1")
+                obs1 = st.text_area("Observaciones Apropiación:", key="obs_c1", height=70)
+
+            with st.container(border=True):
+                c2 = st.radio("2. Transformación del género (50%):", [4, 3, 2, 1], format_func=lambda x: desc_len_c2[x], key="len_c2")
+                obs2 = st.text_area("Observaciones Transformación:", key="obs_c2", height=70)
 
             puntaje_100 = round((((c1 * 0.5) + (c2 * 0.5)) / 4) * 100, 2)
             eval_respuestas = {
-                "apropiacion_texto_puntaje": c1,
-                "apropiacion_texto_desc": map_len[c1],
-                "apropiacion_texto_obs": obs1,
-                "transformacion_genero_puntaje": c2,
-                "transformacion_genero_desc": map_len[c2],
-                "transformacion_genero_obs": obs2
+                "criterio_1_apropiacion_texto_puntaje": c1,
+                "criterio_1_apropiacion_texto_descriptor": desc_len_c1[c1],
+                "criterio_1_apropiacion_texto_obs": obs1,
+                "criterio_2_transformacion_genero_puntaje": c2,
+                "criterio_2_transformacion_genero_descriptor": desc_len_c2[c2],
+                "criterio_2_transformacion_genero_obs": obs2
             }
 
         elif materia == "Matemática":
-            map_mat = {5: "5 - Destacado", 4: "4 - Avanzado", 3: "3 - Satisfactorio", 2: "2 - Básico", 1: "1 - Inicial"}
-            c1 = st.radio("1. Construcción y Representación (50%):", [5, 4, 3, 2, 1], format_func=lambda x: map_mat[x], key="mat_c1")
-            obs1 = st.text_area("Observaciones Construcción:", key="obs_mat1", height=70)
+            desc_mat_c1 = {
+                5: "5 - Destacado: Traza, construye y representa modelos gráficos/geométricos de forma impecable con rigor técnico.",
+                4: "4 - Avanzado: Representación clara y correcta con mínimos detalles estéticos o imprecisiones menores.",
+                3: "3 - Satisfactorio: Representación comprensible pero con errores leves en escalas, proporciones o rotulado.",
+                2: "2 - Básico: Representación incompleta o con dificultades notables en la construcción geométrica.",
+                1: "1 - Inicial: No logra construir o representar adecuadamente el planteo matemático/gráfico."
+            }
+            desc_mat_c2 = {
+                5: "5 - Destacado: Aplica estrategias óptimas, resuelve correctamente todas las operaciones y justifica formalmente.",
+                4: "4 - Avanzado: Planteo y resolución correctos con leves errores de cálculo numérico que no invalidan el razonamiento.",
+                3: "3 - Satisfactorio: Aplica el procedimiento adecuado pero comete errores operativos en el desarrollo.",
+                2: "2 - Básico: Planteo confuso o uso de procedimientos inadecuados para el problema dado.",
+                1: "1 - Inicial: Sin estrategia de resolución o respuesta inconsistente sin fundamento."
+            }
 
-            c2 = st.radio("2. Resolución del Problema (50%):", [5, 4, 3, 2, 1], format_func=lambda x: map_mat[x], key="mat_c2")
-            obs2 = st.text_area("Observaciones Resolución:", key="obs_mat2", height=70)
+            with st.container(border=True):
+                c1 = st.radio("1. Construcción y Representación (50%):", [5, 4, 3, 2, 1], format_func=lambda x: desc_mat_c1[x], key="mat_c1")
+                obs1 = st.text_area("Observaciones Construcción:", key="obs_mat1", height=70)
+
+            with st.container(border=True):
+                c2 = st.radio("2. Resolución del Problema (50%):", [5, 4, 3, 2, 1], format_func=lambda x: desc_mat_c2[x], key="mat_c2")
+                obs2 = st.text_area("Observaciones Resolución:", key="obs_mat2", height=70)
 
             puntaje_100 = round((((c1 * 0.5) + (c2 * 0.5)) / 5) * 100, 2)
             eval_respuestas = {
-                "construccion_representacion_puntaje": c1,
-                "construccion_representacion_desc": map_mat[c1],
-                "construccion_representacion_obs": obs1,
-                "resolucion_problema_puntaje": c2,
-                "resolucion_problema_desc": map_mat[c2],
-                "resolucion_problema_obs": obs2
+                "criterio_1_construccion_representacion_puntaje": c1,
+                "criterio_1_construccion_representacion_descriptor": desc_mat_c1[c1],
+                "criterio_1_construccion_representacion_obs": obs1,
+                "criterio_2_resolucion_problema_puntaje": c2,
+                "criterio_2_resolucion_problema_descriptor": desc_mat_c2[c2],
+                "criterio_2_resolucion_problema_obs": obs2
             }
 
         elif materia == "Tecnología de la Representación Nivel 1":
-            map_tdr = {4: "4 - Avanzado", 3: "3 - Satisfactorio", 2: "2 - Básico", 1: "1 - Inicial"}
-            c1 = st.radio("1. Precisión y Trazado Gráfico Nivel 1 (100%):", [4, 3, 2, 1], format_func=lambda x: map_tdr[x], key="tdr1_c1")
-            obs1 = st.text_area("Observaciones Nivel Gráfico N1:", key="obs_tdr1", height=70)
+            desc_tdr1 = {
+                4: "4 - Avanzado: Trazado limpio, empalmes perfectos, valorización de líneas impecable y aplicación exacta de normas IRAM.",
+                3: "3 - Satisfactorio: Buena calidad gráfica general con imprecisiones menores en el valor de línea o empalmes.",
+                2: "2 - Básico: Trazado irregular, falta de diferenciación en tipos de líneas o cotas incompletas.",
+                1: "1 - Inicial: Dibujo deficiente, no respeta cotas, normas básicas ni limpieza del trazado."
+            }
+
+            with st.container(border=True):
+                c1 = st.radio("1. Precisión y Trazado Gráfico N1 (100%):", [4, 3, 2, 1], format_func=lambda x: desc_tdr1[x], key="tdr1_c1")
+                obs1 = st.text_area("Observaciones Nivel Gráfico N1:", key="obs_tdr1", height=70)
             
             puntaje_100 = round((c1 / 4) * 100, 2)
             eval_respuestas = {
-                "precision_trazado_n1_puntaje": c1,
-                "precision_trazado_n1_desc": map_tdr[c1],
-                "precision_trazado_n1_obs": obs1
+                "criterio_1_precision_trazado_n1_puntaje": c1,
+                "criterio_1_precision_trazado_n1_descriptor": desc_tdr1[c1],
+                "criterio_1_precision_trazado_n1_obs": obs1
             }
 
         else: # Tecnología de la Representación Nivel 2
-            map_tdr = {4: "4 - Avanzado", 3: "3 - Satisfactorio", 2: "2 - Básico", 1: "1 - Inicial"}
-            c1 = st.radio("1. Complejidad y Normalización Gráfica Nivel 2 (100%):", [4, 3, 2, 1], format_func=lambda x: map_tdr[x], key="tdr2_c1")
-            obs1 = st.text_area("Observaciones Nivel Gráfico N2:", key="obs_tdr2", height=70)
+            desc_tdr2 = {
+                4: "4 - Avanzado: Representación técnica compleja ejecutada a la perfección, acotado completo y dominio absoluto de cortes/vistas.",
+                3: "3 - Satisfactorio: Correcta resolución técnica con pequeños detalles a corregir en simbología o acotamiento.",
+                2: "2 - Básico: Dificultades en la proyección de vistas o cortes; omisión de convenciones gráficas estandarizadas.",
+                1: "1 - Inicial: Fallas estructurales en la representación tridimensional/plana; dibujo fuera de norma."
+            }
+
+            with st.container(border=True):
+                c1 = st.radio("1. Complejidad y Normalización Gráfica N2 (100%):", [4, 3, 2, 1], format_func=lambda x: desc_tdr2[x], key="tdr2_c1")
+                obs1 = st.text_area("Observaciones Nivel Gráfico N2:", key="obs_tdr2", height=70)
             
             puntaje_100 = round((c1 / 4) * 100, 2)
             eval_respuestas = {
-                "normalizacion_grafica_n2_puntaje": c1,
-                "normalizacion_grafica_n2_desc": map_tdr[c1],
-                "normalizacion_grafica_n2_obs": obs1
+                "criterio_1_normalizacion_grafica_n2_puntaje": c1,
+                "criterio_1_normalizacion_grafica_n2_descriptor": desc_tdr2[c1],
+                "criterio_1_normalizacion_grafica_n2_obs": obs1
             }
 
         st.metric(label="Puntaje Total", value=f"{puntaje_100} / 100 pts")
@@ -530,7 +569,7 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                 st.warning("⚠️ No se encontró ningún estudiante con ese DNI en el padrón.")
 
 # ---------------------------------------------------------
-# EVENTO 2: HACKATHON 2026 (RÚBRICA OFICIAL DE 7 CRITERIOS)
+# EVENTO 2: HACKATHON 2026 (7 CRITERIOS CON DESCRIPTORES)
 # ---------------------------------------------------------
 elif evento_seleccionado == "🏆 Hackathon 2026":
     st.markdown(
@@ -555,46 +594,46 @@ elif evento_seleccionado == "🏆 Hackathon 2026":
 
         st.subheader("📊 Criterios de Evaluación Hackathon")
 
-        map_15 = {
-            15: "15 pts - Excelente (Supera ampliamente las expectativas)",
-            10: "10 pts - Satisfactorio (Cumple correctamente con el criterio)",
-            5: "5 pts - En Desarrollo (Presenta aspectos incompletos)",
-            0: "0 pts - Inicial (No cumple con el criterio)"
+        desc_hk_15 = {
+            15: "15 pts - Excelente: Modela detalladamente el entorno, identificando variables clave, riesgos y restricciones con precisión técnica.",
+            10: "10 pts - Satisfactorio: Define adecuadamente el contexto y las variables principales sin profundizar en restricciones secundarias.",
+            5: "5 pts - En Desarrollo: Presentación superficial del escenario con vacíos significativos en el análisis de contexto.",
+            0: "0 pts - Inicial: No caracteriza el escenario ni define el contexto del problema."
         }
 
-        map_10 = {
-            10: "10 pts - Excelente (Integración total y profunda)",
-            5: "5 pts - Satisfactorio (Integración parcial de disciplinas)",
-            0: "0 pts - Inicial (Sin enfoque interdisciplinario)"
+        desc_hk_10 = {
+            10: "10 pts - Excelente: Integra herramientas, marcos y saberes de múltiples especialidades de forma fluida y sinérgica.",
+            5: "5 pts - Satisfactorio: Combina saberes de más de una disciplina con una integración funcional pero básica.",
+            0: "0 pts - Inicial: Enfoque unidisciplinar sin cruce significativo de áreas."
         }
 
         with st.container(border=True):
             st.markdown("#### 1. Escenario (Máx. 15 pts)")
-            c1 = st.radio("Nivel Escenario:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_1")
+            c1 = st.radio("Nivel Escenario:", [15, 10, 5, 0], format_func=lambda x: desc_hk_15[x], key="hk_1")
 
         with st.container(border=True):
             st.markdown("#### 2. Infraestructura y Energía (Máx. 15 pts)")
-            c2 = st.radio("Nivel Infraestructura:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_2")
+            c2 = st.radio("Nivel Infraestructura:", [15, 10, 5, 0], format_func=lambda x: desc_hk_15[x], key="hk_2")
 
         with st.container(border=True):
             st.markdown("#### 3. Comunicación e Información (Máx. 15 pts)")
-            c3 = st.radio("Nivel Comunicación:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_3")
+            c3 = st.radio("Nivel Comunicación:", [15, 10, 5, 0], format_func=lambda x: desc_hk_15[x], key="hk_3")
 
         with st.container(border=True):
             st.markdown("#### 4. Coordinación y Logística (Máx. 15 pts)")
-            c4 = st.radio("Nivel Coordinación:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_4")
+            c4 = st.radio("Nivel Coordinación:", [15, 10, 5, 0], format_func=lambda x: desc_hk_15[x], key="hk_4")
 
         with st.container(border=True):
             st.markdown("#### 5. Atención a la Población (Máx. 15 pts)")
-            c5 = st.radio("Nivel Atención:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_5")
+            c5 = st.radio("Nivel Atención:", [15, 10, 5, 0], format_func=lambda x: desc_hk_15[x], key="hk_5")
 
         with st.container(border=True):
             st.markdown("#### 6. Operación de Emergencia (Máx. 15 pts)")
-            c6 = st.radio("Nivel Operación:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_6")
+            c6 = st.radio("Nivel Operación:", [15, 10, 5, 0], format_func=lambda x: desc_hk_15[x], key="hk_6")
 
         with st.container(border=True):
             st.markdown("#### 7. Enfoque Interdisciplinario (Máx. 10 pts)")
-            c7 = st.radio("Nivel Interdisciplinario:", [10, 5, 0], format_func=lambda x: map_10[x], key="hk_7")
+            c7 = st.radio("Nivel Interdisciplinario:", [10, 5, 0], format_func=lambda x: desc_hk_10[x], key="hk_7")
 
         total_score = c1 + c2 + c3 + c4 + c5 + c6 + c7
         st.metric(label="🎯 Puntaje Total Hackathon", value=f"{total_score} / 100 pts")
@@ -608,13 +647,20 @@ elif evento_seleccionado == "🏆 Hackathon 2026":
             else:
                 eval_respuestas_hk = {
                     "criterio_1_escenario_pts": c1,
+                    "criterio_1_escenario_descriptor": desc_hk_15[c1],
                     "criterio_2_infraestructura_energia_pts": c2,
+                    "criterio_2_infraestructura_energia_descriptor": desc_hk_15[c2],
                     "criterio_3_comunicacion_info_pts": c3,
+                    "criterio_3_comunicacion_info_descriptor": desc_hk_15[c3],
                     "criterio_4_coordinacion_logistica_pts": c4,
+                    "criterio_4_coordinacion_logistica_descriptor": desc_hk_15[c4],
                     "criterio_5_atencion_poblacion_pts": c5,
+                    "criterio_5_atencion_poblacion_descriptor": desc_hk_15[c5],
                     "criterio_6_operacion_emergencia_pts": c6,
+                    "criterio_6_operacion_emergencia_descriptor": desc_hk_15[c6],
                     "criterio_7_enfoque_interdisciplinario_pts": c7,
-                    "observaciones": observaciones
+                    "criterio_7_enfoque_interdisciplinario_descriptor": desc_hk_10[c7],
+                    "observaciones_generales": observaciones
                 }
 
                 doc_eval_hk = {
