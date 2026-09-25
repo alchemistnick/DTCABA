@@ -31,7 +31,7 @@ hide_streamlit_style = """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# ESTILOS ADAPTABLES COMPATIBLES CON MODO OSCURO Y MODO CLARO
+# ESTILOS CSS CORREGIDOS (MODO OSCURO + SIDEBAR + CONTRASTE)
 # ---------------------------------------------------------
 st.markdown(
     """
@@ -42,35 +42,28 @@ st.markdown(
         font-family: 'Inter', sans-serif; 
     }
 
-    /* Variables Tema Claro por Defecto */
-    :root {
-        --primary-btn: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
-        --header-bg: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-        --card-bg: #FFFFFF;
-        --card-border: #CBD5E1;
-        --text-color: #0F172A;
-        --metric-bg: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+    section[data-testid="stSidebar"] { 
+        background-color: #0F172A !important; 
+    }
+    section[data-testid="stSidebar"] * { 
+        color: #F8FAFC !important; 
+    }
+    
+    section[data-testid="stSidebar"] div[data-baseweb="select"] > div {
+        background-color: #1E293B !important;
+        color: #FFFFFF !important;
+        border: 1px solid #475569 !important;
+        border-radius: 8px !important;
+    }
+    section[data-testid="stSidebar"] div[data-baseweb="select"] * {
+        color: #FFFFFF !important;
     }
 
-    /* Variables Tema Oscuro Automático */
-    @media (prefers-color-scheme: dark) {
-        :root {
-            --primary-btn: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
-            --header-bg: linear-gradient(135deg, #020617 0%, #0F172A 100%);
-            --card-bg: #1E293B;
-            --card-border: #334155;
-            --text-color: #F8FAFC;
-            --metric-bg: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
-        }
-    }
-
-    /* Header Principal */
     .app-header {
-        background: var(--header-bg);
-        padding: 1.5rem 2rem; 
+        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%) !important;
+        padding: 1.8rem 2rem; 
         border-radius: 16px; 
         margin-bottom: 2rem; 
-        color: #FFFFFF !important; 
         text-align: center;
         box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.3);
     }
@@ -82,36 +75,30 @@ st.markdown(
         color: #FFFFFF !important; 
     }
     .app-header p { 
-        margin: 0.3rem 0 0 0; 
+        margin: 0.4rem 0 0 0; 
         color: #94A3B8 !important; 
+        font-weight: 500;
     }
 
-    /* Tarjetas de Contenido (Adapta texto e interior al modo oscuro) */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        background-color: var(--card-bg) !important;
+        background-color: var(--background-secondary, #FFFFFF) !important;
         border-radius: 14px;
-        border: 1px solid var(--card-border) !important;
+        border: 1px solid #CBD5E1 !important;
         padding: 1.25rem;
         margin-bottom: 1rem;
     }
 
-    div[data-testid="stVerticalBlockBorderWrapper"] *,
-    .stRadio label, .stMarkdown p, .stMarkdown h3, .stMarkdown h4 {
-        color: var(--text-color) !important;
-    }
-
-    /* Métrica de Puntaje Total */
     div[data-testid="stMetric"] {
-        background: var(--metric-bg) !important;
+        background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%) !important;
         padding: 1.2rem 1.8rem;
         border-radius: 12px;
-        border: 1px solid var(--card-border) !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border: 1px solid #334155 !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
         text-align: center;
         margin: 1.5rem 0;
     }
     div[data-testid="stMetric"] label {
-        color: var(--text-color) !important;
+        color: #94A3B8 !important;
         font-weight: 600;
     }
     div[data-testid="stMetric"] div[data-testid="stMetricValue"] {
@@ -119,9 +106,8 @@ st.markdown(
         font-weight: 800;
     }
 
-    /* Botón Principal */
     .stButton > button[kind="primary"] {
-        background: var(--primary-btn) !important;
+        background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
         color: #FFFFFF !important; 
         border: none; 
         border-radius: 10px; 
@@ -129,14 +115,6 @@ st.markdown(
         font-weight: 600; 
         width: 100%;
         box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-    }
-
-    /* Sidebar Oscura Estilizada */
-    section[data-testid="stSidebar"] { 
-        background-color: #020617 !important; 
-    }
-    section[data-testid="stSidebar"] * { 
-        color: #F8FAFC !important; 
     }
     </style>
     """,
@@ -200,7 +178,7 @@ st.sidebar.markdown("### 🧭 Navegación")
 if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
     opcion = st.sidebar.radio(
         "Navegación DTCABA",
-        ["Cargar Evaluación DTCABA", "Generar Códigos de Equipos", "Panel de Administración"],
+        ["Cargar Evaluación DTCABA", "Generar Códigos de Equipos", "📌 Acreditación de Presentes", "Panel de Administración"],
         label_visibility="collapsed",
     )
 else:
@@ -217,7 +195,7 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
     st.markdown(
         """
         <div class="app-header">
-            <h1>📐 Desafíos Técnicos DTCABA⚙️</h1>
+            <h1>📐 Desafíos Técnicos DTCABA ⚙️</h1>
             <p>Plataforma de Evaluación y Gestión de Equipos</p>
         </div>
         """,
@@ -349,24 +327,26 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
             datos_integrantes = {}
             for idx in range(1, cant_integrantes + 1):
                 st.subheader(f"👤 Integrante {idx}")
-                dni_i = st.text_input(f"DNI Integrante {idx}", key=f"dni_{idx}").strip().replace(".", "")
-                
-                n_def, esc_def, mail_def, punt_def, niv_def, insc_def = "", "", "", "N/A", "N/A", "N/A"
-                if dni_i:
-                    coincidencias = buscar_estudiantes_por_dni(dni_i)
+                dni_input = st.text_input(f"DNI Integrante {idx}", key=f"dni_{idx}_input").strip().replace(".", "")
+
+                # AUTO-COMPLETADO DESDE EL PADRÓN VÍA SESSION_STATE
+                if dni_input:
+                    coincidencias = buscar_estudiantes_por_dni(dni_input)
                     if len(coincidencias) >= 1:
                         c = coincidencias[0]
                         st.success(f"✅ Encontrado en padrón: {c.get('nombre','')}")
-                        n_def, esc_def, mail_def, punt_def, niv_def, insc_def = (
-                            c.get("nombre", ""), c.get("escuela", ""), c.get("email", ""),
-                            c.get("puntaje_anterior", "N/A"), c.get("nivel", "N/A"), c.get("inscripcion", "N/A")
-                        )
+                        if f"nom_{idx}" not in st.session_state or not st.session_state[f"nom_{idx}"]:
+                            st.session_state[f"nom_{idx}"] = c.get("nombre", "")
+                        if f"esc_{idx}" not in st.session_state or not st.session_state[f"esc_{idx}"]:
+                            st.session_state[f"esc_{idx}"] = c.get("escuela", "")
+                        if f"mail_{idx}" not in st.session_state or not st.session_state[f"mail_{idx}"]:
+                            st.session_state[f"mail_{idx}"] = c.get("email", "")
 
-                nom_i = st.text_input(f"Nombre Integrante {idx}", value=n_def, key=f"nom_{idx}")
-                esc_i = st.text_input(f"Escuela Integrante {idx}", value=esc_def, key=f"esc_{idx}")
-                mail_i = st.text_input(f"Email Integrante {idx}", value=mail_def, key=f"mail_{idx}")
+                nom_i = st.text_input(f"Nombre Integrante {idx}", key=f"nom_{idx}")
+                esc_i = st.text_input(f"Escuela Integrante {idx}", key=f"esc_{idx}")
+                mail_i = st.text_input(f"Email Integrante {idx}", key=f"mail_{idx}")
 
-                datos_integrantes[f"dni{idx}"] = dni_i
+                datos_integrantes[f"dni{idx}"] = dni_input
                 datos_integrantes[f"estudiante{idx}"] = nom_i
                 datos_integrantes[f"escuela{idx}"] = esc_i
                 datos_integrantes[f"email{idx}"] = mail_i
@@ -394,8 +374,61 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                 except Exception as e:
                     st.error(f"Error de conexión: {e}")
 
+    # ---------------------------------------------------------
+    # NUEVO MÓDULO: ACREDITACIÓN Y LISTA DE PRESENTES
+    # ---------------------------------------------------------
+    elif opcion == "📌 Acreditación de Presentes":
+        st.header("📌 Módulo de Acreditación de Presentes al Evento")
+        st.markdown("Busca al estudiante por DNI en el padrón oficial para registrar su ingreso y presente.")
+
+        dni_acreditar = st.text_input("Ingresar DNI del Estudiante a Acreditar", placeholder="Ej: 39098198").strip().replace(".", "")
+
+        if dni_acreditar:
+            coincidencias = buscar_estudiantes_por_dni(dni_acreditar)
+
+            if coincidencias:
+                st.success(f"✅ Estudiante Encontrado ({len(coincidencias)} inscripción/es detectada/s)")
+                
+                for idx, estudiante in enumerate(coincidencias):
+                    with st.container(border=True):
+                        st.markdown(f"### 👤 {estudiante.get('nombre', 'Estudiante Registrado')}")
+                        
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.write(f"🏫 **Escuela:** {estudiante.get('escuela', 'Sin Datos')}")
+                            st.write(f"📝 **Desafío / Inscripción:** {estudiante.get('inscripcion', 'Sin Datos')}")
+                            st.write(f"📊 **Nivel:** {estudiante.get('nivel', 'Sin Datos')}")
+                        
+                        with col2:
+                            st.write(f"📧 **Email Estudiante:** {estudiante.get('email', 'Sin Datos')}")
+                            st.write(f"📩 **Mail Docente / Acompañante:** {estudiante.get('email_docente', 'Sin Datos')}")
+                            st.write(f"🗓️ **Fecha de Registro Padrón:** {estudiante.get('fecha', 'Sin Datos')}")
+
+                        if st.button(f"✅ Acreditar Presente - Registro #{idx+1}", key=f"acreditar_{idx}", type="primary"):
+                            payload_presente = {
+                                "action": "marcar_presente",
+                                "fecha_acreditacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                "dni": dni_acreditar,
+                                "estudiante": estudiante.get("nombre", ""),
+                                "escuela": estudiante.get("escuela", ""),
+                                "email_estudiante": estudiante.get("email", ""),
+                                "email_docente": estudiante.get("email_docente", ""),
+                                "inscripcion": estudiante.get("inscripcion", ""),
+                                "nivel": estudiante.get("nivel", "")
+                            }
+                            try:
+                                res = requests.post(WEBAPP_URL, json=payload_presente, timeout=10)
+                                if res.status_code == 200:
+                                    st.success(f"🎉 ¡{estudiante.get('nombre')} ha sido acreditado/a correctamente!")
+                                else:
+                                    st.error("Error al registrar el presente en Google Sheets.")
+                            except Exception as e:
+                                st.error(f"Error de conexión: {e}")
+            else:
+                st.warning("⚠️ No se encontró ningún estudiante con ese DNI en el padrón.")
+
 # ---------------------------------------------------------
-# EVENTO 2: HACKATHON 2026 (FORMATO DE RÚBRICA CON TARJETAS Y RADIO)
+# EVENTO 2: HACKATHON 2026
 # ---------------------------------------------------------
 elif evento_seleccionado == "🏆 Hackathon 2026":
     st.markdown(
@@ -418,7 +451,6 @@ elif evento_seleccionado == "🏆 Hackathon 2026":
 
         st.subheader("📊 Criterios de Evaluación")
 
-        # Mapas de Opciones para las Rúbricas
         map_15 = {
             15: "15 - Excelente (Supera ampliamente las expectativas)",
             10: "10 - Satisfactorio (Cumple correctamente con el criterio)",
@@ -489,7 +521,6 @@ elif evento_seleccionado == "🏆 Hackathon 2026":
                     if res.status_code in [200, 201]:
                         st.session_state["exito_msj_hk"] = f"✅ ¡Evaluación del equipo '{equipo}' guardada correctamente!"
                         
-                        # RESETEO DE CAMPOS TRAS GUARDADO
                         for k in ["hk_eval", "hk_equipo", "hk_1", "hk_2", "hk_3", "hk_4", "hk_5", "hk_6", "hk_7", "hk_obs"]:
                             if k in st.session_state:
                                 del st.session_state[k]
@@ -497,7 +528,6 @@ elif evento_seleccionado == "🏆 Hackathon 2026":
                 except Exception as e:
                     st.error(f"Error de conexión: {e}")
 
-        # Mensaje de confirmación colocado en la parte inferior
         if "exito_msj_hk" in st.session_state:
             st.success(st.session_state["exito_msj_hk"])
             st.balloons()
@@ -511,7 +541,7 @@ if opcion == "Panel de Administración":
     clave = st.text_input("Contraseña Administrador", type="password")
 
     if clave == ADMIN_PASSWORD:
-        tab1, tab2 = st.tabs(["📊 Evaluaciones DTCABA", "🔑 Base de Códigos DTCABA"])
+        tab1, tab2, tab3 = st.tabs(["📊 Evaluaciones DTCABA", "🔑 Base de Códigos DTCABA", "📌 Lista de Presentes"])
         with tab1:
             df_evals = leer_pestana(SHEET_ID_EVALS, "Evaluaciones")
             if not df_evals.empty:
@@ -525,3 +555,10 @@ if opcion == "Panel de Administración":
                 st.dataframe(df_codigos, use_container_width=True)
             else:
                 st.info("No hay códigos guardados aún.")
+
+        with tab3:
+            df_presentes = leer_pestana(SHEET_ID_EVALS, "Acreditados_Presentes")
+            if not df_presentes.empty:
+                st.dataframe(df_presentes, use_container_width=True)
+            else:
+                st.info("No hay asistentes acreditados aún.")
