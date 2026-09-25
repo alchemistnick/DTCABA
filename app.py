@@ -7,7 +7,7 @@ import streamlit as st
 # ---------------------------------------------------------
 # CONFIGURACIÓN DIRECTA DE SERVIDORES Y HOJAS
 # ---------------------------------------------------------
-WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzAvwbkuokN3MaAkpg5DTdLV5UbhuBNg8zN-hFJTX4rDtKpPE7GzyUpBj759PHaechNrQ/exec"
+WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwpYoAthfaViejGHAAThgQkAllbMrSsxfi-AC6vrcrtUtIeG-VtI5knuGPyGlGZhHl7tA/exec"
 WEBHOOK_HACKATHON = "https://script.google.com/macros/s/AKfycbyM8feFteFynfKVBk_L_ypJ6NP08ufGHODv6iGu8v7E8jkUoSRuic54mgPmYfvn2m5gEg/exec"
 SHEET_ID_EVALS = "1V5rWEolARQ3PlZTbVrrhEWUc7bipJF0t2iMznxjvKgk"
 ADMIN_PASSWORD = "admin123"
