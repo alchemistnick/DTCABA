@@ -345,19 +345,24 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
 
                 if dni_input:
                     coincidencias = buscar_estudiantes_por_dni(dni_input)
-                    if len(coincidencias) >= 1:
+                    if len(coincidencias) > 1:
+                        st.info(f"🔍 Se encontraron {len(coincidencias)} inscripciones para este DNI.")
+                        opciones_insc = [f"{c.get('inscripcion', 'Sin Desafío')} - {c.get('escuela', '')}" for c in coincidencias]
+                        idx_sel = st.selectbox(f"Seleccionar inscripción para Integrante {idx}", range(len(opciones_insc)), format_func=lambda x: opciones_insc[x], key=f"sel_insc_{idx}")
+                        c = coincidencias[idx_sel]
+                    elif len(coincidencias) == 1:
                         c = coincidencias[0]
                         st.success(f"✅ Encontrado en padrón: {c.get('nombre','')}")
-                        
+                    else:
+                        c = {}
+
+                    if c:
                         if c.get("especialidad") and c.get("especialidad") != "N/A":
                             especialidad_detectada = c.get("especialidad")
 
-                        if f"nom_{idx}" not in st.session_state or not st.session_state[f"nom_{idx}"]:
-                            st.session_state[f"nom_{idx}"] = c.get("nombre", "")
-                        if f"esc_{idx}" not in st.session_state or not st.session_state[f"esc_{idx}"]:
-                            st.session_state[f"esc_{idx}"] = c.get("escuela", "")
-                        if f"mail_{idx}" not in st.session_state or not st.session_state[f"mail_{idx}"]:
-                            st.session_state[f"mail_{idx}"] = c.get("email", "")
+                        st.session_state[f"nom_{idx}"] = c.get("nombre", "")
+                        st.session_state[f"esc_{idx}"] = c.get("escuela", "")
+                        st.session_state[f"mail_{idx}"] = c.get("email", "")
 
                 nom_i = st.text_input(f"Nombre Integrante {idx}", key=f"nom_{idx}")
                 esc_i = st.text_input(f"Escuela Integrante {idx}", key=f"esc_{idx}")
@@ -403,40 +408,47 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
             if coincidencias:
                 st.success(f"✅ Estudiante Encontrado en Padrón ({len(coincidencias)} inscripción/es detectada/s)")
                 
-                for idx, estudiante in enumerate(coincidencias):
-                    with st.container(border=True):
-                        st.markdown(f"### ✏️ Editar / Validar Registro #{idx+1}")
-                        
-                        col1, col2 = st.columns(2)
-                        with col1:
-                            nombre_edit = st.text_input("Nombre y Apellido", value=estudiante.get("nombre", ""), key=f"acred_nom_{idx}")
-                            escuela_edit = st.text_input("Escuela", value=estudiante.get("escuela", ""), key=f"acred_esc_{idx}")
-                            inscripcion_edit = st.text_input("Desafío / Inscripción", value=estudiante.get("inscripcion", ""), key=f"acred_insc_{idx}")
-                            nivel_edit = st.text_input("Nivel", value=estudiante.get("nivel", ""), key=f"acred_niv_{idx}")
-                        
-                        with col2:
-                            email_est_edit = st.text_input("Email Estudiante", value=estudiante.get("email", ""), key=f"acred_mail_est_{idx}")
-                            docente_mail_val = estudiante.get("email_docente", "")
-                            if docente_mail_val == "Sin Datos":
-                                docente_mail_val = ""
-                            email_doc_edit = st.text_input("Mail Docente / Acompañante", value=docente_mail_val, placeholder="ejemplo@docente.edu.ar", key=f"acred_mail_doc_{idx}")
-                            especialidad_edit = st.text_input("Especialidad (del Padrón)", value=estudiante.get("especialidad", "General"), key=f"acred_esp_{idx}")
+                # Permite al usuario elegir qué inscripción validar si hay más de una
+                idx_seleccionado = 0
+                if len(coincidencias) > 1:
+                    opciones_acred = [f"Inscripción #{i+1}: {c.get('inscripcion', 'Sin datos')} ({c.get('escuela', '')})" for i, c in enumerate(coincidencias)]
+                    idx_seleccionado = st.selectbox("Seleccionar la inscripción a acreditar:", range(len(opciones_acred)), format_func=lambda x: opciones_acred[x], key="sel_acred_multi")
 
-                        if st.button(f"✅ Confirmar Presente DTCABA - Reg #{idx+1}", key=f"acreditar_{idx}", type="primary"):
-                            doc_presente = {
-                                "fecha_acreditacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                                "dni": dni_acreditar,
-                                "estudiante": nombre_edit,
-                                "escuela": escuela_edit,
-                                "email_estudiante": email_est_edit,
-                                "email_docente": email_doc_edit if email_doc_edit.strip() else "Sin Datos",
-                                "inscripcion": inscripcion_edit,
-                                "nivel": nivel_edit,
-                                "especialidad": especialidad_edit,
-                                "evento": "DTCABA"
-                            }
-                            db.collection("presentes").add(doc_presente)
-                            st.success(f"🎉 ¡{nombre_edit} ha sido acreditado/a en DTCABA con éxito!")
+                estudiante = coincidencias[idx_seleccionado]
+
+                with st.container(border=True):
+                    st.markdown(f"### ✏️ Editar / Validar Registro (Inscripción #{idx_seleccionado+1})")
+                    
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        nombre_edit = st.text_input("Nombre y Apellido", value=estudiante.get("nombre", ""), key="acred_nom_sel")
+                        escuela_edit = st.text_input("Escuela", value=estudiante.get("escuela", ""), key="acred_esc_sel")
+                        inscripcion_edit = st.text_input("Desafío / Inscripción", value=estudiante.get("inscripcion", ""), key="acred_insc_sel")
+                        nivel_edit = st.text_input("Nivel", value=estudiante.get("nivel", ""), key="acred_niv_sel")
+                    
+                    with col2:
+                        email_est_edit = st.text_input("Email Estudiante", value=estudiante.get("email", ""), key="acred_mail_est_sel")
+                        docente_mail_val = estudiante.get("email_docente", "")
+                        if docente_mail_val == "Sin Datos":
+                            docente_mail_val = ""
+                        email_doc_edit = st.text_input("Mail Docente / Acompañante", value=docente_mail_val, placeholder="ejemplo@docente.edu.ar", key="acred_mail_doc_sel")
+                        especialidad_edit = st.text_input("Especialidad (del Padrón)", value=estudiante.get("especialidad", "General"), key="acred_esp_sel")
+
+                    if st.button("✅ Confirmar Presente DTCABA", key="acreditar_btn_sel", type="primary"):
+                        doc_presente = {
+                            "fecha_acreditacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            "dni": dni_acreditar,
+                            "estudiante": nombre_edit,
+                            "escuela": escuela_edit,
+                            "email_estudiante": email_est_edit,
+                            "email_docente": email_doc_edit if email_doc_edit.strip() else "Sin Datos",
+                            "inscripcion": inscripcion_edit,
+                            "nivel": nivel_edit,
+                            "especialidad": especialidad_edit,
+                            "evento": "DTCABA"
+                        }
+                        db.collection("presentes").add(doc_presente)
+                        st.success(f"🎉 ¡{nombre_edit} ha sido acreditado/a en DTCABA con éxito!")
             else:
                 st.warning("⚠️ No se encontró ningún estudiante con ese DNI en el padrón.")
 
@@ -554,38 +566,44 @@ elif evento_seleccionado == "🏆 Hackathon 2026":
             if coincidencias:
                 st.success(f"✅ Participante Encontrado en Padrón ({len(coincidencias)} registro/s)")
                 
-                for idx, participante in enumerate(coincidencias):
-                    with st.container(border=True):
-                        st.markdown(f"### ✏️ Validar Registro Hackathon #{idx+1}")
-                        
-                        col1, col2 = st.columns(2)
-                        with col1:
-                            nombre_hk = st.text_input("Nombre y Apellido", value=participante.get("nombre", ""), key=f"hk_nom_{idx}")
-                            escuela_hk = st.text_input("Escuela / Institución", value=participante.get("escuela", ""), key=f"hk_esc_{idx}")
-                            equipo_hk = st.text_input("Equipo / Proyecto / Inscripción", value=participante.get("inscripcion", ""), key=f"hk_insc_{idx}")
-                        
-                        with col2:
-                            email_hk = st.text_input("Email Participante", value=participante.get("email", ""), key=f"hk_mail_{idx}")
-                            docente_hk = participante.get("email_docente", "")
-                            if docente_hk == "Sin Datos":
-                                docente_hk = ""
-                            email_doc_hk = st.text_input("Mail Tutor / Docente", value=docente_hk, placeholder="ejemplo@tutor.edu.ar", key=f"hk_mail_doc_{idx}")
-                            especialidad_hk_acred = st.text_input("Especialidad (del Padrón)", value=participante.get("especialidad", "General"), key=f"hk_esp_acred_{idx}")
+                idx_hk_sel = 0
+                if len(coincidencias) > 1:
+                    opciones_hk_acred = [f"Inscripción #{i+1}: {c.get('inscripcion', 'Sin datos')} ({c.get('escuela', '')})" for i, c in enumerate(coincidencias)]
+                    idx_hk_sel = st.selectbox("Seleccionar la inscripción a acreditar:", range(len(opciones_hk_acred)), format_func=lambda x: opciones_hk_acred[x], key="sel_hk_acred_multi")
 
-                        if st.button(f"🚀 Confirmar Acreditación Hackathon - Reg #{idx+1}", key=f"acred_hk_btn_{idx}", type="primary"):
-                            doc_hk_presente = {
-                                "fecha_acreditacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                                "dni": dni_hk_acred,
-                                "estudiante": nombre_hk,
-                                "escuela": escuela_hk,
-                                "email_estudiante": email_hk,
-                                "email_docente": email_doc_hk if email_doc_hk.strip() else "Sin Datos",
-                                "inscripcion": equipo_hk,
-                                "especialidad": especialidad_hk_acred,
-                                "evento": "Hackathon 2026"
-                            }
-                            db.collection("presentes").add(doc_hk_presente)
-                            st.success(f"🎉 ¡{nombre_hk} ha sido acreditado/a en la Hackathon 2026!")
+                participante = coincidencias[idx_hk_sel]
+
+                with st.container(border=True):
+                    st.markdown(f"### ✏️ Validar Registro Hackathon (Inscripción #{idx_hk_sel+1})")
+                    
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        nombre_hk = st.text_input("Nombre y Apellido", value=participante.get("nombre", ""), key="hk_nom_sel")
+                        escuela_hk = st.text_input("Escuela / Institución", value=participante.get("escuela", ""), key="hk_esc_sel")
+                        equipo_hk = st.text_input("Equipo / Proyecto / Inscripción", value=participante.get("inscripcion", ""), key="hk_insc_sel")
+                    
+                    with col2:
+                        email_hk = st.text_input("Email Participante", value=participante.get("email", ""), key="hk_mail_sel")
+                        docente_hk = participante.get("email_docente", "")
+                        if docente_hk == "Sin Datos":
+                            docente_hk = ""
+                        email_doc_hk = st.text_input("Mail Tutor / Docente", value=docente_hk, placeholder="ejemplo@tutor.edu.ar", key="hk_mail_doc_sel")
+                        especialidad_hk_acred = st.text_input("Especialidad (del Padrón)", value=participante.get("especialidad", "General"), key="hk_esp_acred_sel")
+
+                    if st.button("🚀 Confirmar Acreditación Hackathon", key="acred_hk_btn_sel", type="primary"):
+                        doc_hk_presente = {
+                            "fecha_acreditacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            "dni": dni_hk_acred,
+                            "estudiante": nombre_hk,
+                            "escuela": escuela_hk,
+                            "email_estudiante": email_hk,
+                            "email_docente": email_doc_hk if email_doc_hk.strip() else "Sin Datos",
+                            "inscripcion": equipo_hk,
+                            "especialidad": especialidad_hk_acred,
+                            "evento": "Hackathon 2026"
+                        }
+                        db.collection("presentes").add(doc_hk_presente)
+                        st.success(f"🎉 ¡{nombre_hk} ha sido acreditado/a en la Hackathon 2026!")
             else:
                 st.warning("⚠️ No se encontró ningún participante con ese DNI en el padrón.")
 
