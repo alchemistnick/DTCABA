@@ -42,7 +42,6 @@ st.markdown(
         font-family: 'Inter', sans-serif; 
     }
 
-    /* BARRA LATERAL (SIDEBAR) ELEGANTE */
     section[data-testid="stSidebar"] { 
         background-color: #0F172A !important; 
         padding-top: 1rem;
@@ -51,7 +50,6 @@ st.markdown(
         color: #F8FAFC !important; 
     }
 
-    /* ESTILO PARA RADIO BUTTONS EN SIDEBAR (SIN CAJAS NI BORDES FEOS) */
     section[data-testid="stSidebar"] div[role="radiogroup"] {
         gap: 0.3rem !important;
     }
@@ -71,7 +69,6 @@ st.markdown(
         font-weight: 500 !important;
     }
 
-    /* ENCABEZADO PRINCIPAL HERO */
     .app-header {
         background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%) !important;
         padding: 1.8rem 2rem; 
@@ -93,7 +90,6 @@ st.markdown(
         font-weight: 500;
     }
 
-    /* TARJETAS DE CONTENIDO */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background-color: var(--background-secondary, #FFFFFF) !important;
         border-radius: 14px;
@@ -102,7 +98,6 @@ st.markdown(
         margin-bottom: 1rem;
     }
 
-    /* TARJETA MÉTRICA PUNTAJE TOTAL */
     div[data-testid="stMetric"] {
         background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%) !important;
         padding: 1.2rem 1.8rem;
@@ -121,7 +116,6 @@ st.markdown(
         font-weight: 800;
     }
 
-    /* BOTONES PRINCIPALES */
     .stButton > button[kind="primary"] {
         background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
         color: #FFFFFF !important; 
@@ -204,7 +198,7 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
 else:
     opcion = st.sidebar.radio(
         "Navegación Hackathon",
-        ["Cargar Evaluación Hackathon", "Panel de Administración"],
+        ["Cargar Evaluación Hackathon", "📌 Acreditación Hackathon", "Panel de Administración"],
         label_visibility="collapsed",
     )
 
@@ -394,13 +388,13 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                     st.error(f"Error de conexión: {e}")
 
     # ---------------------------------------------------------
-    # MÓDULO ACREDITACIÓN DE PRESENTES
+    # ACREDITACIÓN DTCABA
     # ---------------------------------------------------------
     elif opcion == "📌 Acreditación de Presentes":
-        st.header("📌 Módulo de Acreditación de Presentes al Evento")
+        st.header("📌 Acreditación de Presentes (DTCABA)")
         st.markdown("Busca al estudiante por DNI para verificar e ingresar o modificar sus datos antes de confirmar el presente.")
 
-        dni_acreditar = st.text_input("Ingresar DNI del Estudiante a Acreditar", placeholder="Ej: 39098198").strip().replace(".", "")
+        dni_acreditar = st.text_input("Ingresar DNI del Estudiante a Acreditar", placeholder="Ej: 39098198", key="acred_dni_dtcaba").strip().replace(".", "")
 
         if dni_acreditar:
             coincidencias = buscar_estudiantes_por_dni(dni_acreditar)
@@ -427,7 +421,7 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                             email_doc_edit = st.text_input("Mail Docente / Acompañante", value=docente_mail_val, placeholder="ejemplo@docente.edu.ar", key=f"acred_mail_doc_{idx}")
                             st.text_input("Fecha Registro Padrón (Solo Lectura)", value=estudiante.get("fecha", ""), disabled=True, key=f"acred_fch_{idx}")
 
-                        if st.button(f"✅ Confirmar Presente con Datos Actualizados - Reg #{idx+1}", key=f"acreditar_{idx}", type="primary"):
+                        if st.button(f"✅ Confirmar Presente DTCABA - Reg #{idx+1}", key=f"acreditar_{idx}", type="primary"):
                             payload_presente = {
                                 "action": "marcar_presente",
                                 "fecha_acreditacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -437,12 +431,13 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                                 "email_estudiante": email_est_edit,
                                 "email_docente": email_doc_edit if email_doc_edit.strip() else "Sin Datos",
                                 "inscripcion": inscripcion_edit,
-                                "nivel": nivel_edit
+                                "nivel": nivel_edit,
+                                "evento": "DTCABA"
                             }
                             try:
                                 res = requests.post(WEBAPP_URL, json=payload_presente, timeout=10)
                                 if res.status_code == 200:
-                                    st.success(f"🎉 ¡{nombre_edit} ha sido acreditado/a con éxito!")
+                                    st.success(f"🎉 ¡{nombre_edit} ha sido acreditado/a en DTCABA con éxito!")
                                 else:
                                     st.error("Error al registrar el presente en Google Sheets.")
                             except Exception as e:
@@ -556,6 +551,61 @@ elif evento_seleccionado == "🏆 Hackathon 2026":
             st.balloons()
             del st.session_state["exito_msj_hk"]
 
+    # ---------------------------------------------------------
+    # NUEVO MÓDULO: ACREDITACIÓN PROPIA HACKATHON
+    # ---------------------------------------------------------
+    elif opcion == "📌 Acreditación Hackathon":
+        st.header("📌 Módulo de Acreditación de Presentes (Hackathon)")
+        st.markdown("Busca al participante por DNI en el padrón para confirmar e ingresar su asistencia al Hackathon.")
+
+        dni_hk_acred = st.text_input("Ingresar DNI del Participante a Acreditar", placeholder="Ej: 39098198", key="acred_dni_hk").strip().replace(".", "")
+
+        if dni_hk_acred:
+            coincidencias = buscar_estudiantes_por_dni(dni_hk_acred)
+
+            if coincidencias:
+                st.success(f"✅ Participante Encontrado en Padrón ({len(coincidencias)} registro/s)")
+                
+                for idx, participante in enumerate(coincidencias):
+                    with st.container(border=True):
+                        st.markdown(f"### ✏️ Validar Registro Hackathon #{idx+1}")
+                        
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            nombre_hk = st.text_input("Nombre y Apellido", value=participante.get("nombre", ""), key=f"hk_nom_{idx}")
+                            escuela_hk = st.text_input("Escuela / Institución", value=participante.get("escuela", ""), key=f"hk_esc_{idx}")
+                            equipo_hk = st.text_input("Equipo / Proyecto / Inscripción", value=participante.get("inscripcion", ""), key=f"hk_insc_{idx}")
+                        
+                        with col2:
+                            email_hk = st.text_input("Email Participante", value=participante.get("email", ""), key=f"hk_mail_{idx}")
+                            docente_hk = participante.get("email_docente", "")
+                            if docente_hk == "Sin Datos":
+                                docente_hk = ""
+                            email_doc_hk = st.text_input("Mail Tutor / Docente", value=docente_hk, placeholder="ejemplo@tutor.edu.ar", key=f"hk_mail_doc_{idx}")
+
+                        if st.button(f"🚀 Confirmar Acreditación Hackathon - Reg #{idx+1}", key=f"acred_hk_btn_{idx}", type="primary"):
+                            payload_hk = {
+                                "action": "marcar_presente_hackathon",
+                                "fecha_acreditacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                "dni": dni_hk_acred,
+                                "estudiante": nombre_hk,
+                                "escuela": escuela_hk,
+                                "email_estudiante": email_hk,
+                                "email_docente": email_doc_hk if email_doc_hk.strip() else "Sin Datos",
+                                "inscripcion": equipo_hk,
+                                "evento": "Hackathon 2026"
+                            }
+                            try:
+                                res = requests.post(WEBAPP_URL, json=payload_hk, timeout=10)
+                                if res.status_code == 200:
+                                    st.success(f"🎉 ¡{nombre_hk} ha sido acreditado/a en la Hackathon 2026!")
+                                else:
+                                    st.error("Error al registrar el presente en Google Sheets.")
+                            except Exception as e:
+                                st.error(f"Error de conexión: {e}")
+            else:
+                st.warning("⚠️ No se encontró ningún participante con ese DNI en el padrón.")
+
 # ---------------------------------------------------------
 # PANEL DE ADMINISTRACIÓN COMPARTIDO
 # ---------------------------------------------------------
@@ -564,7 +614,7 @@ if opcion == "Panel de Administración":
     clave = st.text_input("Contraseña Administrador", type="password")
 
     if clave == ADMIN_PASSWORD:
-        tab1, tab2, tab3 = st.tabs(["📊 Evaluaciones DTCABA", "🔑 Base de Códigos DTCABA", "📌 Lista de Presentes"])
+        tab1, tab2, tab3, tab4 = st.tabs(["📊 Evaluaciones DTCABA", "🔑 Base de Códigos DTCABA", "📌 Presentes DTCABA", "🏆 Presentes Hackathon"])
         with tab1:
             df_evals = leer_pestana(SHEET_ID_EVALS, "Evaluaciones")
             if not df_evals.empty:
@@ -584,4 +634,11 @@ if opcion == "Panel de Administración":
             if not df_presentes.empty:
                 st.dataframe(df_presentes, use_container_width=True)
             else:
-                st.info("No hay asistentes acreditados aún.")
+                st.info("No hay asistentes acreditados en DTCABA aún.")
+
+        with tab4:
+            df_presentes_hk = leer_pestana(SHEET_ID_EVALS, "Acreditados_Hackathon")
+            if not df_presentes_hk.empty:
+                st.dataframe(df_presentes_hk, use_container_width=True)
+            else:
+                st.info("No hay asistentes acreditados en la Hackathon aún.")
