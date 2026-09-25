@@ -608,12 +608,24 @@ if opcion in ["Panel de Administración", "Panel de Administración y Reportes"]
         df_presentes = pd.DataFrame(presentes_data) if presentes_data else pd.DataFrame()
 
         tab1, tab2, tab3 = st.tabs(["📊 Evaluaciones Registradas", "🔑 Base de Códigos / Equipos", "📌 Lista de Presentes"])
+        
         with tab1:
-            st.dataframe(df_evals, use_container_width=True) if not df_evals.empty else st.info("No hay evaluaciones registradas aún.")
+            if not df_evals.empty:
+                st.dataframe(df_evals, use_container_width=True)
+            else:
+                st.info("No hay evaluaciones registradas aún.")
+
         with tab2:
-            st.dataframe(df_equipos, use_container_width=True) if not df_equipos.empty else st.info("No hay equipos guardados aún.")
+            if not df_equipos.empty:
+                st.dataframe(df_equipos, use_container_width=True)
+            else:
+                st.info("No hay equipos guardados aún.")
+
         with tab3:
-            st.dataframe(df_presentes, use_container_width=True) if not df_presentes.empty else st.info("No hay asistentes acreditados aún.")
+            if not df_presentes.empty:
+                st.dataframe(df_presentes, use_container_width=True)
+            else:
+                st.info("No hay asistentes acreditados aún.")
 
         st.markdown("---")
         st.subheader("📥 Exportar Datos a Excel / CSV")
