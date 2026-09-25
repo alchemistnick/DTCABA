@@ -31,7 +31,7 @@ hide_streamlit_style = """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# ESTILOS CSS CORREGIDOS (MODO OSCURO + SIDEBAR + CONTRASTE)
+# ESTILOS CSS
 # ---------------------------------------------------------
 st.markdown(
     """
@@ -329,7 +329,6 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                 st.subheader(f"👤 Integrante {idx}")
                 dni_input = st.text_input(f"DNI Integrante {idx}", key=f"dni_{idx}_input").strip().replace(".", "")
 
-                # AUTO-COMPLETADO DESDE EL PADRÓN VÍA SESSION_STATE
                 if dni_input:
                     coincidencias = buscar_estudiantes_por_dni(dni_input)
                     if len(coincidencias) >= 1:
@@ -375,11 +374,11 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                     st.error(f"Error de conexión: {e}")
 
     # ---------------------------------------------------------
-    # NUEVO MÓDULO: ACREDITACIÓN Y LISTA DE PRESENTES
+    # MÓDULO ACREDITACIÓN CON DATOS EDITABLES
     # ---------------------------------------------------------
     elif opcion == "📌 Acreditación de Presentes":
         st.header("📌 Módulo de Acreditación de Presentes al Evento")
-        st.markdown("Busca al estudiante por DNI en el padrón oficial para registrar su ingreso y presente.")
+        st.markdown("Busca al estudiante por DNI para verificar e ingresar o modificar sus datos antes de confirmar el presente.")
 
         dni_acreditar = st.text_input("Ingresar DNI del Estudiante a Acreditar", placeholder="Ej: 39098198").strip().replace(".", "")
 
@@ -391,35 +390,39 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                 
                 for idx, estudiante in enumerate(coincidencias):
                     with st.container(border=True):
-                        st.markdown(f"### 👤 {estudiante.get('nombre', 'Estudiante Registrado')}")
+                        st.markdown(f"### ✏️ Editar / Validar Registro #{idx+1}")
                         
                         col1, col2 = st.columns(2)
                         with col1:
-                            st.write(f"🏫 **Escuela:** {estudiante.get('escuela', 'Sin Datos')}")
-                            st.write(f"📝 **Desafío / Inscripción:** {estudiante.get('inscripcion', 'Sin Datos')}")
-                            st.write(f"📊 **Nivel:** {estudiante.get('nivel', 'Sin Datos')}")
+                            nombre_edit = st.text_input("Nombre y Apellido", value=estudiante.get("nombre", ""), key=f"acred_nom_{idx}")
+                            escuela_edit = st.text_input("Escuela", value=estudiante.get("escuela", ""), key=f"acred_esc_{idx}")
+                            inscripcion_edit = st.text_input("Desafío / Inscripción", value=estudiante.get("inscripcion", ""), key=f"acred_insc_{idx}")
+                            nivel_edit = st.text_input("Nivel", value=estudiante.get("nivel", ""), key=f"acred_niv_{idx}")
                         
                         with col2:
-                            st.write(f"📧 **Email Estudiante:** {estudiante.get('email', 'Sin Datos')}")
-                            st.write(f"📩 **Mail Docente / Acompañante:** {estudiante.get('email_docente', 'Sin Datos')}")
-                            st.write(f"🗓️ **Fecha de Registro Padrón:** {estudiante.get('fecha', 'Sin Datos')}")
+                            email_est_edit = st.text_input("Email Estudiante", value=estudiante.get("email", ""), key=f"acred_mail_est_{idx}")
+                            docente_mail_val = estudiante.get("email_docente", "")
+                            if docente_mail_val == "Sin Datos":
+                                docente_mail_val = ""
+                            email_doc_edit = st.text_input("Mail Docente / Acompañante", value=docente_mail_val, placeholder="ejemplo@docente.edu.ar", key=f"acred_mail_doc_{idx}")
+                            st.text_input("Fecha Registro Padrón (Solo Lectura)", value=estudiante.get("fecha", ""), disabled=True, key=f"acred_fch_{idx}")
 
-                        if st.button(f"✅ Acreditar Presente - Registro #{idx+1}", key=f"acreditar_{idx}", type="primary"):
+                        if st.button(f"✅ Confirmar Presente con Datos Actualizados - Reg #{idx+1}", key=f"acreditar_{idx}", type="primary"):
                             payload_presente = {
                                 "action": "marcar_presente",
                                 "fecha_acreditacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                                 "dni": dni_acreditar,
-                                "estudiante": estudiante.get("nombre", ""),
-                                "escuela": estudiante.get("escuela", ""),
-                                "email_estudiante": estudiante.get("email", ""),
-                                "email_docente": estudiante.get("email_docente", ""),
-                                "inscripcion": estudiante.get("inscripcion", ""),
-                                "nivel": estudiante.get("nivel", "")
+                                "estudiante": nombre_edit,
+                                "escuela": escuela_edit,
+                                "email_estudiante": email_est_edit,
+                                "email_docente": email_doc_edit if email_doc_edit.strip() else "Sin Datos",
+                                "inscripcion": inscripcion_edit,
+                                "nivel": nivel_edit
                             }
                             try:
                                 res = requests.post(WEBAPP_URL, json=payload_presente, timeout=10)
                                 if res.status_code == 200:
-                                    st.success(f"🎉 ¡{estudiante.get('nombre')} ha sido acreditado/a correctamente!")
+                                    st.success(f"🎉 ¡{nombre_edit} ha sido acreditado/a con éxito!")
                                 else:
                                     st.error("Error al registrar el presente en Google Sheets.")
                             except Exception as e:
