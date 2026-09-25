@@ -31,7 +31,7 @@ hide_streamlit_style = """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# ESTILOS CSS CON FORZADO TOTAL DE VISIBILIDAD EN SELECTBOX
+# ESTILOS CSS CON VISIBILIDAD GARANTIZADA EN SIDEBAR
 # ---------------------------------------------------------
 st.markdown(
     """
@@ -50,19 +50,20 @@ st.markdown(
         color: #F8FAFC !important; 
     }
 
-    /* CORRECCIÓN DE CONTRASTE TOTAL EN SELECTBOX DE LA BARRA LATERAL */
-    section[data-testid="stSidebar"] div[data-baseweb="select"] {
+    /* ESTILO PARA SELECTOR DE EVENTOS EN RADIO BUTTON (SIDEBAR) */
+    section[data-testid="stSidebar"] .stRadio label {
         background-color: #1E293B !important;
+        border: 1px solid #334155 !important;
         border-radius: 8px !important;
+        padding: 0.6rem 0.8rem !important;
+        margin-bottom: 0.4rem !important;
+        display: flex !important;
+        align-items: center !important;
+        cursor: pointer !important;
     }
-    section[data-testid="stSidebar"] div[data-baseweb="select"] * {
-        background-color: transparent !important;
+    section[data-testid="stSidebar"] .stRadio label * {
         color: #FFFFFF !important;
-        -webkit-text-fill-color: #FFFFFF !important;
-    }
-    section[data-testid="stSidebar"] div[data-baseweb="select"] [data-testid="stMarkdownContainer"] p {
-        color: #FFFFFF !important;
-        -webkit-text-fill-color: #FFFFFF !important;
+        font-weight: 600 !important;
     }
 
     /* ENCABEZADO PRINCIPAL HERO */
@@ -177,13 +178,16 @@ def obtener_lista_codigos():
     return []
 
 # ---------------------------------------------------------
-# NAVEGACIÓN PRINCIPAL
+# NAVEGACIÓN PRINCIPAL (REEMPLAZADO A ST.RADIO PARA GARANTIZAR VISIBILIDAD)
 # ---------------------------------------------------------
 st.sidebar.markdown("### ⚙️ Selección de Evento")
-evento_seleccionado = st.sidebar.selectbox(
-    "Evento", ["📐 Desafíos Técnicos DTCABA", "🏆 Hackathon 2026"]
+evento_seleccionado = st.sidebar.radio(
+    "Selección de Evento",
+    ["📐 Desafíos Técnicos DTCABA", "🏆 Hackathon 2026"],
+    label_visibility="collapsed"
 )
 
+st.sidebar.markdown("---")
 st.sidebar.markdown("### 🧭 Navegación")
 if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
     opcion = st.sidebar.radio(
@@ -491,7 +495,7 @@ elif evento_seleccionado == "🏆 Hackathon 2026":
 
         with st.container(border=True):
             st.markdown("#### 4. Coordinación y Logística (Máx. 15 pts)")
-            c4 = st.radio("Nivel:", [15, 10, 5, 0], format_func=lambda x: map_10[x], key="hk_4")
+            c4 = st.radio("Nivel:", [15, 10, 5, 0], format_func=lambda x: map_15[x], key="hk_4")
 
         with st.container(border=True):
             st.markdown("#### 5. Atención a la Población (Máx. 15 pts)")
