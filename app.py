@@ -31,7 +31,7 @@ hide_streamlit_style = """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# ESTILOS CSS CON VISIBILIDAD GARANTIZADA EN SIDEBAR
+# ESTILOS CSS LIMPIOS PARA LA BARRA LATERAL Y CONTENIDOS
 # ---------------------------------------------------------
 st.markdown(
     """
@@ -42,28 +42,33 @@ st.markdown(
         font-family: 'Inter', sans-serif; 
     }
 
-    /* BARRA LATERAL (SIDEBAR) BASE */
+    /* BARRA LATERAL (SIDEBAR) ELEGANTE */
     section[data-testid="stSidebar"] { 
         background-color: #0F172A !important; 
+        padding-top: 1rem;
     }
     section[data-testid="stSidebar"] * { 
         color: #F8FAFC !important; 
     }
 
-    /* ESTILO PARA SELECTOR DE EVENTOS EN RADIO BUTTON (SIDEBAR) */
-    section[data-testid="stSidebar"] .stRadio label {
-        background-color: #1E293B !important;
-        border: 1px solid #334155 !important;
-        border-radius: 8px !important;
-        padding: 0.6rem 0.8rem !important;
-        margin-bottom: 0.4rem !important;
-        display: flex !important;
-        align-items: center !important;
-        cursor: pointer !important;
+    /* ESTILO PARA RADIO BUTTONS EN SIDEBAR (SIN CAJAS NI BORDES FEOS) */
+    section[data-testid="stSidebar"] div[role="radiogroup"] {
+        gap: 0.3rem !important;
     }
-    section[data-testid="stSidebar"] .stRadio label * {
-        color: #FFFFFF !important;
-        font-weight: 600 !important;
+    section[data-testid="stSidebar"] div[role="radiogroup"] label {
+        background-color: transparent !important;
+        border: none !important;
+        padding: 0.4rem 0.6rem !important;
+        border-radius: 8px !important;
+        transition: background-color 0.2s ease;
+    }
+    section[data-testid="stSidebar"] div[role="radiogroup"] label:hover {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    section[data-testid="stSidebar"] div[role="radiogroup"] label * {
+        color: #F8FAFC !important;
+        font-size: 0.95rem !important;
+        font-weight: 500 !important;
     }
 
     /* ENCABEZADO PRINCIPAL HERO */
@@ -178,9 +183,9 @@ def obtener_lista_codigos():
     return []
 
 # ---------------------------------------------------------
-# NAVEGACIÓN PRINCIPAL (REEMPLAZADO A ST.RADIO PARA GARANTIZAR VISIBILIDAD)
+# NAVEGACIÓN PRINCIPAL EN BARRA LATERAL
 # ---------------------------------------------------------
-st.sidebar.markdown("### ⚙️ Selección de Evento")
+st.sidebar.markdown("### ⚙️ Evento")
 evento_seleccionado = st.sidebar.radio(
     "Selección de Evento",
     ["📐 Desafíos Técnicos DTCABA", "🏆 Hackathon 2026"],
@@ -188,7 +193,8 @@ evento_seleccionado = st.sidebar.radio(
 )
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 🧭 Navegación")
+st.sidebar.markdown("### 🧭 Menú")
+
 if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
     opcion = st.sidebar.radio(
         "Navegación DTCABA",
