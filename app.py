@@ -8,7 +8,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 # ---------------------------------------------------------
-# CONFIGURACIÓN E INICIALIZACIÓN DE FIREBASE Y WEBAPP
+# CONFIGURACIÓN E INICIALIZACIÓN DE FIREBASE Y SERVIDORES
 # ---------------------------------------------------------
 WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwpYoAthfaViejGHAAThgQkAllbMrSsxfi-AC6vrcrtUtIeG-VtI5knuGPyGlGZhHl7tA/exec"
 ADMIN_PASSWORD = "admin123"
@@ -32,11 +32,13 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Inicializar Firebase Admin SDK
+# Inicializar Firebase Admin SDK corrigiendo formato de private_key
 if not firebase_admin._apps:
     try:
         if "firebase" in st.secrets:
             cred_dict = dict(st.secrets["firebase"])
+            if "private_key" in cred_dict:
+                cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
             cred = credentials.Certificate(cred_dict)
         else:
             cred = credentials.Certificate("firebase_credentials.json")
@@ -158,7 +160,7 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# FUNCIONES AUXILIARES (PADRÓN OFICIAL VIA WEBAPP)
+# FUNCIONES AUXILIARES DE CONSULTA Y EXPORTACIÓN
 # ---------------------------------------------------------
 @st.cache_data(ttl=600, show_spinner=False)
 def buscar_estudiantes_por_dni(dni):
@@ -335,9 +337,6 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
             st.success(st.session_state["exito_msj"])
             del st.session_state["exito_msj"]
 
-    # ---------------------------------------------------------
-    # GENERACIÓN DE EQUIPOS CON BÚSQUEDA AUTOMÁTICA EN PADRÓN OFICIAL
-    # ---------------------------------------------------------
     elif opcion == "Generar Códigos de Equipos":
         st.header("Generador de Códigos para Equipos / Duplas")
         clave = st.text_input("Contraseña de Acceso", type="password")
@@ -445,7 +444,7 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                 st.warning("⚠️ No se encontró ningún estudiante con ese DNI en el padrón.")
 
 # ---------------------------------------------------------
-# EVENTO 2: HACKATHON 2026 (RÚBRICA COMPLETA Y ORIGINAL)
+# EVENTO 2: HACKATHON 2026
 # ---------------------------------------------------------
 elif evento_seleccionado == "🏆 Hackathon 2026":
     st.markdown(
