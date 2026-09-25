@@ -8,22 +8,12 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 # ---------------------------------------------------------
-# CONFIGURACIÓN E INICIALIZACIÓN DE FIREBASE Y SERVIDORES
+# CONFIGURACIÓN DE SERVIDORES Y FIREBASE
 # ---------------------------------------------------------
 WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwpYoAthfaViejGHAAThgQkAllbMrSsxfi-AC6vrcrtUtIeG-VtI5knuGPyGlGZhHl7tA/exec"
 ADMIN_PASSWORD = "admin123"
 
 CARACTERES_SEGUROS = "BCDFGHJKLMNPQRSTVWXYZ0123456789"
-
-ESPECIALIDADES = [
-    "Computación / Informática",
-    "Electrónica",
-    "Electromecánica",
-    "Química",
-    "Construcciones",
-    "Automotores",
-    "General / Otra"
-]
 
 st.set_page_config(
     page_title="Plataforma de Evaluación DTCABA & Hackathon",
@@ -32,7 +22,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Inicializar Firebase Admin SDK corrigiendo formato de private_key
+# Inicializar Firebase Admin SDK corrigiendo formato de private_key en Secrets
 if not firebase_admin._apps:
     try:
         if "firebase" in st.secrets:
@@ -160,7 +150,7 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# FUNCIONES AUXILIARES DE CONSULTA Y EXPORTACIÓN
+# FUNCIONES AUXILIARES (PADRÓN GOOGLE SHEETS)
 # ---------------------------------------------------------
 @st.cache_data(ttl=600, show_spinner=False)
 def buscar_estudiantes_por_dni(dni):
@@ -345,9 +335,10 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
             st.success("🔓 Acceso habilitado.")
             cant_integrantes = st.number_input("Cantidad de Integrantes del Equipo", min_value=1, max_value=10, value=2)
             prefijo = st.selectbox("Materia / Categoría", ["MAT", "LEN", "TDR1", "TDR2", "HACKATHON"])
-            especialidad_eq = st.selectbox("Especialidad Técnica", ESPECIALIDADES)
 
             datos_integrantes = []
+            especialidad_detectada = "General"
+
             for idx in range(1, cant_integrantes + 1):
                 st.subheader(f"👤 Integrante {idx}")
                 dni_input = st.text_input(f"DNI Integrante {idx}", key=f"dni_{idx}_input").strip().replace(".", "")
@@ -357,6 +348,10 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                     if len(coincidencias) >= 1:
                         c = coincidencias[0]
                         st.success(f"✅ Encontrado en padrón: {c.get('nombre','')}")
+                        
+                        if c.get("especialidad") and c.get("especialidad") != "N/A":
+                            especialidad_detectada = c.get("especialidad")
+
                         if f"nom_{idx}" not in st.session_state or not st.session_state[f"nom_{idx}"]:
                             st.session_state[f"nom_{idx}"] = c.get("nombre", "")
                         if f"esc_{idx}" not in st.session_state or not st.session_state[f"esc_{idx}"]:
@@ -376,6 +371,8 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                     "email": mail_i
                 })
 
+            esp_final = st.text_input("Especialidad del Equipo (Obtenida del Padrón)", value=especialidad_detectada, key="esp_equipo_padron")
+
             if st.button("🎲 Generar Código de Equipo", type="primary"):
                 tres_aleatorios = "".join(random.choices(CARACTERES_SEGUROS, k=3))
                 primer_dni = datos_integrantes[0]["dni"] if datos_integrantes else "000"
@@ -386,7 +383,7 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                     "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     "codigo_unico": codigo_generado,
                     "materia": prefijo,
-                    "especialidad": especialidad_eq,
+                    "especialidad": esp_final,
                     "evento": "DTCABA",
                     "integrantes": datos_integrantes
                 }
@@ -396,7 +393,7 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
 
     elif opcion == "📌 Acreditación de Presentes":
         st.header("📌 Acreditación de Presentes (DTCABA)")
-        st.markdown("Busca al estudiante por DNI para verificar e ingresar o modificar sus datos antes de confirmar el presente.")
+        st.markdown("Busca al estudiante por DNI en el padrón para verificar e ingresar o modificar sus datos antes de confirmar el presente.")
 
         dni_acreditar = st.text_input("Ingresar DNI del Estudiante a Acreditar", placeholder="Ej: 39098198", key="acred_dni_dtcaba").strip().replace(".", "")
 
@@ -404,7 +401,7 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
             coincidencias = buscar_estudiantes_por_dni(dni_acreditar)
 
             if coincidencias:
-                st.success(f"✅ Estudiante Encontrado ({len(coincidencias)} inscripción/es detectada/s)")
+                st.success(f"✅ Estudiante Encontrado en Padrón ({len(coincidencias)} inscripción/es detectada/s)")
                 
                 for idx, estudiante in enumerate(coincidencias):
                     with st.container(border=True):
@@ -423,7 +420,7 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                             if docente_mail_val == "Sin Datos":
                                 docente_mail_val = ""
                             email_doc_edit = st.text_input("Mail Docente / Acompañante", value=docente_mail_val, placeholder="ejemplo@docente.edu.ar", key=f"acred_mail_doc_{idx}")
-                            especialidad_edit = st.selectbox("Especialidad Técnica", ESPECIALIDADES, key=f"acred_esp_{idx}")
+                            especialidad_edit = st.text_input("Especialidad (del Padrón)", value=estudiante.get("especialidad", "General"), key=f"acred_esp_{idx}")
 
                         if st.button(f"✅ Confirmar Presente DTCABA - Reg #{idx+1}", key=f"acreditar_{idx}", type="primary"):
                             doc_presente = {
@@ -465,7 +462,7 @@ elif evento_seleccionado == "🏆 Hackathon 2026":
             with col2:
                 equipo = st.text_input("Equipo / Proyecto*", placeholder="Ej. Nicolas", key="hk_equipo")
             with col3:
-                especialidad_hk = st.selectbox("Especialidad Proyecto", ESPECIALIDADES, key="hk_esp")
+                especialidad_hk = st.text_input("Especialidad del Proyecto", placeholder="Ej. Computación", key="hk_esp")
 
         st.subheader("📊 Criterios de Evaluación")
 
@@ -525,7 +522,7 @@ elif evento_seleccionado == "🏆 Hackathon 2026":
                     "evaluador": evaluador,
                     "equipo": equipo,
                     "evento": "Hackathon 2026",
-                    "especialidad": especialidad_hk,
+                    "especialidad": especialidad_hk if especialidad_hk.strip() else "General",
                     "escenario": c1,
                     "infraestructura_energia": c2,
                     "comunicacion_info": c3,
@@ -573,7 +570,7 @@ elif evento_seleccionado == "🏆 Hackathon 2026":
                             if docente_hk == "Sin Datos":
                                 docente_hk = ""
                             email_doc_hk = st.text_input("Mail Tutor / Docente", value=docente_hk, placeholder="ejemplo@tutor.edu.ar", key=f"hk_mail_doc_{idx}")
-                            especialidad_hk_acred = st.selectbox("Especialidad Técnica", ESPECIALIDADES, key=f"hk_esp_acred_{idx}")
+                            especialidad_hk_acred = st.text_input("Especialidad (del Padrón)", value=participante.get("especialidad", "General"), key=f"hk_esp_acred_{idx}")
 
                         if st.button(f"🚀 Confirmar Acreditación Hackathon - Reg #{idx+1}", key=f"acred_hk_btn_{idx}", type="primary"):
                             doc_hk_presente = {
