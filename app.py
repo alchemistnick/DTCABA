@@ -150,7 +150,7 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# FUNCIONES AUXILIARES (PADRÓN GOOGLE SHEETS)
+# FUNCIONES AUXILIARES (PADRÓN Y EXPORTACIÓN APLANADA)
 # ---------------------------------------------------------
 @st.cache_data(ttl=600, show_spinner=False)
 def buscar_estudiantes_por_dni(dni):
@@ -176,11 +176,53 @@ def obtener_lista_codigos_fb():
     except Exception:
         return []
 
-def generar_excel_descarga(dict_dfs):
+def aplanar_equipos(equipos_list):
+    """Desglosa la lista de integrantes en columnas independientes por integrante."""
+    filas_aplanadas = []
+    for eq in equipos_list:
+        base = {
+            "fecha": eq.get("fecha", ""),
+            "codigo_unico": eq.get("codigo_unico", ""),
+            "evento": eq.get("evento", ""),
+            "materia": eq.get("materia", ""),
+            "especialidad": eq.get("especialidad", "")
+        }
+        integrantes = eq.get("integrantes", [])
+        if isinstance(integrantes, list):
+            for idx, member in enumerate(integrantes, start=1):
+                if isinstance(member, dict):
+                    base[f"integrante_{idx}_dni"] = member.get("dni", "")
+                    base[f"integrante_{idx}_estudiante"] = member.get("estudiante", "")
+                    base[f"integrante_{idx}_escuela"] = member.get("escuela", "")
+                    base[f"integrante_{idx}_email"] = member.get("email", "")
+        filas_aplanadas.append(base)
+    return pd.DataFrame(filas_aplanadas)
+
+def generar_excel_descarga(dict_raw_data):
+    """Genera un archivo Excel desglosando subEstructuras en columnas individuales."""
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
-        for sheet_name, df in dict_dfs.items():
-            df.to_excel(writer, sheet_name=sheet_name, index=False)
+        # Pestaña Evaluaciones (normaliza json anidado como 'respuestas')
+        if dict_raw_data.get("Evaluaciones"):
+            df_evals = pd.json_normalize(dict_raw_data["Evaluaciones"])
+            df_evals.to_excel(writer, sheet_name="Evaluaciones", index=False)
+        else:
+            pd.DataFrame().to_excel(writer, sheet_name="Evaluaciones", index=False)
+
+        # Pestaña Equipos (aplana lista de integrantes)
+        if dict_raw_data.get("Equipos"):
+            df_equipos = aplanar_equipos(dict_raw_data["Equipos"])
+            df_equipos.to_excel(writer, sheet_name="Equipos", index=False)
+        else:
+            pd.DataFrame().to_excel(writer, sheet_name="Equipos", index=False)
+
+        # Pestaña Presentes Acreditados
+        if dict_raw_data.get("Presentes_Acreditados"):
+            df_presentes = pd.DataFrame(dict_raw_data["Presentes_Acreditados"])
+            df_presentes.to_excel(writer, sheet_name="Presentes_Acreditados", index=False)
+        else:
+            pd.DataFrame().to_excel(writer, sheet_name="Presentes_Acreditados", index=False)
+
     return output.getvalue()
 
 # ---------------------------------------------------------
@@ -408,7 +450,6 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
             if coincidencias:
                 st.success(f"✅ Estudiante Encontrado en Padrón ({len(coincidencias)} inscripción/es detectada/s)")
                 
-                # Permite al usuario elegir qué inscripción validar si hay más de una
                 idx_seleccionado = 0
                 if len(coincidencias) > 1:
                     opciones_acred = [f"Inscripción #{i+1}: {c.get('inscripcion', 'Sin datos')} ({c.get('escuela', '')})" for i, c in enumerate(coincidencias)]
@@ -617,13 +658,13 @@ if opcion in ["Panel de Administración", "Panel de Administración y Reportes"]
     if clave == ADMIN_PASSWORD:
         st.success("🔓 Acceso de Administración concedido.")
 
-        evals_data = [d.to_dict() for d in db.collection("evaluaciones").stream()]
-        equipos_data = [d.to_dict() for d in db.collection("equipos").stream()]
-        presentes_data = [d.to_dict() for d in db.collection("presentes").stream()]
+        evals_raw = [d.to_dict() for d in db.collection("evaluaciones").stream()]
+        equipos_raw = [d.to_dict() for d in db.collection("equipos").stream()]
+        presentes_raw = [d.to_dict() for d in db.collection("presentes").stream()]
 
-        df_evals = pd.DataFrame(evals_data) if evals_data else pd.DataFrame()
-        df_equipos = pd.DataFrame(equipos_data) if equipos_data else pd.DataFrame()
-        df_presentes = pd.DataFrame(presentes_data) if presentes_data else pd.DataFrame()
+        df_evals = pd.json_normalize(evals_raw) if evals_raw else pd.DataFrame()
+        df_equipos = aplanar_equipos(equipos_raw) if equipos_raw else pd.DataFrame()
+        df_presentes = pd.DataFrame(presentes_raw) if presentes_raw else pd.DataFrame()
 
         tab1, tab2, tab3 = st.tabs(["📊 Evaluaciones Registradas", "🔑 Base de Códigos / Equipos", "📌 Lista de Presentes"])
         
@@ -649,9 +690,9 @@ if opcion in ["Panel de Administración", "Panel de Administración y Reportes"]
         st.subheader("📥 Exportar Datos a Excel / CSV")
 
         dict_export = {
-            "Evaluaciones": df_evals,
-            "Equipos": df_equipos,
-            "Presentes_Acreditados": df_presentes
+            "Evaluaciones": evals_raw,
+            "Equipos": equipos_raw,
+            "Presentes_Acreditados": presentes_raw
         }
         excel_bytes = generar_excel_descarga(dict_export)
 
