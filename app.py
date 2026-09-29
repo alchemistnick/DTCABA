@@ -40,7 +40,7 @@ if not firebase_admin._apps:
 db = firestore.client()
 
 # ---------------------------------------------------------
-# ESTILOS CSS ADAPTADOS A CELULARES
+# ESTILOS CSS ADAPTADOS A CELULARES Y ESCRITORIO
 # ---------------------------------------------------------
 st.markdown(
     """
@@ -643,7 +643,7 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                 estudiante = coincidencias[idx_seleccionado]
 
                 with st.container(border=True):
-                    st.markdown(f"### ✏️️ Editar / Validar Registro (Inscripción #{idx_seleccionado+1})")
+                    st.markdown(f"### ✏️ Editar / Validar Registro (Inscripción #{idx_seleccionado+1})")
                     
                     col1, col2 = st.columns(2)
                     with col1:
@@ -679,7 +679,7 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                 st.warning("⚠️ No se encontró ningún estudiante con ese DNI en el padrón.")
 
 # ---------------------------------------------------------
-# EVENTO 2: HACKATHON CIREC 2026 (RÚBRICA OFICIAL CON 5 NIVELES)
+# EVENTO 2: HACKATHON CIREC 2026 (ESCENARIOS DESPLEGABLE + RESET LIMPIO)
 # ---------------------------------------------------------
 elif evento_seleccionado == "🏆 Hackathon 2026 (CIREC)":
     st.markdown(
@@ -693,14 +693,37 @@ elif evento_seleccionado == "🏆 Hackathon 2026 (CIREC)":
     )
 
     if opcion == "Cargar Evaluación Hackathon":
+        # Muestra mensaje de éxito justo arriba si proviene de un guardado exitoso
+        if st.session_state.get("eval_hk_guardada_exito"):
+            st.success("✅ ¡Evaluación cargada con éxito! El formulario se ha reiniciado.")
+            st.session_state["eval_hk_guardada_exito"] = False
+
+        lista_escenarios_oficiales = [
+            "-- Seleccionar Escenario --",
+            "Región Litoral – Corrientes",
+            "Región Centro – Córdoba",
+            "Región Cuyo – Mendoza",
+            "Región Patagonia – Chubut",
+            "Región Noroeste Argentino (NOA) – Jujuy",
+            "Región Metropolitana – Área Metropolitana de Buenos Aires (AMBA)",
+        ]
+
         with st.container(border=True):
-            col1, col2, col3 = st.columns(3)
+            col1, col2 = st.columns(2)
             with col1:
                 evaluador = st.text_input("Evaluador/a*", placeholder="Ej. Gustavo", key="hk_eval")
-            with col2:
                 equipo = st.text_input("Equipo*", placeholder="Ej. Equipo Alpha", key="hk_equipo")
-            with col3:
-                escenario = st.text_input("Escenario Asignado*", placeholder="Ej. Inundación Costera", key="hk_escenario")
+            with col2:
+                escenario_sel = st.selectbox(
+                    "Escenario Asignado*",
+                    options=lista_escenarios_oficiales,
+                    key="hk_escenario_select"
+                )
+
+        if escenario_sel == "-- Seleccionar Escenario --":
+            escenario = ""
+        else:
+            escenario = escenario_sel
 
         st.subheader("📊 Indicadores de Evaluación CIREC (Total: 100 pts)")
 
@@ -785,7 +808,7 @@ elif evento_seleccionado == "🏆 Hackathon 2026 (CIREC)":
 
         if st.button("🚀 Guardar Evaluación CIREC", type="primary"):
             if not evaluador.strip() or not equipo.strip() or not escenario.strip():
-                st.warning("⚠️ Por favor completa el Evaluador/a, el Equipo y el Escenario asignado.")
+                st.warning("⚠️ Por favor completa el Evaluador/a, el Equipo y selecciona el Escenario asignado.")
             else:
                 eval_respuestas_hk = {
                     "diseno_conceptual_pts": hk_c1, "diseno_conceptual_desc": map_10[hk_c1], "diseno_conceptual_obs": hk_obs1,
@@ -809,13 +832,20 @@ elif evento_seleccionado == "🏆 Hackathon 2026 (CIREC)":
                     "respuestas": eval_respuestas_hk
                 }
                 db.collection("evaluaciones").add(doc_eval_hk)
-                st.session_state["exito_msj_hk"] = f"✅ ¡Evaluación CIREC del equipo '{equipo}' guardada correctamente en Firebase!"
-                st.balloons()
-                st.rerun()
+                st.session_state["eval_hk_guardada_exito"] = True
 
-        if "exito_msj_hk" in st.session_state:
-            st.success(st.session_state["exito_msj_hk"])
-            del st.session_state["exito_msj_hk"]
+                # LIMPIEZA TOTAL DEL FORMULARIO Y RESETEO DE CAMPOS (PREVIENE DOBLE CLIC Y VACÍA TODO)
+                keys_hk_limpiar = [
+                    "hk_eval", "hk_equipo", "hk_escenario_select",
+                    "hk_c1", "hk_obs1", "hk_c2", "hk_obs2", "hk_c3", "hk_obs3",
+                    "hk_c4", "hk_obs4", "hk_c5", "hk_obs5", "hk_c6", "hk_obs6",
+                    "hk_c7", "hk_obs7", "hk_c8", "hk_obs8", "hk_c9", "hk_obs9"
+                ]
+                for k in keys_hk_limpiar:
+                    if k in st.session_state:
+                        del st.session_state[k]
+
+                st.rerun()
 
     elif opcion == "📌 Acreditación Hackathon":
         st.header("📌 Módulo de Acreditación de Presentes (Hackathon CIREC)")
