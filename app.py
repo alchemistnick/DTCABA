@@ -16,7 +16,7 @@ ADMIN_PASSWORD = "admin123"
 CARACTERES_SEGUROS = "BCDFGHJKLMNPQRSTVWXYZ0123456789"
 
 st.set_page_config(
-    page_title="Plataforma de Evaluación DTCABA & Hackathon",
+    page_title="Plataforma de Evaluación DTCABA & Hackathon CIREC",
     page_icon="🏆",
     layout="centered",
     initial_sidebar_state="expanded",
@@ -226,7 +226,7 @@ def generar_excel_descarga(dict_raw_data):
 st.sidebar.markdown("### ⚙️ Evento")
 evento_seleccionado = st.sidebar.radio(
     "Selección de Evento",
-    ["📐 Desafíos Técnicos DTCABA", "🏆 Hackathon 2026"],
+    ["📐 Desafíos Técnicos DTCABA", "🏆 Hackathon 2026 (CIREC)"],
     label_visibility="collapsed"
 )
 
@@ -283,7 +283,7 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                         options=opciones_desplegable,
                         key="eval_codigo_select",
                     )
-                    if seleccion == "✏️ Tipear código manualmente":
+                    if seleccion == "✏️️ Tipear código manualmente":
                         codigo_unico = st.text_input(
                             "Escribe el Código Único", placeholder="Ej: X8K198", key="eval_codigo_manual"
                         ).strip().upper()
@@ -313,9 +313,6 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
 
         st.subheader(f"📋 Rúbrica de Evaluación: {materia}")
 
-        # ---------------------------------------------------------
-        # RÚBRICA DE LENGUA
-        # ---------------------------------------------------------
         if materia == "Lengua":
             map_len1 = {
                 4: "4 - Avanzado: Conserva e integra el sentido central del texto técnico.",
@@ -331,32 +328,32 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
             }
             map_len3 = {
                 4: "4 - Avanzado: Construye una voz en primera persona consistente y verosímil.",
-                3: "3 - Satisfactorio: La voz se sostiene con algunas inconsistencias (ruptura de registro, de focalización, contradicción en la actitud).",
-                2: "2 - En desarrollo: La voz aparece de manera parcial o irregular (no presenta uniformidad en la voz en todos los párrafos).",
+                3: "3 - Satisfactorio: La voz se sostiene con algunas inconsistencias.",
+                2: "2 - En desarrollo: La voz aparece de manera parcial o irregular.",
                 1: "1 - Inicial: No logra construir una voz narrativa.",
             }
             map_len4 = {
-                4: "4 - Avanzado: Utiliza el lenguaje técnico para construir experiencias y emociones o vínculos.",
+                4: "4 - Avanzado: Utiliza el lenguaje técnico para construir experiencias.",
                 3: "3 - Satisfactorio: Integra el vocabulario técnico de manera pertinente.",
-                2: "2 - En desarrollo: El lenguaje técnico aparece de forma aislada o forzada.",
+                2: "2 - En desarrollo: El lenguaje técnico aparece de forma aislada.",
                 1: "1 - Inicial: No incorpora o utiliza incorrectamente el lenguaje técnico.",
             }
             map_len5 = {
-                4: "4 - Avanzado: Integra descripciones, metáforas o comparaciones que enriquecen el relato.",
+                4: "4 - Avanzado: Integra descripciones, metáforas o comparaciones enriquecedoras.",
                 3: "3 - Satisfactorio: Utiliza algunos recursos expresivos adecuados.",
-                2: "2 - En desarrollo: Utiliza un recurso expresivo (metáfora o descripción) de forma adecuada.",
+                2: "2 - En desarrollo: Utiliza un recurso expresivo de forma adecuada.",
                 1: "1 - Inicial: No utiliza recursos literarios significativos.",
             }
             map_len6 = {
                 4: "4 - Avanzado: Presenta una secuencia clara, coherente y cohesiva.",
-                3: "3 - Satisfactorio: El relato es comprensible con pequeñas dificultades que implican ambigüedades o desorden en la claridad lógica.",
+                3: "3 - Satisfactorio: Relato comprensible con pequeñas dificultades lógicas.",
                 2: "2 - En desarrollo: La organización presenta reiteraciones o saltos.",
                 1: "1 - Inicial: La organización dificulta la comprensión.",
             }
             map_len7 = {
-                4: "4 - Avanzado: Emplea correctamente ortografía, puntuación y síntaxis.",
+                4: "4 - Avanzado: Emplea correctamente ortografía, puntuación y sintaxis.",
                 3: "3 - Satisfactorio: Presenta errores que no dificultan la comprensión.",
-                2: "2 - En desarrollo: Presenta errores que dificultan parcialmente la comprensión.",
+                2: "2 - En desarrollo: Errores que dificultan parcialmente la comprensión.",
                 1: "1 - Inicial: Los errores afectan significativamente la comprensión.",
             }
 
@@ -419,37 +416,34 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                 "c7_normativa_pts": c7, "c7_normativa_desc": map_len7[c7], "c7_obs": obs7,
             }
 
-        # ---------------------------------------------------------
-        # RÚBRICA DE MATEMÁTICA
-        # ---------------------------------------------------------
         elif materia == "Matemática":
             map_mat1 = {
                 5: "5 - Destacado: Figura original y de alta complejidad en la representación.",
                 4: "4 - Avanzado: Figura tridimensional bien construida, muestra originalidad.",
                 3: "3 - Satisfactorio: La figura es adecuada y realizada de manera correcta.",
-                2: "2 - Básico: La figura es no presenta complejidad.",
+                2: "2 - Básico: La figura no presenta complejidad.",
                 1: "1 - Inicial: La figura no es original y presenta errores de representación.",
             }
             map_mat2 = {
-                5: "5 - Destacado: Problema original, explícito la intervención de la figura y de integración de disciplinas.",
-                4: "4 - Avanzado: Situación problemática planteada es explícita en la intervención de la figura y de integración de disciplinas.",
+                5: "5 - Destacado: Problema original, explícita la intervención de la figura y de integración.",
+                4: "4 - Avanzado: Situación problemática planteada explícita en la intervención.",
                 3: "3 - Satisfactorio: El problema es correcto pero no se evidencia la figura construida.",
-                2: "2 - Básico: El problema presenta inconsistencias desde el punto de vista matemático.",
+                2: "2 - Básico: El problema presenta inconsistencias matemáticas.",
                 1: "1 - Inicial: No logra contextualizar la situación problemática.",
             }
             map_mat3 = {
-                5: "5 - Destacado: Procedimiento es completo, utiliza datos y justifica cada paso.",
-                4: "4 - Avanzado: Aplica el procedimiento correcto y justifica cada paso.",
-                3: "3 - Satisfactorio: El procedimient es correcto pero con justificación parcial.",
-                2: "2 - Básico: La procedimiento es correcto no presenta justificación",
+                5: "5 - Destacado: Procedimiento completo, utiliza datos y justifica cada paso.",
+                4: "4 - Avanzado: Aplica procedimiento correcto y justifica cada paso.",
+                3: "3 - Satisfactorio: Procedimiento correcto pero con justificación parcial.",
+                2: "2 - Básico: Procedimiento correcto sin justificación.",
                 1: "1 - Inicial: No presenta procedimiento ni justificación.",
             }
             map_mat4 = {
-                5: "5 - Destacado: Utiliza términos, símbolos y expresiones matemáticas de forma precisa y rigurosa.",
-                4: "4 - Avanzado: Utiliza términos, símbolos y expresiones matemáticas de forma correcta en su mayoría.",
-                3: "3 - Satisfactorio: Muestra un uso impreciso o escazo de términos, símbolos de expresiones matemáticas",
+                5: "5 - Destacado: Términos, símbolos y expresiones matemáticas precisos y rigurosos.",
+                4: "4 - Avanzado: Expresiones matemáticas correctas en su mayoría.",
+                3: "3 - Satisfactorio: Uso impreciso o escaso de expresiones matemáticas.",
                 2: "2 - Básico: Explica el desarrollo de forma coloquial o ambigua.",
-                1: "1 - Inicial: La comunicación del desarrollo es imprecisa",
+                1: "1 - Inicial: Comunicación del desarrollo imprecisa.",
             }
 
             st.markdown("### 📐 Criterios de Evaluación: Matemática")
@@ -483,9 +477,6 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                 "c4_comunicacion_matematica_pts": c4, "c4_comunicacion_matematica_desc": map_mat4[c4], "c4_obs": obs4,
             }
 
-        # ---------------------------------------------------------
-        # RÚBRICAS DE TECNOLOGÍA DE LA REPRESENTACIÓN
-        # ---------------------------------------------------------
         else:
             st.markdown(f"### ⚙️ Criterios de Evaluación: {materia}")
 
@@ -678,14 +669,14 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                 st.warning("⚠️ No se encontró ningún estudiante con ese DNI en el padrón.")
 
 # ---------------------------------------------------------
-# EVENTO 2: HACKATHON 2026
+# EVENTO 2: HACKATHON CIREC 2026 (RÚBRICA OFICIAL CON 5 NIVELES)
 # ---------------------------------------------------------
-elif evento_seleccionado == "🏆 Hackathon 2026":
+elif evento_seleccionado == "🏆 Hackathon 2026 (CIREC)":
     st.markdown(
         """
         <div class="app-header">
-            <h1>🏆 Rúbrica de Evaluación Hackathon</h1>
-            <p>Portal Oficial del Jurado</p>
+            <h1>🏆 Rúbrica de Evaluación — Desafío CIREC</h1>
+            <p>Centro Integral de Respuesta ante Emergencias Climáticas</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -695,94 +686,123 @@ elif evento_seleccionado == "🏆 Hackathon 2026":
         with st.container(border=True):
             col1, col2, col3 = st.columns(3)
             with col1:
-                evaluador = st.text_input("Evaluador*", placeholder="Ej. Gustavo", key="hk_eval")
+                evaluador = st.text_input("Evaluador/a*", placeholder="Ej. Gustavo", key="hk_eval")
             with col2:
-                equipo = st.text_input("Equipo / Proyecto*", placeholder="Ej. Nicolas", key="hk_equipo")
+                equipo = st.text_input("Equipo*", placeholder="Ej. Equipo Alpha", key="hk_equipo")
             with col3:
-                especialidad_hk = st.text_input("Especialidad del Proyecto", placeholder="Ej. Computación", key="hk_esp")
+                escenario = st.text_input("Escenario Asignado*", placeholder="Ej. Inundación Costera", key="hk_escenario")
 
-        st.subheader("📊 Criterios de Evaluación Hackathon")
+        st.subheader("📊 Indicadores de Evaluación CIREC (Total: 100 pts)")
 
-        desc_hk_15 = {
-            15: "15 pts - Excelente (Supera ampliamente las expectativas)",
-            10: "10 pts - Satisfactorio (Cumple correctamente con el criterio)",
-            5: "5 pts - En Desarrollo (Presenta aspectos incompletos)",
-            0: "0 pts - Inicial (No cumple con el criterio)"
+        # ---------------------------------------------------------
+        # OPCIONES DE 5 NIVELES PROPORCIONALES SEGÚN PONDERACIÓN
+        # ---------------------------------------------------------
+        map_10 = {
+            10.0: "10 pts (100% - Excelente): Cumplimiento total, altamente riguroso y adaptado al escenario.",
+            7.5: "7.5 pts (75% - Avanzado): Cumplimiento sólido con imprecisiones menores de adaptación.",
+            5.0: "5 pts (50% - Satisfactorio): Cumplimiento general pero con aspectos funcionales incompletos.",
+            2.5: "2.5 pts (25% - En desarrollo): Propuesta incipiente con dificultades notables de viabilidad.",
+            0.0: "0 pts (0% - Inicial): No responde al criterio o ausencia total del componente."
         }
 
-        desc_hk_10 = {
-            10: "10 pts - Excelente (Integración total y profunda)",
-            5: "5 pts - Satisfactorio (Integración parcial de disciplinas)",
-            0: "0 pts - Inicial (Sin enfoque interdisciplinario)"
+        map_15 = {
+            15.0: "15 pts (100% - Excelente): Cobertura integral, redundancia operativa y enfoque amplio.",
+            11.25: "11.25 pts (75% - Avanzado): Buena respuesta operativa con pequeñas omisiones secundarias.",
+            7.5: "7.5 pts (50% - Satisfactorio): Propuesta básica aceptable pero vulnerable ante situaciones extremas.",
+            3.75: "3.75 pts (25% - En desarrollo): Muy limitado o inviable para el escenario de crisis.",
+            0.0: "0 pts (0% - Inicial): No contempla la asistencia o el suministro solicitado."
         }
 
+        st.markdown("### 1. Diseño de infraestructura y energía (25 pts)")
         with st.container(border=True):
-            st.markdown("#### 1. Escenario (Máx. 15 pts)")
-            c1 = st.radio("Nivel Escenario:", [15, 10, 5, 0], format_func=lambda x: desc_hk_15[x], key="hk_1")
-
-        with st.container(border=True):
-            st.markdown("#### 2. Infraestructura y Energía (Máx. 15 pts)")
-            c2 = st.radio("Nivel Infraestructura:", [15, 10, 5, 0], format_func=lambda x: desc_hk_15[x], key="hk_2")
-
-        with st.container(border=True):
-            st.markdown("#### 3. Comunicación e Información (Máx. 15 pts)")
-            c3 = st.radio("Nivel Comunicación:", [15, 10, 5, 0], format_func=lambda x: desc_hk_15[x], key="hk_3")
+            st.markdown("#### Diseño conceptual del CIREC (Máx. 10 pts)")
+            st.caption("El edificio/complejo y la organización de espacios funcionales responden de forma coherente al escenario climático y geográfico asignado.")
+            hk_c1 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.5, 0.0], format_func=lambda x: map_10[x], key="hk_c1")
+            hk_obs1 = st.text_area("Observaciones del Diseño Conceptual:", key="hk_obs1", height=60)
 
         with st.container(border=True):
-            st.markdown("#### 4. Coordinación y Logística (Máx. 15 pts)")
-            c4 = st.radio("Nivel Coordinación:", [15, 10, 5, 0], format_func=lambda x: desc_hk_15[x], key="hk_4")
+            st.markdown("#### Energía y agua (Máx. 15 pts)")
+            st.caption("Se define el abastecimiento de energía y agua, y la continuidad operativa de los servicios esenciales ante el corte de suministros habituales.")
+            hk_c2 = st.radio("Nivel:", [15.0, 11.25, 7.5, 3.75, 0.0], format_func=lambda x: map_15[x], key="hk_c2")
+            hk_obs2 = st.text_area("Observaciones de Energía y Agua:", key="hk_obs2", height=60)
+
+        st.markdown("### 2. Comunicación y gestión de la información (20 pts)")
+        with st.container(border=True):
+            st.markdown("#### Monitoreo y comunicaciones (Máx. 10 pts)")
+            st.caption("Existen sistemas de monitoreo permanente y de comunicación interna/externa robustos ante la caída de infraestructura habitual.")
+            hk_c3 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.5, 0.0], format_func=lambda x: map_10[x], key="hk_c3")
+            hk_obs3 = st.text_area("Observaciones de Monitoreo y Comunicaciones:", key="hk_obs3", height=60)
 
         with st.container(border=True):
-            st.markdown("#### 5. Atención a la Población (Máx. 15 pts)")
-            c5 = st.radio("Nivel Atención:", [15, 10, 5, 0], format_func=lambda x: desc_hk_15[x], key="hk_5")
+            st.markdown("#### Interfaz digital (Máx. 10 pts)")
+            st.caption("La interfaz propuesta para acceder a la información es clara, rápida e intuitiva, y está adaptada a quien debe usarla en una crisis.")
+            hk_c4 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.5, 0.0], format_func=lambda x: map_10[x], key="hk_c4")
+            hk_obs4 = st.text_area("Observaciones de Interfaz Digital:", key="hk_obs4", height=60)
+
+        st.markdown("### 3. Coordinación y logística (20 pts)")
+        with st.container(border=True):
+            st.markdown("#### Coordinación interinstitucional (Máx. 10 pts)")
+            st.caption("Se explicita cómo se coordina con los organismos de respuesta (bomberos, salud, defensa civil, etc.) y cómo se resuelven conflictos de prioridad.")
+            hk_c5 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.5, 0.0], format_func=lambda x: map_10[x], key="hk_c5")
+            hk_obs5 = st.text_area("Observaciones de Coordinación Interinstitucional:", key="hk_obs5", height=60)
 
         with st.container(border=True):
-            st.markdown("#### 6. Operación de Emergencia (Máx. 15 pts)")
-            c6 = st.radio("Nivel Operación:", [15, 10, 5, 0], format_func=lambda x: desc_hk_15[x], key="hk_6")
+            st.markdown("#### Logística y distribución de recursos (Máx. 10 pts)")
+            st.caption("El sistema de distribución de recursos es viable, considera el escenario geográfico y prioriza según necesidad.")
+            hk_c6 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.5, 0.0], format_func=lambda x: map_10[x], key="hk_c6")
+            hk_obs6 = st.text_area("Observaciones de Logística y Recursos:", key="hk_obs6", height=60)
 
+        st.markdown("### 4. Atención a la población (15 pts)")
         with st.container(border=True):
-            st.markdown("#### 7. Enfoque Interdisciplinario (Máx. 10 pts)")
-            c7 = st.radio("Nivel Interdisciplinario:", [10, 5, 0], format_func=lambda x: desc_hk_10[x], key="hk_7")
+            st.markdown("#### Asistencia a la población afectada (Máx. 15 pts)")
+            st.caption("La propuesta contempla mecanismos concretos de asistencia y comunicación directa con la comunidad, incluyendo grupos vulnerables.")
+            hk_c7 = st.radio("Nivel:", [15.0, 11.25, 7.5, 3.75, 0.0], format_func=lambda x: map_15[x], key="hk_c7")
+            hk_obs7 = st.text_area("Observaciones de Asistencia a la Población:", key="hk_obs7", height=60)
 
-        total_score = c1 + c2 + c3 + c4 + c5 + c6 + c7
-        st.metric(label="🎯 Puntaje Total Hackathon", value=f"{total_score} / 100 pts")
-
+        st.markdown("### 5. Operación durante la emergencia (10 pts)")
         with st.container(border=True):
-            observaciones = st.text_area("💬 Observaciones / Justificación", placeholder="Escribe tus comentarios...", key="hk_obs", height=100)
+            st.markdown("#### Funcionamiento dinámico del sistema (Máx. 10 pts)")
+            st.caption("Se describe cómo el CIREC detecta, decide, prioriza y se adapta a medida que evoluciona el evento (no solo el diseño estático).")
+            hk_c8 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.5, 0.0], format_func=lambda x: map_10[x], key="hk_c8")
+            hk_obs8 = st.text_area("Observaciones del Funcionamiento Dinámico:", key="hk_obs8", height=60)
 
-        if st.button("🚀 Guardar Evaluación Hackathon", type="primary"):
-            if not evaluador.strip() or not equipo.strip():
-                st.warning("⚠️ Por favor completa el Evaluador y el Equipo.")
+        st.markdown("### 6. Enfoque interdisciplinario y fundamentación (10 pts)")
+        with st.container(border=True):
+            st.markdown("#### Integración de especialidades y fundamentación técnica (Máx. 10 pts)")
+            st.caption("Las distintas disciplinas están integradas de forma coherente y las decisiones se justifican con criterios técnicos, ambientales, sociales y económicos.")
+            hk_c9 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.5, 0.0], format_func=lambda x: map_10[x], key="hk_c9")
+            hk_obs9 = st.text_area("Observaciones de Integración y Fundamentación:", key="hk_obs9", height=60)
+
+        total_score_hk = hk_c1 + hk_c2 + hk_c3 + hk_c4 + hk_c5 + hk_c6 + hk_c7 + hk_c8 + hk_c9
+        st.metric(label="🎯 Puntaje Total CIREC", value=f"{total_score_hk:.2f} / 100.00 pts")
+
+        if st.button("🚀 Guardar Evaluación CIREC", type="primary"):
+            if not evaluador.strip() or not equipo.strip() or not escenario.strip():
+                st.warning("⚠️ Por favor completa el Evaluador/a, el Equipo y el Escenario asignado.")
             else:
                 eval_respuestas_hk = {
-                    "criterio_1_escenario_pts": c1,
-                    "criterio_1_escenario_desc": desc_hk_15[c1],
-                    "criterio_2_infraestructura_energia_pts": c2,
-                    "criterio_2_infraestructura_energia_desc": desc_hk_15[c2],
-                    "criterio_3_comunicacion_info_pts": c3,
-                    "criterio_3_comunicacion_info_desc": desc_hk_15[c3],
-                    "criterio_4_coordinacion_logistica_pts": c4,
-                    "criterio_4_coordinacion_logistica_desc": desc_hk_15[c4],
-                    "criterio_5_atencion_poblacion_pts": c5,
-                    "criterio_5_atencion_poblacion_desc": desc_hk_15[c5],
-                    "criterio_6_operacion_emergencia_pts": c6,
-                    "criterio_6_operacion_emergencia_desc": desc_hk_15[c6],
-                    "criterio_7_enfoque_interdisciplinario_pts": c7,
-                    "criterio_7_enfoque_interdisciplinario_desc": desc_hk_10[c7],
-                    "observaciones_generales": observaciones
+                    "diseno_conceptual_pts": hk_c1, "diseno_conceptual_desc": map_10[hk_c1], "diseno_conceptual_obs": hk_obs1,
+                    "energia_agua_pts": hk_c2, "energia_agua_desc": map_15[hk_c2], "energia_agua_obs": hk_obs2,
+                    "monitoreo_comunicaciones_pts": hk_c3, "monitoreo_comunicaciones_desc": map_10[hk_c3], "monitoreo_comunicaciones_obs": hk_obs3,
+                    "interfaz_digital_pts": hk_c4, "interfaz_digital_desc": map_10[hk_c4], "interfaz_digital_obs": hk_obs4,
+                    "coordinacion_interinstitucional_pts": hk_c5, "coordinacion_interinstitucional_desc": map_10[hk_c5], "coordinacion_interinstitucional_obs": hk_obs5,
+                    "logistica_recursos_pts": hk_c6, "logistica_recursos_desc": map_10[hk_c6], "logistica_recursos_obs": hk_obs6,
+                    "asistencia_poblacion_pts": hk_c7, "asistencia_poblacion_desc": map_15[hk_c7], "asistencia_poblacion_obs": hk_obs7,
+                    "funcionamiento_dinamico_pts": hk_c8, "funcionamiento_dinamico_desc": map_10[hk_c8], "funcionamiento_dinamico_obs": hk_obs8,
+                    "integracion_fundamentacion_pts": hk_c9, "integracion_fundamentacion_desc": map_10[hk_c9], "integracion_fundamentacion_obs": hk_obs9,
                 }
 
                 doc_eval_hk = {
                     "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     "evaluador": evaluador,
                     "equipo": equipo,
-                    "evento": "Hackathon 2026",
-                    "especialidad": especialidad_hk if especialidad_hk.strip() else "General",
-                    "promedio": total_score,
+                    "escenario_asignado": escenario,
+                    "evento": "Hackathon 2026 CIREC",
+                    "promedio": total_score_hk,
                     "respuestas": eval_respuestas_hk
                 }
                 db.collection("evaluaciones").add(doc_eval_hk)
-                st.session_state["exito_msj_hk"] = f"✅ ¡Evaluación del equipo '{equipo}' guardada correctamente en Firebase!"
+                st.session_state["exito_msj_hk"] = f"✅ ¡Evaluación CIREC del equipo '{equipo}' guardada correctamente en Firebase!"
                 st.balloons()
                 st.rerun()
 
@@ -791,7 +811,7 @@ elif evento_seleccionado == "🏆 Hackathon 2026":
             del st.session_state["exito_msj_hk"]
 
     elif opcion == "📌 Acreditación Hackathon":
-        st.header("📌 Módulo de Acreditación de Presentes (Hackathon)")
+        st.header("📌 Módulo de Acreditación de Presentes (Hackathon CIREC)")
         st.markdown("Busca al participante por DNI en el padrón para confirmar e ingresar su asistencia al Hackathon.")
 
         dni_hk_acred = st.text_input("Ingresar DNI del Participante a Acreditar", placeholder="Ej: 39098198", key="acred_dni_hk").strip().replace(".", "")
@@ -836,10 +856,10 @@ elif evento_seleccionado == "🏆 Hackathon 2026":
                             "email_docente": email_doc_hk if email_doc_hk.strip() else "Sin Datos",
                             "inscripcion": equipo_hk,
                             "especialidad": especialidad_hk_acred,
-                            "evento": "Hackathon 2026"
+                            "evento": "Hackathon 2026 CIREC"
                         }
                         db.collection("presentes").add(doc_hk_presente)
-                        st.success(f"🎉 ¡{nombre_hk} ha sido acreditado/a en la Hackathon 2026!")
+                        st.success(f"🎉 ¡{nombre_hk} ha sido acreditado/a en la Hackathon CIREC!")
             else:
                 st.warning("⚠️ No se encontró ningún participante con ese DNI en el padrón.")
 
