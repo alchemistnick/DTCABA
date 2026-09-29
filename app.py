@@ -228,7 +228,7 @@ def generar_excel_descarga(dict_raw_data):
 # ---------------------------------------------------------
 # NAVEGACIÓN PRINCIPAL EN SIDEBAR
 # ---------------------------------------------------------
-st.sidebar.markdown("### ⚙️ Evento")
+st.sidebar.markdown("### ⚙️️ Evento")
 evento_seleccionado = st.sidebar.radio(
     "Selección de Evento",
     ["📐 Desafíos Técnicos DTCABA", "🏆 Hackathon 2026 (CIREC)"],
@@ -674,7 +674,7 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                 st.warning("⚠️ No se encontró ningún estudiante con ese DNI en el padrón.")
 
 # ---------------------------------------------------------
-# EVENTO 2: HACKATHON CIREC 2026 (ESCENARIOS DESPLEGABLE + RESET LIMPIO)
+# EVENTO 2: HACKATHON CIREC 2026 (OPCIONES AJUSTADAS ESPECÍFICAS)
 # ---------------------------------------------------------
 elif evento_seleccionado == "🏆 Hackathon 2026 (CIREC)":
     st.markdown(
@@ -721,20 +721,21 @@ elif evento_seleccionado == "🏆 Hackathon 2026 (CIREC)":
 
         st.subheader("📊 Indicadores de Evaluación CIREC (Total: 100 pts)")
 
+        # DICCIONARIOS DE NIVELES AJUSTADOS Y ESPECÍFICOS POR PONDERACIÓN
         map_10 = {
-            10.0: "10 pts (100% - Excelente): Cumplimiento total, highly riguroso y adaptado al escenario.",
-            7.5: "7.5 pts (75% - Avanzado): Cumplimiento sólido con imprecisiones menores de adaptación.",
-            5.0: "5 pts (50% - Satisfactorio): Cumplimiento general pero con aspectos funcionales incompletos.",
-            2.5: "2.5 pts (25% - En desarrollo): Propuesta incipiente con dificultades notables de viabilidad.",
-            0.0: "0 pts (0% - Inicial): No responde al criterio o ausencia total del componente."
+            10.0: "10 pts (100% - Destacado): Coherencia total, alta rigurosidad técnica y adaptación completa al escenario.",
+            7.5: "7.5 pts (75% - Avanzado): Propuesta sólida con imprecisiones menores en la adaptación o ejecución.",
+            5.0: "5.0 pts (50% - Satisfactorio): Cumple con los aspectos generales, pero presenta vacíos funcionales.",
+            2.5: "2.5 pts (25% - En Desarrollo): Esbozo incipiente con serias dudas sobre su viabilidad técnica.",
+            0.0: "0.0 pts (0% - Inicial): No responde al criterio o no presenta el componente solicitado."
         }
 
         map_15 = {
-            15.0: "15 pts (100% - Excelente): Cobertura integral, redundancia operativa y enfoque amplio.",
-            11.25: "11.25 pts (75% - Avanzado): Buena respuesta operativa con pequeñas omisiones secundarias.",
-            7.5: "7.5 pts (50% - Satisfactorio): Propuesta básica aceptable pero vulnerable ante situaciones extremas.",
-            3.75: "3.75 pts (25% - En desarrollo): Muy limitado o inviable para el escenario de crisis.",
-            0.0: "0 pts (0% - Inicial): No contempla la asistencia o el suministro solicitado."
+            15.0: "15.0 pts (100% - Destacado): Cobertura integral, diseño redundante de contingencia y enfoque amplio.",
+            11.25: "11.25 pts (75% - Avanzado): Respuesta operativa sólida con omisiones secundarias de respaldo.",
+            7.5: "7.5 pts (50% - Satisfactorio): Esquema básico funcional, pero vulnerable ante situaciones extremas de crisis.",
+            3.75: "3.75 pts (25% - En Desarrollo): Mecanismos muy limitados, desorganizados o de difícil implementación.",
+            0.0: "0.0 pts (0% - Inicial): No contempla el suministro, la continuidad o la asistencia solicitada."
         }
 
         st.markdown("### 1. Diseño de infraestructura y energía (25 pts)")
