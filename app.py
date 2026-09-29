@@ -19,7 +19,7 @@ st.set_page_config(
     page_title="Plataforma de Evaluación DTCABA & Hackathon CIREC",
     page_icon="🏆",
     layout="centered",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="expanded",  # Forzar despliegue de sidebar al inicio
 )
 
 # Inicializar Firebase Admin SDK corrigiendo formato de private_key en Secrets
@@ -39,17 +39,8 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-hide_streamlit_style = """
-    <style>
-    #MainMenu {visibility: hidden;}
-    header {visibility: hidden;}
-    footer {visibility: hidden;}
-    </style>
-"""
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
 # ---------------------------------------------------------
-# ESTILOS CSS
+# ESTILOS CSS ADAPTADOS A CELULARES
 # ---------------------------------------------------------
 st.markdown(
     """
@@ -58,6 +49,24 @@ st.markdown(
     
     html, body, [class*="css"] { 
         font-family: 'Inter', sans-serif; 
+    }
+
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+
+    /* HACER VISIBLE Y DESTACADO EL BOTÓN DEL MENÚ EN CELULARES */
+    header[data-testid="stHeader"] {
+        background-color: transparent !important;
+        z-index: 999999 !important;
+    }
+
+    button[data-testid="baseButton-headerNoPadding"] {
+        background-color: #0F172A !important;
+        color: #FFFFFF !important;
+        border-radius: 8px !important;
+        padding: 6px 12px !important;
+        border: 1px solid #334155 !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3) !important;
     }
 
     section[data-testid="stSidebar"] { 
@@ -74,12 +83,12 @@ st.markdown(
     section[data-testid="stSidebar"] div[role="radiogroup"] label {
         background-color: transparent !important;
         border: none !important;
-        padding: 0.4rem 0.6rem !important;
+        padding: 0.5rem 0.75rem !important;
         border-radius: 8px !important;
         transition: background-color 0.2s ease;
     }
     section[data-testid="stSidebar"] div[role="radiogroup"] label:hover {
-        background-color: rgba(255, 255, 255, 0.08) !important;
+        background-color: rgba(255, 255, 255, 0.1) !important;
     }
     section[data-testid="stSidebar"] div[role="radiogroup"] label * {
         color: #F8FAFC !important;
@@ -89,15 +98,15 @@ st.markdown(
 
     .app-header {
         background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%) !important;
-        padding: 1.8rem 2rem; 
+        padding: 1.5rem 1.25rem; 
         border-radius: 16px; 
-        margin-bottom: 2rem; 
+        margin-bottom: 1.5rem; 
         text-align: center;
         box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.3);
     }
     .app-header h1 { 
         font-family: 'Poppins', sans-serif; 
-        font-size: 2.2rem; 
+        font-size: 1.8rem; 
         font-weight: 800; 
         margin: 0; 
         color: #FFFFFF !important; 
@@ -106,24 +115,25 @@ st.markdown(
         margin: 0.4rem 0 0 0; 
         color: #94A3B8 !important; 
         font-weight: 500;
+        font-size: 0.9rem;
     }
 
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background-color: var(--background-secondary, #FFFFFF) !important;
         border-radius: 14px;
         border: 1px solid #CBD5E1 !important;
-        padding: 1.25rem;
-        margin-bottom: 1rem;
+        padding: 1rem;
+        margin-bottom: 0.8rem;
     }
 
     div[data-testid="stMetric"] {
         background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%) !important;
-        padding: 1.2rem 1.8rem;
+        padding: 1rem 1.2rem;
         border-radius: 12px;
         border: 1px solid #334155 !important;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
         text-align: center;
-        margin: 1.5rem 0;
+        margin: 1.2rem 0;
     }
     div[data-testid="stMetric"] label {
         color: #94A3B8 !important;
@@ -139,7 +149,7 @@ st.markdown(
         color: #FFFFFF !important; 
         border: none; 
         border-radius: 10px; 
-        padding: 0.75rem 1.5rem; 
+        padding: 0.75rem 1.25rem; 
         font-weight: 600; 
         width: 100%;
         box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
@@ -221,7 +231,7 @@ def generar_excel_descarga(dict_raw_data):
     return output.getvalue()
 
 # ---------------------------------------------------------
-# NAVEGACIÓN PRINCIPAL
+# NAVEGACIÓN PRINCIPAL EN SIDEBAR
 # ---------------------------------------------------------
 st.sidebar.markdown("### ⚙️ Evento")
 evento_seleccionado = st.sidebar.radio(
@@ -231,7 +241,7 @@ evento_seleccionado = st.sidebar.radio(
 )
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 🧭 Menú")
+st.sidebar.markdown("### 🧭 Menú de Opciones")
 
 if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
     opcion = st.sidebar.radio(
@@ -283,7 +293,7 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                         options=opciones_desplegable,
                         key="eval_codigo_select",
                     )
-                    if seleccion == "✏️️ Tipear código manualmente":
+                    if seleccion == "✏️ Tipear código manualmente":
                         codigo_unico = st.text_input(
                             "Escribe el Código Único", placeholder="Ej: X8K198", key="eval_codigo_manual"
                         ).strip().upper()
@@ -633,7 +643,7 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                 estudiante = coincidencias[idx_seleccionado]
 
                 with st.container(border=True):
-                    st.markdown(f"### ✏️ Editar / Validar Registro (Inscripción #{idx_seleccionado+1})")
+                    st.markdown(f"### ✏️️ Editar / Validar Registro (Inscripción #{idx_seleccionado+1})")
                     
                     col1, col2 = st.columns(2)
                     with col1:
@@ -694,9 +704,6 @@ elif evento_seleccionado == "🏆 Hackathon 2026 (CIREC)":
 
         st.subheader("📊 Indicadores de Evaluación CIREC (Total: 100 pts)")
 
-        # ---------------------------------------------------------
-        # OPCIONES DE 5 NIVELES PROPORCIONALES SEGÚN PONDERACIÓN
-        # ---------------------------------------------------------
         map_10 = {
             10.0: "10 pts (100% - Excelente): Cumplimiento total, altamente riguroso y adaptado al escenario.",
             7.5: "7.5 pts (75% - Avanzado): Cumplimiento sólido con imprecisiones menores de adaptación.",
