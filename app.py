@@ -40,7 +40,7 @@ if not firebase_admin._apps:
 db = firestore.client()
 
 # ---------------------------------------------------------
-# ESTILOS CSS ADAPTADOS A CELULARES Y ESCRITORIO
+# ESTILOS CSS CON OCULTAMIENTO DE BARRA SUPERIOR
 # ---------------------------------------------------------
 st.markdown(
     """
@@ -54,19 +54,14 @@ st.markdown(
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
 
-    /* HACER VISIBLE Y DESTACADO EL BOTÓN DEL MENÚ EN CELULARES */
+    /* OCULTAR COMPLETAMENTE LA BARRA SUPERIOR DE STREAMLIT */
     header[data-testid="stHeader"] {
-        background-color: transparent !important;
-        z-index: 999999 !important;
+        display: none !important;
     }
 
-    button[data-testid="baseButton-headerNoPadding"] {
-        background-color: #0F172A !important;
-        color: #FFFFFF !important;
-        border-radius: 8px !important;
-        padding: 6px 12px !important;
-        border: 1px solid #334155 !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3) !important;
+    /* AJUSTE DEL ESPACIADO SUPERIOR PARA COMPENSAR LA BARRA OCULTA */
+    .block-container {
+        padding-top: 2rem !important;
     }
 
     section[data-testid="stSidebar"] { 
@@ -693,7 +688,6 @@ elif evento_seleccionado == "🏆 Hackathon 2026 (CIREC)":
     )
 
     if opcion == "Cargar Evaluación Hackathon":
-        # Muestra mensaje de éxito justo arriba si proviene de un guardado exitoso
         if st.session_state.get("eval_hk_guardada_exito"):
             st.success("✅ ¡Evaluación cargada con éxito! El formulario se ha reiniciado.")
             st.session_state["eval_hk_guardada_exito"] = False
@@ -728,7 +722,7 @@ elif evento_seleccionado == "🏆 Hackathon 2026 (CIREC)":
         st.subheader("📊 Indicadores de Evaluación CIREC (Total: 100 pts)")
 
         map_10 = {
-            10.0: "10 pts (100% - Excelente): Cumplimiento total, altamente riguroso y adaptado al escenario.",
+            10.0: "10 pts (100% - Excelente): Cumplimiento total, highly riguroso y adaptado al escenario.",
             7.5: "7.5 pts (75% - Avanzado): Cumplimiento sólido con imprecisiones menores de adaptación.",
             5.0: "5 pts (50% - Satisfactorio): Cumplimiento general pero con aspectos funcionales incompletos.",
             2.5: "2.5 pts (25% - En desarrollo): Propuesta incipiente con dificultades notables de viabilidad.",
@@ -834,7 +828,6 @@ elif evento_seleccionado == "🏆 Hackathon 2026 (CIREC)":
                 db.collection("evaluaciones").add(doc_eval_hk)
                 st.session_state["eval_hk_guardada_exito"] = True
 
-                # LIMPIEZA TOTAL DEL FORMULARIO Y RESETEO DE CAMPOS (PREVIENE DOBLE CLIC Y VACÍA TODO)
                 keys_hk_limpiar = [
                     "hk_eval", "hk_equipo", "hk_escenario_select",
                     "hk_c1", "hk_obs1", "hk_c2", "hk_obs2", "hk_c3", "hk_obs3",
