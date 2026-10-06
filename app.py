@@ -201,16 +201,19 @@ def generar_excel_descarga(dict_raw_data):
 # ---------------------------------------------------------
 # NAVEGACIÓN PRINCIPAL EN PANTALLA
 # ---------------------------------------------------------
+opcion_dtcaba = "📐 Desafíos Técnicos DTCABA"
+opcion_hackathon = "🏆 Hackathon 2026 (CIREC)"
+
 evento_seleccionado = st.radio(
     "Selección de Evento",
-    ["📐 Desafíos Técnicos DTCABA", "🏆 Hackathon 2026 (CIREC)"],
+    [opcion_dtcaba, opcion_hackathon],
     horizontal=True
 )
 
 # ---------------------------------------------------------
 # EVENTO 1: DESAFÍOS TÉCNICOS DTCABA
 # ---------------------------------------------------------
-if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
+if evento_seleccionado == opcion_dtcaba:
     st.markdown(
         """
         <div class="app-header">
@@ -336,3 +339,12 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                     obs2 = st.text_area("Observaciones / Justificación:", key="obs_c2", height=70)
 
                 st.markdown("### BLOQUE B: Escribir para construir sentido (40%)")
+                with st.container(border=True):
+                    st.markdown("#### 3. Voz narrativa")
+                    c3 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len3[x], key="len_c3")
+                    obs3 = st.text_area("Observaciones / Justificación:", key="obs_c3", height=70)
+
+                with st.container(border=True):
+                    st.markdown("#### 4. Resignificación del lenguaje técnico")
+                    c4 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len4[x], key="len_c4")
+                    obs4 = st
