@@ -180,4 +180,159 @@ def generar_excel_descarga(dict_raw_data):
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
         if dict_raw_data.get("Evaluaciones"):
             df_evals = pd.json_normalize(dict_raw_data["Evaluaciones"])
-            df_evals.
+            df_evals.to_excel(writer, sheet_name="Evaluaciones", index=False)
+        else:
+            pd.DataFrame().to_excel(writer, sheet_name="Evaluaciones", index=False)
+
+        if dict_raw_data.get("Equipos"):
+            df_equipos = aplanar_equipos(dict_raw_data["Equipos"])
+            df_equipos.to_excel(writer, sheet_name="Equipos", index=False)
+        else:
+            pd.DataFrame().to_excel(writer, sheet_name="Equipos", index=False)
+
+        if dict_raw_data.get("Presentes_Acreditados"):
+            df_presentes = pd.DataFrame(dict_raw_data["Presentes_Acreditados"])
+            df_presentes.to_excel(writer, sheet_name="Presentes_Acreditados", index=False)
+        else:
+            pd.DataFrame().to_excel(writer, sheet_name="Presentes_Acreditados", index=False)
+
+    return output.getvalue()
+
+# ---------------------------------------------------------
+# NAVEGACIÓN PRINCIPAL EN PANTALLA
+# ---------------------------------------------------------
+evento_seleccionado = st.radio(
+    "Selección de Evento",
+    ["📐 Desafíos Técnicos DTCABA", "🏆 Hackathon 2026 (CIREC)"],
+    horizontal=True
+)
+
+# ---------------------------------------------------------
+# EVENTO 1: DESAFÍOS TÉCNICOS DTCABA
+# ---------------------------------------------------------
+if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
+    st.markdown(
+        """
+        <div class="app-header">
+            <h1>📐 Desafíos Técnicos DTCABA ⚙️</h1>
+            <p>Plataforma de Evaluación y Gestión de Equipos</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    tab_eval, tab_cod, tab_acred, tab_admin = st.tabs([
+        "📝 Evaluar", 
+        "🎲 Códigos", 
+        "📌 Acreditación", 
+        "⚙️ Admin"
+    ])
+
+    with tab_eval:
+        st.header("Carga de Evaluación DTCABA")
+        lista_codigos = obtener_lista_codigos_fb()
+
+        with st.container(border=True):
+            col1, col2 = st.columns(2)
+            with col1:
+                dni_evaluador = st.text_input(
+                    "DNI del Evaluador", placeholder="Ingresa tu DNI", key="eval_dni"
+                ).strip().replace(".", "")
+
+            with col2:
+                if lista_codigos:
+                    opciones_desplegable = (
+                        ["-- Buscar o seleccionar código --"]
+                        + lista_codigos
+                        + ["✏️ Tipear código manualmente"]
+                    )
+                    seleccion = st.selectbox(
+                        "Código Único del Examen",
+                        options=opciones_desplegable,
+                        key="eval_codigo_select",
+                    )
+                    if seleccion == "✏️ Tipear código manualmente":
+                        codigo_unico = st.text_input(
+                            "Escribe el Código Único", placeholder="Ej: X8K198", key="eval_codigo_manual"
+                        ).strip().upper()
+                    elif seleccion != "-- Buscar o seleccionar código --":
+                        codigo_unico = seleccion
+                    else:
+                        codigo_unico = ""
+                else:
+                    codigo_unico = st.text_input(
+                        "Código Único del Examen", placeholder="Ej: X8K198", key="eval_codigo_directo"
+                    ).strip().upper()
+
+            materia = st.selectbox(
+                "Materia",
+                [
+                    "Lengua",
+                    "Matemática",
+                    "Tecnología de la Representación Nivel 1",
+                    "Tecnología de la Representación Nivel 2",
+                ],
+                key="eval_materia",
+            )
+
+        if not codigo_unico:
+            st.info("💡 Por favor, selecciona o ingresa el Código Único del Examen.")
+        else:
+            st.subheader(f"📋 Rúbrica de Evaluación: {materia}")
+
+            if materia == "Lengua":
+                map_len1 = {
+                    4: "4 - Avanzado: Conserva e integra el sentido central del texto técnico.",
+                    3: "3 - Satisfactorio: Conserva ideas principales con pequeñas simplificaciones.",
+                    2: "2 - En desarrollo: Recupera solo parte de la información relevante.",
+                    1: "1 - Inicial: Pierde o modifica el sentido del texto fuente.",
+                }
+                map_len2 = {
+                    4: "4 - Avanzado: El texto se transforma completamente en un relato literario.",
+                    3: "3 - Satisfactorio: Predomina el relato aunque mantiene rasgos expositivos.",
+                    2: "2 - En desarrollo: Alterna explicación y narración sin integrarlas completamente.",
+                    1: "1 - Inicial: Predomina el texto expositivo o no logra la transformación.",
+                }
+                map_len3 = {
+                    4: "4 - Avanzado: Construye una voz en primera persona consistente y verosímil.",
+                    3: "3 - Satisfactorio: La voz se sostiene con algunas inconsistencias.",
+                    2: "2 - En desarrollo: La voz aparece de manera parcial o irregular.",
+                    1: "1 - Inicial: No logra construir una voz narrativa.",
+                }
+                map_len4 = {
+                    4: "4 - Avanzado: Utiliza el lenguaje técnico para construir experiencias.",
+                    3: "3 - Satisfactorio: Integra el vocabulario técnico de manera pertinente.",
+                    2: "2 - En desarrollo: El lenguaje técnico aparece de forma aislada.",
+                    1: "1 - Inicial: No incorpora o utiliza incorrectamente el lenguaje técnico.",
+                }
+                map_len5 = {
+                    4: "4 - Avanzado: Integra descripciones, metáforas o comparaciones enriquecedoras.",
+                    3: "3 - Satisfactorio: Utiliza algunos recursos expresivos adecuados.",
+                    2: "2 - En desarrollo: Utiliza un recurso expresivo de forma adecuada.",
+                    1: "1 - Inicial: No utiliza recursos literarios significativos.",
+                }
+                map_len6 = {
+                    4: "4 - Avanzado: Presenta una secuencia clara, coherente y cohesiva.",
+                    3: "3 - Satisfactorio: Relato comprensible con pequeñas dificultades lógicas.",
+                    2: "2 - En desarrollo: La organización presenta reiteraciones o saltos.",
+                    1: "1 - Inicial: La organización dificulta la comprensión.",
+                }
+                map_len7 = {
+                    4: "4 - Avanzado: Emplea correctamente ortografía, puntuación y sintaxis.",
+                    3: "3 - Satisfactorio: Presenta errores que no dificultan la comprensión.",
+                    2: "2 - En desarrollo: Errores que dificultan parcialmente la comprensión.",
+                    1: "1 - Inicial: Los errores afectan significativamente la comprensión.",
+                }
+
+                st.markdown("### BLOQUE A: Comprender para transformar (40%)")
+                with st.container(border=True):
+                    st.markdown("#### 1. Apropiación del texto fuente (20%)")
+                    c1 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len1[x], key="len_c1")
+                    obs1 = st.text_area("Observaciones / Justificación:", key="obs_c1", height=70)
+
+                with st.container(border=True):
+                    st.markdown("#### 2. Transformación del género (20%)")
+                    c2 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len2[x], key="len_c2")
+                    obs2 = st.text_area("Observaciones / Justificación:", key="obs_c2", height=70)
+
+                st.markdown("### BLOQUE B: Escribir para construir sentido (40%)")
