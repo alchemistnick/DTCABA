@@ -16,10 +16,10 @@ ADMIN_PASSWORD = "admin123"
 CARACTERES_SEGUROS = "BCDFGHJKLMNPQRSTVWXYZ0123456789"
 
 st.set_page_config(
-    page_title="Plataforma de Evaluación DTCABA, Hackathon CIREC & Desafíos del Agua",
+    page_title="Plataforma de Evaluación de Eventos",
     page_icon="🏆",
     layout="centered",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 # Inicializar Firebase Admin SDK corrigiendo formato de private_key en Secrets
@@ -61,34 +61,15 @@ st.markdown(
 
     /* AJUSTE DEL ESPACIADO SUPERIOR PARA COMPENSAR LA BARRA OCULTA */
     .block-container {
-        padding-top: 2rem !important;
+        padding-top: 1.5rem !important;
     }
 
-    section[data-testid="stSidebar"] { 
-        background-color: #0F172A !important; 
-        padding-top: 1rem;
-    }
-    section[data-testid="stSidebar"] * { 
-        color: #F8FAFC !important; 
-    }
-
-    section[data-testid="stSidebar"] div[role="radiogroup"] {
-        gap: 0.3rem !important;
-    }
-    section[data-testid="stSidebar"] div[role="radiogroup"] label {
-        background-color: transparent !important;
-        border: none !important;
-        padding: 0.5rem 0.75rem !important;
-        border-radius: 8px !important;
-        transition: background-color 0.2s ease;
-    }
-    section[data-testid="stSidebar"] div[role="radiogroup"] label:hover {
-        background-color: rgba(255, 255, 255, 0.1) !important;
-    }
-    section[data-testid="stSidebar"] div[role="radiogroup"] label * {
-        color: #F8FAFC !important;
-        font-size: 0.95rem !important;
-        font-weight: 500 !important;
+    /* ESTILO DE LAS PESTAÑAS PRINCIPALES EN LA PANTALLA */
+    button[data-baseweb="tab"] {
+        font-size: 1.05rem !important;
+        font-weight: 600 !important;
+        padding: 0.75rem 1rem !important;
+        border-radius: 8px 8px 0px 0px !important;
     }
 
     .app-header {
@@ -226,41 +207,19 @@ def generar_excel_descarga(dict_raw_data):
     return output.getvalue()
 
 # ---------------------------------------------------------
-# NAVEGACIÓN PRINCIPAL EN SIDEBAR
+# SELECCIÓN DE EVENTOS EN LA MISMA PANTALLA (PESTAÑAS)
 # ---------------------------------------------------------
-st.sidebar.markdown("### ⚙️ Evento")
-evento_seleccionado = st.sidebar.radio(
-    "Selección de Evento",
-    ["📐 Desafíos Técnicos DTCABA", "🏆 Hackathon 2026 (CIREC)", "💧 Desafíos Científicos del Agua"],
-    label_visibility="collapsed"
-)
+tab_dtcaba, tab_hackathon, tab_agua, tab_admin = st.tabs([
+    "📐 Desafíos Técnicos DTCABA",
+    "🏆 Hackathon 2026 (CIREC)",
+    "💧 Desafíos del Agua",
+    "⚙️ Administración General"
+])
 
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 🧭 Menú de Opciones")
-
-if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
-    opcion = st.sidebar.radio(
-        "Navegación DTCABA",
-        ["Cargar Evaluación DTCABA", "Generar Códigos de Equipos", "📌 Acreditación de Presentes", "Panel de Administración y Reportes"],
-        label_visibility="collapsed",
-    )
-elif evento_seleccionado == "🏆 Hackathon 2026 (CIREC)":
-    opcion = st.sidebar.radio(
-        "Navegación Hackathon",
-        ["Cargar Evaluación Hackathon", "📌 Acreditación Hackathon", "Panel de Administración y Reportes"],
-        label_visibility="collapsed",
-    )
-else:
-    opcion = st.sidebar.radio(
-        "Navegación Desafíos del Agua",
-        ["Cargar Evaluación Desafíos del Agua", "📌 Acreditación Desafíos del Agua", "Panel de Administración y Reportes"],
-        label_visibility="collapsed",
-    )
-
-# ---------------------------------------------------------
+# =========================================================
 # EVENTO 1: DESAFÍOS TÉCNICOS DTCABA
-# ---------------------------------------------------------
-if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
+# =========================================================
+with tab_dtcaba:
     st.markdown(
         """
         <div class="app-header">
@@ -271,7 +230,17 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
         unsafe_allow_html=True,
     )
 
-    if opcion == "Cargar Evaluación DTCABA":
+    opcion_dtcaba = st.radio(
+        "Módulo DTCABA",
+        ["Cargar Evaluación DTCABA", "Generar Códigos de Equipos", "📌 Acreditación de Presentes"],
+        horizontal=True,
+        label_visibility="collapsed",
+        key="nav_dtcaba_main"
+    )
+
+    st.markdown("---")
+
+    if opcion_dtcaba == "Cargar Evaluación DTCABA":
         st.header("Carga de Evaluación DTCABA")
         lista_codigos = obtener_lista_codigos_fb()
 
@@ -320,249 +289,248 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
 
         if not codigo_unico:
             st.info("💡 Por favor, selecciona o ingresa el Código Único del Examen.")
-            st.stop()
-
-        st.subheader(f"📋 Rúbrica de Evaluación: {materia}")
-
-        if materia == "Lengua":
-            map_len1 = {
-                4: "4 - Avanzado: Conserva e integra el sentido central del texto técnico.",
-                3: "3 - Satisfactorio: Conserva ideas principales con pequeñas simplificaciones.",
-                2: "2 - En desarrollo: Recupera solo parte de la información relevante.",
-                1: "1 - Inicial: Pierde o modifica el sentido del texto fuente.",
-            }
-            map_len2 = {
-                4: "4 - Avanzado: El texto se transforma completamente en un relato literario.",
-                3: "3 - Satisfactorio: Predomina el relato aunque mantiene rasgos expositivos.",
-                2: "2 - En desarrollo: Alterna explicación y narración sin integrarlas completamente.",
-                1: "1 - Inicial: Predomina el texto expositivo o no logra la transformación.",
-            }
-            map_len3 = {
-                4: "4 - Avanzado: Construye una voz en primera persona consistente y verosímil.",
-                3: "3 - Satisfactorio: La voz se sostiene con algunas inconsistencias.",
-                2: "2 - En desarrollo: La voz aparece de manera parcial o irregular.",
-                1: "1 - Inicial: No logra construir una voz narrativa.",
-            }
-            map_len4 = {
-                4: "4 - Avanzado: Utiliza el lenguaje técnico para construir experiencias.",
-                3: "3 - Satisfactorio: Integra el vocabulario técnico de manera pertinente.",
-                2: "2 - En desarrollo: El lenguaje técnico aparece de forma aislada.",
-                1: "1 - Inicial: No incorpora o utiliza incorrectamente el lenguaje técnico.",
-            }
-            map_len5 = {
-                4: "4 - Avanzado: Integra descripciones, metáforas o comparaciones enriquecedoras.",
-                3: "3 - Satisfactorio: Utiliza algunos recursos expresivos adecuados.",
-                2: "2 - En desarrollo: Utiliza un recurso expresivo de forma adecuada.",
-                1: "1 - Inicial: No utiliza recursos literarios significativos.",
-            }
-            map_len6 = {
-                4: "4 - Avanzado: Presenta una secuencia clara, coherente y cohesiva.",
-                3: "3 - Satisfactorio: Relato comprensible con pequeñas dificultades lógicas.",
-                2: "2 - En desarrollo: La organización presenta reiteraciones o saltos.",
-                1: "1 - Inicial: La organización dificulta la comprensión.",
-            }
-            map_len7 = {
-                4: "4 - Avanzado: Emplea correctamente ortografía, puntuación y sintaxis.",
-                3: "3 - Satisfactorio: Presenta errores que no dificultan la comprensión.",
-                2: "2 - En desarrollo: Errores que dificultan parcialmente la comprensión.",
-                1: "1 - Inicial: Los errores afectan significativamente la comprensión.",
-            }
-
-            st.markdown("### BLOQUE A: Comprender para transformar (40%)")
-            with st.container(border=True):
-                st.markdown("#### 1. Apropiación del texto fuente (20%)")
-                c1 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len1[x], key="len_c1")
-                obs1 = st.text_area("Observaciones / Justificación:", key="obs_c1", height=70)
-
-            with st.container(border=True):
-                st.markdown("#### 2. Transformación del género (20%)")
-                c2 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len2[x], key="len_c2")
-                obs2 = st.text_area("Observaciones / Justificación:", key="obs_c2", height=70)
-
-            st.markdown("### BLOQUE B: Escribir para construir sentido (40%)")
-            with st.container(border=True):
-                st.markdown("#### 3. Voz narrativa")
-                c3 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len3[x], key="len_c3")
-                obs3 = st.text_area("Observaciones / Justificación:", key="obs_c3", height=70)
-
-            with st.container(border=True):
-                st.markdown("#### 4. Resignificación del lenguaje técnico")
-                c4 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len4[x], key="len_c4")
-                obs4 = st.text_area("Observaciones / Justificación:", key="obs_c4", height=70)
-
-            with st.container(border=True):
-                st.markdown("#### 5. Construcción literaria")
-                c5 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len5[x], key="len_c5")
-                obs5 = st.text_area("Observaciones / Justificación:", key="obs_c5", height=70)
-
-            st.markdown("### BLOQUE C: Comunicar con claridad (20%)")
-            with st.container(border=True):
-                st.markdown("#### 6. Organización del relato (10%)")
-                c6 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len6[x], key="len_c6")
-                obs6 = st.text_area("Observaciones / Justificación:", key="obs_c6", height=70)
-
-            with st.container(border=True):
-                st.markdown("#### 7. Normativa (10%)")
-                c7 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len7[x], key="len_c7")
-                obs7 = st.text_area("Observaciones / Justificación:", key="obs_c7", height=70)
-
-            promedio_base4 = (
-                (c1 * 0.20)
-                + (c2 * 0.20)
-                + (c3 * 0.1333)
-                + (c4 * 0.1333)
-                + (c5 * 0.1334)
-                + (c6 * 0.10)
-                + (c7 * 0.10)
-            )
-            puntaje_100 = round((promedio_base4 / 4) * 100, 2)
-
-            eval_respuestas = {
-                "c1_apropiacion_texto_pts": c1, "c1_apropiacion_texto_desc": map_len1[c1], "c1_obs": obs1,
-                "c2_transformacion_genero_pts": c2, "c2_transformacion_genero_desc": map_len2[c2], "c2_obs": obs2,
-                "c3_voz_narrativa_pts": c3, "c3_voz_narrativa_desc": map_len3[c3], "c3_obs": obs3,
-                "c4_resignificacion_tecnica_pts": c4, "c4_resignificacion_tecnica_desc": map_len4[c4], "c4_obs": obs4,
-                "c5_construccion_literaria_pts": c5, "c5_construccion_literaria_desc": map_len5[c5], "c5_obs": obs5,
-                "c6_organizacion_relato_pts": c6, "c6_organizacion_relato_desc": map_len6[c6], "c6_obs": obs6,
-                "c7_normativa_pts": c7, "c7_normativa_desc": map_len7[c7], "c7_obs": obs7,
-            }
-
-        elif materia == "Matemática":
-            map_mat1 = {
-                5: "5 - Destacado: Figura original y de alta complejidad en la representación.",
-                4: "4 - Avanzado: Figura tridimensional bien construida, muestra originalidad.",
-                3: "3 - Satisfactorio: La figura es adecuada y realizada de manera correcta.",
-                2: "2 - Básico: La figura no presenta complejidad.",
-                1: "1 - Inicial: La figura no es original y presenta errores de representación.",
-            }
-            map_mat2 = {
-                5: "5 - Destacado: Problema original, explícita la intervención de la figura y de integración.",
-                4: "4 - Avanzado: Situación problemática planteada explícita en la intervención.",
-                3: "3 - Satisfactorio: El problema es correcto pero no se evidencia la figura construida.",
-                2: "2 - Básico: El problema presenta inconsistencias matemáticas.",
-                1: "1 - Inicial: No logra contextualizar la situación problemática.",
-            }
-            map_mat3 = {
-                5: "5 - Destacado: Procedimiento completo, utiliza datos y justifica cada paso.",
-                4: "4 - Avanzado: Aplica procedimiento correcto y justifica cada paso.",
-                3: "3 - Satisfactorio: Procedimiento correcto pero con justificación parcial.",
-                2: "2 - Básico: Procedimiento correcto sin justificación.",
-                1: "1 - Inicial: No presenta procedimiento ni justificación.",
-            }
-            map_mat4 = {
-                5: "5 - Destacado: Términos, símbolos y expresiones matemáticas precisos y rigurosos.",
-                4: "4 - Avanzado: Expresiones matemáticas correctas en su mayoría.",
-                3: "3 - Satisfactorio: Uso impreciso o escaso de expresiones matemáticas.",
-                2: "2 - Básico: Explica el desarrollo de forma coloquial o ambigua.",
-                1: "1 - Inicial: Comunicación del desarrollo imprecisa.",
-            }
-
-            st.markdown("### 📐 Criterios de Evaluación: Matemática")
-            with st.container(border=True):
-                st.markdown("#### 1. Construcción y Representación de la Figura Tridimensional (20%)")
-                c1 = st.radio("Nivel:", [5, 4, 3, 2, 1], format_func=lambda x: map_mat1[x], key="mat_c1")
-                obs1 = st.text_area("Observaciones / Justificación:", key="obs_mat1", height=70)
-
-            with st.container(border=True):
-                st.markdown("#### 2. Diseño del Problema Matemático e Interdisciplinariedad (30%)")
-                c2 = st.radio("Nivel:", [5, 4, 3, 2, 1], format_func=lambda x: map_mat2[x], key="mat_c2")
-                obs2 = st.text_area("Observaciones / Justificación:", key="obs_mat2", height=70)
-
-            with st.container(border=True):
-                st.markdown("#### 3. Resolución y Justificación del Problema (30%)")
-                c3 = st.radio("Nivel:", [5, 4, 3, 2, 1], format_func=lambda x: map_mat3[x], key="mat_c3")
-                obs3 = st.text_area("Observaciones / Justificación:", key="obs_mat3", height=70)
-
-            with st.container(border=True):
-                st.markdown("#### 4. Presentación y Comunicación (20%)")
-                c4 = st.radio("Nivel:", [5, 4, 3, 2, 1], format_func=lambda x: map_mat4[x], key="mat_c4")
-                obs4 = st.text_area("Observaciones / Justificación:", key="obs_mat4", height=70)
-
-            promedio_base5 = (c1 * 0.20) + (c2 * 0.30) + (c3 * 0.30) + (c4 * 0.20)
-            puntaje_100 = round((promedio_base5 / 5) * 100, 2)
-
-            eval_respuestas = {
-                "c1_construccion_figura_pts": c1, "c1_construccion_figura_desc": map_mat1[c1], "c1_obs": obs1,
-                "c2_diseno_problema_pts": c2, "c2_diseno_problema_desc": map_mat2[c2], "c2_obs": obs2,
-                "c3_resolucion_justificacion_pts": c3, "c3_resolucion_justificacion_desc": map_mat3[c3], "c3_obs": obs3,
-                "c4_comunicacion_matematica_pts": c4, "c4_comunicacion_matematica_desc": map_mat4[c4], "c4_obs": obs4,
-            }
-
         else:
-            st.markdown(f"### ⚙️ Criterios de Evaluación: {materia}")
+            st.subheader(f"📋 Rúbrica de Evaluación: {materia}")
 
-            map_tdr_gen = {
-                4: "4 - Avanzado (Excelente aplicación)",
-                3: "3 - Satisfactorio (Correcta aplicación con mínimos detalles)",
-                2: "2 - En desarrollo (Aplicación parcial o incompleta)",
-                1: "1 - Inicial (Dificultades significativas)",
-            }
-
-            if "Nivel 1" in materia:
-                lbl1 = "1. Normalización Básica (35%)"
-                lbl2 = "2. Proyección y Visualización Ortogonal (35%)"
-                lbl3 = "3. Prolijidad y Calidad Gráfica (30%)"
-            else:
-                lbl1 = "1. Modelado y Vistas Complejas (35%)"
-                lbl2 = "2. Aplicación Avanzada de Normas (35%)"
-                lbl3 = "3. Interpretación y Resolución de Conjuntos (30%)"
-
-            with st.container(border=True):
-                st.markdown(f"#### {lbl1}")
-                c1 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr_gen[x], key="tdr_c1")
-                obs1 = st.text_area("Observaciones / Justificación:", key="obs_tdr1", height=70)
-
-            with st.container(border=True):
-                st.markdown(f"#### {lbl2}")
-                c2 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr_gen[x], key="tdr_c2")
-                obs2 = st.text_area("Observaciones / Justificación:", key="obs_tdr2", height=70)
-
-            with st.container(border=True):
-                st.markdown(f"#### {lbl3}")
-                c3 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr_gen[x], key="tdr_c3")
-                obs3 = st.text_area("Observaciones / Justificación:", key="obs_tdr3", height=70)
-
-            promedio_base4 = (c1 * 0.35) + (c2 * 0.35) + (c3 * 0.30)
-            puntaje_100 = round((promedio_base4 / 4) * 100, 2)
-
-            eval_respuestas = {
-                "c1_criterio1_pts": c1, "c1_criterio1_desc": f"{lbl1} - {map_tdr_gen[c1]}", "c1_obs": obs1,
-                "c2_criterio2_pts": c2, "c2_criterio2_desc": f"{lbl2} - {map_tdr_gen[c2]}", "c2_obs": obs2,
-                "c3_criterio3_pts": c3, "c3_criterio3_desc": f"{lbl3} - {map_tdr_gen[c3]}", "c3_obs": obs3,
-            }
-
-        st.metric(label="Puntaje Total Ponderado (sobre 100)", value=f"{puntaje_100} / 100 pts")
-
-        if st.button("💾 Guardar Evaluación", type="primary"):
-            if not dni_evaluador or not codigo_unico:
-                st.warning("⚠️ Debes ingresar el DNI del evaluador y el Código Único.")
-            else:
-                doc_eval = {
-                    "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    "codigo_unico": codigo_unico,
-                    "materia": materia,
-                    "evento": "DTCABA",
-                    "evaluador_id": dni_evaluador,
-                    "evaluador_nombre": f"Evaluador DNI {dni_evaluador}",
-                    "promedio": puntaje_100,
-                    "respuestas": eval_respuestas,
+            if materia == "Lengua":
+                map_len1 = {
+                    4: "4 - Avanzado: Conserva e integra el sentido central del texto técnico.",
+                    3: "3 - Satisfactorio: Conserva ideas principales con pequeñas simplificaciones.",
+                    2: "2 - En desarrollo: Recupera solo parte de la información relevante.",
+                    1: "1 - Inicial: Pierde o modifica el sentido del texto fuente.",
                 }
-                db.collection("evaluaciones").add(doc_eval)
-                st.session_state["exito_msj"] = f"✅ ¡Evaluación del código {codigo_unico} guardada con éxito en Firebase!"
-                st.rerun()
+                map_len2 = {
+                    4: "4 - Avanzado: El texto se transforma completamente en un relato literario.",
+                    3: "3 - Satisfactorio: Predomina el relato aunque mantiene rasgos expositivos.",
+                    2: "2 - En desarrollo: Alterna explicación y narración sin integrarlas completamente.",
+                    1: "1 - Inicial: Predomina el texto expositivo o no logra la transformación.",
+                }
+                map_len3 = {
+                    4: "4 - Avanzado: Construye una voz en primera persona consistente y verosímil.",
+                    3: "3 - Satisfactorio: La voz se sostiene con algunas inconsistencias.",
+                    2: "2 - En desarrollo: La voz aparece de manera parcial o irregular.",
+                    1: "1 - Inicial: No logra construir una voz narrativa.",
+                }
+                map_len4 = {
+                    4: "4 - Avanzado: Utiliza el lenguaje técnico para construir experiencias.",
+                    3: "3 - Satisfactorio: Integra el vocabulario técnico de manera pertinente.",
+                    2: "2 - En desarrollo: El lenguaje técnico aparece de forma aislada.",
+                    1: "1 - Inicial: No incorpora o utiliza incorrectamente el lenguaje técnico.",
+                }
+                map_len5 = {
+                    4: "4 - Avanzado: Integra descripciones, metáforas o comparaciones enriquecedoras.",
+                    3: "3 - Satisfactorio: Utiliza algunos recursos expresivos adecuados.",
+                    2: "2 - En desarrollo: Utiliza un recurso expresivo de forma adecuada.",
+                    1: "1 - Inicial: No utiliza recursos literarios significativos.",
+                }
+                map_len6 = {
+                    4: "4 - Avanzado: Presenta una secuencia clara, coherente y cohesiva.",
+                    3: "3 - Satisfactorio: Relato comprensible con pequeñas dificultades lógicas.",
+                    2: "2 - En desarrollo: La organización presenta reiteraciones o saltos.",
+                    1: "1 - Inicial: La organización dificulta la comprensión.",
+                }
+                map_len7 = {
+                    4: "4 - Avanzado: Emplea correctamente ortografía, puntuación y sintaxis.",
+                    3: "3 - Satisfactorio: Presenta errores que no dificultan la comprensión.",
+                    2: "2 - En desarrollo: Errores que dificultan parcialmente la comprensión.",
+                    1: "1 - Inicial: Los errores afectan significativamente la comprensión.",
+                }
 
-        if "exito_msj" in st.session_state:
-            st.success(st.session_state["exito_msj"])
-            del st.session_state["exito_msj"]
+                st.markdown("### BLOQUE A: Comprender para transformar (40%)")
+                with st.container(border=True):
+                    st.markdown("#### 1. Apropiación del texto fuente (20%)")
+                    c1 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len1[x], key="len_c1")
+                    obs1 = st.text_area("Observaciones / Justificación:", key="obs_c1", height=70)
 
-    elif opcion == "Generar Códigos de Equipos":
+                with st.container(border=True):
+                    st.markdown("#### 2. Transformación del género (20%)")
+                    c2 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len2[x], key="len_c2")
+                    obs2 = st.text_area("Observaciones / Justificación:", key="obs_c2", height=70)
+
+                st.markdown("### BLOQUE B: Escribir para construir sentido (40%)")
+                with st.container(border=True):
+                    st.markdown("#### 3. Voz narrativa")
+                    c3 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len3[x], key="len_c3")
+                    obs3 = st.text_area("Observaciones / Justificación:", key="obs_c3", height=70)
+
+                with st.container(border=True):
+                    st.markdown("#### 4. Resignificación del lenguaje técnico")
+                    c4 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len4[x], key="len_c4")
+                    obs4 = st.text_area("Observaciones / Justificación:", key="obs_c4", height=70)
+
+                with st.container(border=True):
+                    st.markdown("#### 5. Construcción literaria")
+                    c5 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len5[x], key="len_c5")
+                    obs5 = st.text_area("Observaciones / Justificación:", key="obs_c5", height=70)
+
+                st.markdown("### BLOQUE C: Comunicar con claridad (20%)")
+                with st.container(border=True):
+                    st.markdown("#### 6. Organización del relato (10%)")
+                    c6 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len6[x], key="len_c6")
+                    obs6 = st.text_area("Observaciones / Justificación:", key="obs_c6", height=70)
+
+                with st.container(border=True):
+                    st.markdown("#### 7. Normativa (10%)")
+                    c7 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_len7[x], key="len_c7")
+                    obs7 = st.text_area("Observaciones / Justificación:", key="obs_c7", height=70)
+
+                promedio_base4 = (
+                    (c1 * 0.20)
+                    + (c2 * 0.20)
+                    + (c3 * 0.1333)
+                    + (c4 * 0.1333)
+                    + (c5 * 0.1334)
+                    + (c6 * 0.10)
+                    + (c7 * 0.10)
+                )
+                puntaje_100 = round((promedio_base4 / 4) * 100, 2)
+
+                eval_respuestas = {
+                    "c1_apropiacion_texto_pts": c1, "c1_apropiacion_texto_desc": map_len1[c1], "c1_obs": obs1,
+                    "c2_transformacion_genero_pts": c2, "c2_transformacion_genero_desc": map_len2[c2], "c2_obs": obs2,
+                    "c3_voz_narrativa_pts": c3, "c3_voz_narrativa_desc": map_len3[c3], "c3_obs": obs3,
+                    "c4_resignificacion_tecnica_pts": c4, "c4_resignificacion_tecnica_desc": map_len4[c4], "c4_obs": obs4,
+                    "c5_construccion_literaria_pts": c5, "c5_construccion_literaria_desc": map_len5[c5], "c5_obs": obs5,
+                    "c6_organizacion_relato_pts": c6, "c6_organizacion_relato_desc": map_len6[c6], "c6_obs": obs6,
+                    "c7_normativa_pts": c7, "c7_normativa_desc": map_len7[c7], "c7_obs": obs7,
+                }
+
+            elif materia == "Matemática":
+                map_mat1 = {
+                    5: "5 - Destacado: Figura original y de alta complejidad en la representación.",
+                    4: "4 - Avanzado: Figura tridimensional bien construida, muestra originalidad.",
+                    3: "3 - Satisfactorio: La figura es adecuada y realizada de manera correcta.",
+                    2: "2 - Básico: La figura no presenta complejidad.",
+                    1: "1 - Inicial: La figura no es original y presenta errores de representación.",
+                }
+                map_mat2 = {
+                    5: "5 - Destacado: Problema original, explícita la intervención de la figura y de integración.",
+                    4: "4 - Avanzado: Situación problemática planteada explícita en la intervención.",
+                    3: "3 - Satisfactorio: El problema es correcto pero no se evidencia la figura construida.",
+                    2: "2 - Básico: El problema presenta inconsistencias matemáticas.",
+                    1: "1 - Inicial: No logra contextualizar la situación problemática.",
+                }
+                map_mat3 = {
+                    5: "5 - Destacado: Procedimiento completo, utiliza datos y justifica cada paso.",
+                    4: "4 - Avanzado: Aplica procedimiento correcto y justifica cada paso.",
+                    3: "3 - Satisfactorio: Procedimiento correcto pero con justificación parcial.",
+                    2: "2 - Básico: Procedimiento correcto sin justificación.",
+                    1: "1 - Inicial: No presenta procedimiento ni justificación.",
+                }
+                map_mat4 = {
+                    5: "5 - Destacado: Términos, símbolos y expresiones matemáticas precisos y rigurosos.",
+                    4: "4 - Avanzado: Expresiones matemáticas correctas en su mayoría.",
+                    3: "3 - Satisfactorio: Uso impreciso o escaso de expresiones matemáticas.",
+                    2: "2 - Básico: Explica el desarrollo de forma coloquial o ambigua.",
+                    1: "1 - Inicial: Comunicación del desarrollo imprecisa.",
+                }
+
+                st.markdown("### 📐 Criterios de Evaluación: Matemática")
+                with st.container(border=True):
+                    st.markdown("#### 1. Construcción y Representación de la Figura Tridimensional (20%)")
+                    c1 = st.radio("Nivel:", [5, 4, 3, 2, 1], format_func=lambda x: map_mat1[x], key="mat_c1")
+                    obs1 = st.text_area("Observaciones / Justificación:", key="obs_mat1", height=70)
+
+                with st.container(border=True):
+                    st.markdown("#### 2. Diseño del Problema Matemático e Interdisciplinariedad (30%)")
+                    c2 = st.radio("Nivel:", [5, 4, 3, 2, 1], format_func=lambda x: map_mat2[x], key="mat_c2")
+                    obs2 = st.text_area("Observaciones / Justificación:", key="obs_mat2", height=70)
+
+                with st.container(border=True):
+                    st.markdown("#### 3. Resolución y Justificación del Problema (30%)")
+                    c3 = st.radio("Nivel:", [5, 4, 3, 2, 1], format_func=lambda x: map_mat3[x], key="mat_c3")
+                    obs3 = st.text_area("Observaciones / Justificación:", key="obs_mat3", height=70)
+
+                with st.container(border=True):
+                    st.markdown("#### 4. Presentación y Comunicación (20%)")
+                    c4 = st.radio("Nivel:", [5, 4, 3, 2, 1], format_func=lambda x: map_mat4[x], key="mat_c4")
+                    obs4 = st.text_area("Observaciones / Justificación:", key="obs_mat4", height=70)
+
+                promedio_base5 = (c1 * 0.20) + (c2 * 0.30) + (c3 * 0.30) + (c4 * 0.20)
+                puntaje_100 = round((promedio_base5 / 5) * 100, 2)
+
+                eval_respuestas = {
+                    "c1_construccion_figura_pts": c1, "c1_construccion_figura_desc": map_mat1[c1], "c1_obs": obs1,
+                    "c2_diseno_problema_pts": c2, "c2_diseno_problema_desc": map_mat2[c2], "c2_obs": obs2,
+                    "c3_resolucion_justificacion_pts": c3, "c3_resolucion_justificacion_desc": map_mat3[c3], "c3_obs": obs3,
+                    "c4_comunicacion_matematica_pts": c4, "c4_comunicacion_matematica_desc": map_mat4[c4], "c4_obs": obs4,
+                }
+
+            else:
+                st.markdown(f"### ⚙️ Criterios de Evaluación: {materia}")
+
+                map_tdr_gen = {
+                    4: "4 - Avanzado (Excelente aplicación)",
+                    3: "3 - Satisfactorio (Correcta aplicación con mínimos detalles)",
+                    2: "2 - En desarrollo (Aplicación parcial o incompleta)",
+                    1: "1 - Inicial (Dificultades significativas)",
+                }
+
+                if "Nivel 1" in materia:
+                    lbl1 = "1. Normalización Básica (35%)"
+                    lbl2 = "2. Proyección y Visualización Ortogonal (35%)"
+                    lbl3 = "3. Prolijidad y Calidad Gráfica (30%)"
+                else:
+                    lbl1 = "1. Modelado y Vistas Complejas (35%)"
+                    lbl2 = "2. Aplicación Avanzada de Normas (35%)"
+                    lbl3 = "3. Interpretación y Resolución de Conjuntos (30%)"
+
+                with st.container(border=True):
+                    st.markdown(f"#### {lbl1}")
+                    c1 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr_gen[x], key="tdr_c1")
+                    obs1 = st.text_area("Observaciones / Justificación:", key="obs_tdr1", height=70)
+
+                with st.container(border=True):
+                    st.markdown(f"#### {lbl2}")
+                    c2 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr_gen[x], key="tdr_c2")
+                    obs2 = st.text_area("Observaciones / Justificación:", key="obs_tdr2", height=70)
+
+                with st.container(border=True):
+                    st.markdown(f"#### {lbl3}")
+                    c3 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr_gen[x], key="tdr_c3")
+                    obs3 = st.text_area("Observaciones / Justificación:", key="obs_tdr3", height=70)
+
+                promedio_base4 = (c1 * 0.35) + (c2 * 0.35) + (c3 * 0.30)
+                puntaje_100 = round((promedio_base4 / 4) * 100, 2)
+
+                eval_respuestas = {
+                    "c1_criterio1_pts": c1, "c1_criterio1_desc": f"{lbl1} - {map_tdr_gen[c1]}", "c1_obs": obs1,
+                    "c2_criterio2_pts": c2, "c2_criterio2_desc": f"{lbl2} - {map_tdr_gen[c2]}", "c2_obs": obs2,
+                    "c3_criterio3_pts": c3, "c3_criterio3_desc": f"{lbl3} - {map_tdr_gen[c3]}", "c3_obs": obs3,
+                }
+
+            st.metric(label="Puntaje Total Ponderado (sobre 100)", value=f"{puntaje_100} / 100 pts")
+
+            if st.button("💾 Guardar Evaluación", type="primary", key="btn_save_dtcaba"):
+                if not dni_evaluador or not codigo_unico:
+                    st.warning("⚠️ Debes ingresar el DNI del evaluador y el Código Único.")
+                else:
+                    doc_eval = {
+                        "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        "codigo_unico": codigo_unico,
+                        "materia": materia,
+                        "evento": "DTCABA",
+                        "evaluador_id": dni_evaluador,
+                        "evaluador_nombre": f"Evaluador DNI {dni_evaluador}",
+                        "promedio": puntaje_100,
+                        "respuestas": eval_respuestas,
+                    }
+                    db.collection("evaluaciones").add(doc_eval)
+                    st.session_state["exito_msj"] = f"✅ ¡Evaluación del código {codigo_unico} guardada con éxito en Firebase!"
+                    st.rerun()
+
+            if "exito_msj" in st.session_state:
+                st.success(st.session_state["exito_msj"])
+                del st.session_state["exito_msj"]
+
+    elif opcion_dtcaba == "Generar Códigos de Equipos":
         st.header("Generador de Códigos para Equipos / Duplas")
-        clave = st.text_input("Contraseña de Acceso", type="password")
+        clave = st.text_input("Contraseña de Acceso", type="password", key="pass_gen_dtc")
 
         if clave == ADMIN_PASSWORD:
             st.success("🔓 Acceso habilitado.")
-            cant_integrantes = st.number_input("Cantidad de Integrantes del Equipo", min_value=1, max_value=10, value=2)
-            prefijo = st.selectbox("Materia / Categoría", ["MAT", "LEN", "TDR1", "TDR2", "HACKATHON", "AGUA"])
+            cant_integrantes = st.number_input("Cantidad de Integrantes del Equipo", min_value=1, max_value=10, value=2, key="num_integ")
+            prefijo = st.selectbox("Materia / Categoría", ["MAT", "LEN", "TDR1", "TDR2", "HACKATHON", "AGUA"], key="prefijo_mat")
 
             datos_integrantes = []
             especialidad_detectada = "General"
@@ -606,7 +574,7 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
 
             esp_final = st.text_input("Especialidad del Equipo (Obtenida del Padrón)", value=especialidad_detectada, key="esp_equipo_padron")
 
-            if st.button("🎲 Generar Código de Equipo", type="primary"):
+            if st.button("🎲 Generar Código de Equipo", type="primary", key="btn_gen_code"):
                 tres_aleatorios = "".join(random.choices(CARACTERES_SEGUROS, k=3))
                 primer_dni = datos_integrantes[0]["dni"] if datos_integrantes else "000"
                 ultimos_tres = primer_dni[-3:] if len(primer_dni) >= 3 else primer_dni.zfill(3)
@@ -624,7 +592,7 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
                 st.success(f"✅ Código Único Generado: **{codigo_generado}**")
                 st.code(codigo_generado, language="text")
 
-    elif opcion == "📌 Acreditación de Presentes":
+    elif opcion_dtcaba == "📌 Acreditación de Presentes":
         st.header("📌 Acreditación de Presentes (DTCABA)")
         st.markdown("Busca al estudiante por DNI en el padrón para verificar e ingresar o modificar sus datos antes de confirmar el presente.")
 
@@ -679,10 +647,10 @@ if evento_seleccionado == "📐 Desafíos Técnicos DTCABA":
             else:
                 st.warning("⚠️ No se encontró ningún estudiante con ese DNI en el padrón.")
 
-# ---------------------------------------------------------
+# =========================================================
 # EVENTO 2: HACKATHON CIREC 2026
-# ---------------------------------------------------------
-elif evento_seleccionado == "🏆 Hackathon 2026 (CIREC)":
+# =========================================================
+with tab_hackathon:
     st.markdown(
         """
         <div class="app-header">
@@ -693,7 +661,17 @@ elif evento_seleccionado == "🏆 Hackathon 2026 (CIREC)":
         unsafe_allow_html=True,
     )
 
-    if opcion == "Cargar Evaluación Hackathon":
+    opcion_hk = st.radio(
+        "Módulo Hackathon",
+        ["Cargar Evaluación Hackathon", "📌 Acreditación Hackathon"],
+        horizontal=True,
+        label_visibility="collapsed",
+        key="nav_hk_main"
+    )
+
+    st.markdown("---")
+
+    if opcion_hk == "Cargar Evaluación Hackathon":
         if st.session_state.get("eval_hk_guardada_exito"):
             st.success("✅ ¡Evaluación cargada con éxito! El formulario se ha reiniciado.")
             st.session_state["eval_hk_guardada_exito"] = False
@@ -806,7 +784,7 @@ elif evento_seleccionado == "🏆 Hackathon 2026 (CIREC)":
         total_score_hk = hk_c1 + hk_c2 + hk_c3 + hk_c4 + hk_c5 + hk_c6 + hk_c7 + hk_c8 + hk_c9
         st.metric(label="🎯 Puntaje Total CIREC", value=f"{total_score_hk:.2f} / 100.00 pts")
 
-        if st.button("🚀 Guardar Evaluación CIREC", type="primary"):
+        if st.button("🚀 Guardar Evaluación CIREC", type="primary", key="btn_save_hk"):
             if not evaluador.strip() or not equipo.strip() or not escenario.strip():
                 st.warning("⚠️ Por favor completa el Evaluador/a, el Equipo y selecciona el Escenario asignado.")
             else:
@@ -846,7 +824,7 @@ elif evento_seleccionado == "🏆 Hackathon 2026 (CIREC)":
 
                 st.rerun()
 
-    elif opcion == "📌 Acreditación Hackathon":
+    elif opcion_hk == "📌 Acreditación Hackathon":
         st.header("📌 Módulo de Acreditación de Presentes (Hackathon CIREC)")
         st.markdown("Busca al participante por DNI en el padrón para confirmar e ingresar su asistencia al Hackathon.")
 
@@ -899,10 +877,10 @@ elif evento_seleccionado == "🏆 Hackathon 2026 (CIREC)":
             else:
                 st.warning("⚠️ No se encontró ningún participante con ese DNI en el padrón.")
 
-# ---------------------------------------------------------
+# =========================================================
 # EVENTO 3: DESAFÍOS CIENTÍFICOS DEL AGUA
-# ---------------------------------------------------------
-elif evento_seleccionado == "💧 Desafíos Científicos del Agua":
+# =========================================================
+with tab_agua:
     st.markdown(
         """
         <div class="app-header">
@@ -913,7 +891,17 @@ elif evento_seleccionado == "💧 Desafíos Científicos del Agua":
         unsafe_allow_html=True,
     )
 
-    if opcion == "Cargar Evaluación Desafíos del Agua":
+    opcion_agua = st.radio(
+        "Módulo Desafíos del Agua",
+        ["Cargar Evaluación Desafíos del Agua", "📌 Acreditación Desafíos del Agua"],
+        horizontal=True,
+        label_visibility="collapsed",
+        key="nav_agua_main"
+    )
+
+    st.markdown("---")
+
+    if opcion_agua == "Cargar Evaluación Desafíos del Agua":
         if st.session_state.get("eval_agua_guardada_exito"):
             st.success("✅ ¡Evaluación de Desafíos del Agua cargada con éxito! El formulario se ha reiniciado.")
             st.session_state["eval_agua_guardada_exito"] = False
@@ -927,7 +915,6 @@ elif evento_seleccionado == "💧 Desafíos Científicos del Agua":
 
         st.subheader("📋 Rúbrica de Evaluación — Desafíos del Agua")
 
-        # MAPEO DE CRITERIOS CON NIVELES Y PUNTAJES (Alto=10, Medio=6, Inicial=2)
         map_rigor = {
             10.0: "Alto desempeño (10 pts): Análisis científico correcto, bien fundamentado y viable",
             6.0: "Desempeño medio (6 pts): Análisis correcto pero con fundamentos parciales",
@@ -999,7 +986,7 @@ elif evento_seleccionado == "💧 Desafíos Científicos del Agua":
 
         st.metric(label="🎯 Puntaje Total Ponderado", value=f"{puntaje_agua_100:.2f} / 100.00 pts", delta=f"{total_score_agua:.0f}/60 pts base")
 
-        if st.button("💧 Guardar Evaluación Desafíos del Agua", type="primary"):
+        if st.button("💧 Guardar Evaluación Desafíos del Agua", type="primary", key="btn_save_agua"):
             if not evaluador_agua.strip() or not equipo_agua.strip():
                 st.warning("⚠️ Por favor ingresa el Evaluador/a y el Equipo o Proyecto.")
             else:
@@ -1035,7 +1022,7 @@ elif evento_seleccionado == "💧 Desafíos Científicos del Agua":
 
                 st.rerun()
 
-    elif opcion == "📌 Acreditación Desafíos del Agua":
+    elif opcion_agua == "📌 Acreditación Desafíos del Agua":
         st.header("📌 Módulo de Acreditación de Presentes (Desafíos del Agua)")
         st.markdown("Busca al participante por DNI en el padrón para confirmar e ingresar su asistencia al evento.")
 
@@ -1088,12 +1075,12 @@ elif evento_seleccionado == "💧 Desafíos Científicos del Agua":
             else:
                 st.warning("⚠️ No se encontró ningún participante con ese DNI en el padrón.")
 
-# ---------------------------------------------------------
-# PANEL DE ADMINISTRACIÓN Y REPORTE EXCEL / CSV
-# ---------------------------------------------------------
-if opcion in ["Panel de Administración", "Panel de Administración y Reportes"]:
-    st.header("Panel de Administración y Reportes")
-    clave = st.text_input("Contraseña Administrador", type="password")
+# =========================================================
+# ADMINISTRACIÓN Y REPORTES CONSOLIDADOS
+# =========================================================
+with tab_admin:
+    st.header("⚙️ Panel de Administración Consolidado")
+    clave = st.text_input("Contraseña Administrador", type="password", key="admin_pass_main")
 
     if clave == ADMIN_PASSWORD:
         st.success("🔓 Acceso de Administración concedido.")
@@ -1106,21 +1093,21 @@ if opcion in ["Panel de Administración", "Panel de Administración y Reportes"]
         df_equipos = aplanar_equipos(equipos_raw) if equipos_raw else pd.DataFrame()
         df_presentes = pd.DataFrame(presentes_raw) if presentes_raw else pd.DataFrame()
 
-        tab1, tab2, tab3 = st.tabs(["📊 Evaluaciones Registradas", "🔑 Base de Códigos / Equipos", "📌 Lista de Presentes"])
+        subtab1, subtab2, subtab3 = st.tabs(["📊 Evaluaciones Registradas", "🔑 Base de Códigos / Equipos", "📌 Lista de Presentes"])
         
-        with tab1:
+        with subtab1:
             if not df_evals.empty:
                 st.dataframe(df_evals, use_container_width=True)
             else:
                 st.info("No hay evaluaciones registradas aún.")
 
-        with tab2:
+        with subtab2:
             if not df_equipos.empty:
                 st.dataframe(df_equipos, use_container_width=True)
             else:
                 st.info("No hay equipos guardados aún.")
 
-        with tab3:
+        with subtab3:
             if not df_presentes.empty:
                 st.dataframe(df_presentes, use_container_width=True)
             else:
@@ -1141,8 +1128,9 @@ if opcion in ["Panel de Administración", "Panel de Administración y Reportes"]
             st.download_button(
                 label="🟢 Descargar Libro Excel Completo (.xlsx)",
                 data=excel_bytes,
-                file_name=f"Reporte_Consolidado_DTCABA_Hackathon_Agua_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                file_name=f"Reporte_Consolidado_Eventos_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                key="btn_down_excel"
             )
         with col_d2:
             if not df_evals.empty:
@@ -1150,5 +1138,6 @@ if opcion in ["Panel de Administración", "Panel de Administración y Reportes"]
                     label="📄 Descargar Evaluaciones (CSV)",
                     data=df_evals.to_csv(index=False).encode("utf-8"),
                     file_name="evaluaciones.csv",
-                    mime="text/csv"
+                    mime="text/csv",
+                    key="btn_down_csv"
                 )
