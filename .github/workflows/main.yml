@@ -2,15 +2,15 @@ name: Mantener Streamlit Despierto
 
 on:
   schedule:
-    # Se ejecuta cada 6 horas de forma automática
+    # Se ejecuta automáticamente cada 6 horas
     - cron: '0 */6 * * *'
-  workflow_dispatch: # Te permite activarlo manualmente si quieres
+  workflow_dispatch: # Permite dispararlo manualmente desde GitHub
 
 jobs:
   keep-alive:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # Requerido para poder hacer push al repositorio
     steps:
       - name: Clonar repositorio
         uses: actions/checkout@v4
@@ -19,7 +19,8 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
       - name: Hacer commit vacío y Push
         run: |
-          git commit --allow-empty -m "Mantener activa la app de Streamlit"
+          git commit --allow-empty -m "Mantener activa la app de Streamlit [skip ci]"
           git push
