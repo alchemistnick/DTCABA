@@ -885,7 +885,7 @@ with tab_agua:
         """
         <div class="app-header">
             <h1>💧 Desafíos Científicos del Agua 🧪</h1>
-            <p>Plataforma de Evaluación de Proyectos Científicos e Innovación Hídrica</p>
+            <p>Plataforma de Evaluación de Proyectos Científicos desarrollada por la DET con el apoyo de la GOES</p>
         </div>
         """,
         unsafe_allow_html=True,
