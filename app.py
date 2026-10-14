@@ -913,97 +913,77 @@ with tab_agua:
             with col2:
                 equipo_agua = st.text_input("Equipo / Proyecto*", placeholder="Ej. HydroTech", key="agua_equipo")
 
-        st.subheader("📋 Rúbrica de Evaluación — Desafíos del Agua (4 Niveles)")
+        st.subheader("📋 Rúbrica de Evaluación — Desafíos del Agua (Total: 100 pts)")
 
-        # MAPEO DE CRITERIOS EN 4 NIVELES (Alto=10, Medio=7.5, Regular=5, Bajo=2)
-        map_rigor = {
-            10.0: "Alto desempeño (10 pts): Análisis científico correcto, bien fundamentado, viable y riguroso",
-            7.5: "Desempeño medio (7.5 pts): Análisis científico correcto pero con fundamentos parciales o leves imprecisiones",
-            5.0: "Desempeño regular (5 pts): Análisis poco claro, con sustento técnico limitado o vacíos conceptuales",
-            2.0: "Bajo desempeño (2 pts): Sin sustento técnico o análisis incorrecto"
+        # PONDERACIÓN DE 25 PUNTOS MÁXIMOS (Rigor Técnico y Viabilidad)
+        map_agua_25 = {
+            25.0: "Alto desempeño (25 pts): Análisis riguroso, viabilidad completa y fundamentación científica sólida",
+            18.75: "Desempeño medio (18.75 pts): Análisis correcto con fundamentos o planificación parciales",
+            12.5: "Desempeño regular (12.5 pts): Análisis o viabilidad limitados, con vacíos técnicos significativos",
+            5.0: "Bajo desempeño (5 pts): Análisis incorrecto, sin sustento o inviable"
         }
 
-        map_innovacion = {
-            10.0: "Alto desempeño (10 pts): Propuesta original con integración interdisciplinaria clara y novedosa",
-            7.5: "Desempeño medio (7.5 pts): Propuesta correcta con algunos elementos innovadores o creativos",
-            5.0: "Desempeño regular (5 pts): Propuesta tradicional con escasa innovación o integración técnica",
-            2.0: "Bajo desempeño (2 pts): Sin elementos innovadores ni enfoque interdisciplinario"
+        # PONDERACIÓN DE 15 PUNTOS MÁXIMOS (Innovación y Desarrollo Tecnológico)
+        map_agua_15 = {
+            15.0: "Alto desempeño (15 pts): Propuesta original, bien estructurada y funcional",
+            11.25: "Desempeño medio (11.25 pts): Propuesta funcional con algunos elementos innovadores o incompletos",
+            7.5: "Desempeño regular (7.5 pts): Propuesta tradicional, poco clara o con desarrollo incipiente",
+            3.0: "Bajo desempeño (3 pts): Sin innovación ni desarrollo tecnológico"
         }
 
-        map_viabilidad = {
-            10.0: "Alto desempeño (10 pts): Proyecto realista con costos, recursos y etapas bien definidos",
-            7.5: "Desempeño medio (7.5 pts): Proyecto viable pero con planificación o análisis de costos incompleto",
-            5.0: "Desempeño regular (5 pts): Proyecto con serias dificultades de implementación o recursos indefinidos",
-            2.0: "Bajo desempeño (2 pts): Proyecto inviable o sin consideración de costos y recursos"
-        }
-
-        map_desarrollo = {
-            10.0: "Alto desempeño (10 pts): Propuesta digital o tecnológica clara, útil, funcional y bien estructurada",
-            7.5: "Desempeño medio (7.5 pts): Propuesta tecnológica funcional pero incompleta en sus componentes",
-            5.0: "Desempeño regular (5 pts): Propuesta poco clara, incipiente o con desarrollo mínimo",
-            2.0: "Bajo desempeño (2 pts): Sin desarrollo tecnológico ni prototipo digital"
-        }
-
-        map_comunicacion = {
-            10.0: "Alto desempeño (10 pts): Presentación oral y visual clara, profesional, fluida y bien estructurada",
-            7.5: "Desempeño medio (7.5 pts): Presentación comprensible con algunos problemas menores de estructura o claridad",
-            5.0: "Desempeño regular (5 pts): Presentación confusa, poco clara o con fallas en la exposición",
-            2.0: "Bajo desempeño (2 pts): Exposición deficiente o sin estructura comprensible"
-        }
-
-        map_equipo = {
-            10.0: "Alto desempeño (10 pts): Excelente integración interdisciplinaria, articulación fluida y roles definidos",
-            7.5: "Desempeño medio (7.5 pts): Buena colaboración en equipo con algunas dificultades menores de coordinación",
-            5.0: "Desempeño regular (5 pts): Poca integración del equipo o participación muy desigual de sus miembros",
-            2.0: "Bajo desempeño (2 pts): Sin coordinación ni integración visible del equipo"
+        # PONDERACIÓN DE 10 PUNTOS MÁXIMOS (Comunicación y Trabajo en Equipo)
+        map_agua_10 = {
+            10.0: "Alto desempeño (10 pts): Excelente presentación y/o trabajo en equipo interdisciplinario fluído",
+            7.5: "Desempeño medio (7.5 pts): Presentación comprensible y/o buena colaboración con leves problemas",
+            5.0: "Desempeño regular (5 pts): Presentación confusa o poca integración de los miembros",
+            2.0: "Bajo desempeño (2 pts): Exposición deficiente o sin trabajo en equipo visible"
         }
 
         with st.container(border=True):
-            st.markdown("#### 1. Rigor Técnico")
-            agua_c1 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.0], format_func=lambda x: map_rigor[x], key="agua_c1")
+            st.markdown("#### 1. Rigor Técnico (Máx. 25 pts)")
+            agua_c1 = st.radio("Nivel:", [25.0, 18.75, 12.5, 5.0], format_func=lambda x: map_agua_25[x], key="agua_c1")
             agua_obs1 = st.text_area("Observaciones de Rigor Técnico:", key="agua_obs1", height=60)
 
         with st.container(border=True):
-            st.markdown("#### 2. Innovación")
-            agua_c2 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.0], format_func=lambda x: map_innovacion[x], key="agua_c2")
-            agua_obs2 = st.text_area("Observaciones de Innovación:", key="agua_obs2", height=60)
-
-        with st.container(border=True):
-            st.markdown("#### 3. Viabilidad")
-            agua_c3 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.0], format_func=lambda x: map_viabilidad[x], key="agua_c3")
+            st.markdown("#### 2. Viabilidad (Máx. 25 pts)")
+            agua_c3 = st.radio("Nivel:", [25.0, 18.75, 12.5, 5.0], format_func=lambda x: map_agua_25[x], key="agua_c3")
             agua_obs3 = st.text_area("Observaciones de Viabilidad:", key="agua_obs3", height=60)
 
         with st.container(border=True):
-            st.markdown("#### 4. Desarrollo Tecnológico")
-            agua_c4 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.0], format_func=lambda x: map_desarrollo[x], key="agua_c4")
+            st.markdown("#### 3. Innovación (Máx. 15 pts)")
+            agua_c2 = st.radio("Nivel:", [15.0, 11.25, 7.5, 3.0], format_func=lambda x: map_agua_15[x], key="agua_c2")
+            agua_obs2 = st.text_area("Observaciones de Innovación:", key="agua_obs2", height=60)
+
+        with st.container(border=True):
+            st.markdown("#### 4. Desarrollo Tecnológico (Máx. 15 pts)")
+            agua_c4 = st.radio("Nivel:", [15.0, 11.25, 7.5, 3.0], format_func=lambda x: map_agua_15[x], key="agua_c4")
             agua_obs4 = st.text_area("Observaciones de Desarrollo Tecnológico:", key="agua_obs4", height=60)
 
         with st.container(border=True):
-            st.markdown("#### 5. Comunicación")
-            agua_c5 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.0], format_func=lambda x: map_comunicacion[x], key="agua_c5")
+            st.markdown("#### 5. Comunicación (Máx. 10 pts)")
+            agua_c5 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.0], format_func=lambda x: map_agua_10[x], key="agua_c5")
             agua_obs5 = st.text_area("Observaciones de Comunicación:", key="agua_obs5", height=60)
 
         with st.container(border=True):
-            st.markdown("#### 6. Trabajo en Equipo")
-            agua_c6 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.0], format_func=lambda x: map_equipo[x], key="agua_c6")
+            st.markdown("#### 6. Trabajo en Equipo (Máx. 10 pts)")
+            agua_c6 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.0], format_func=lambda x: map_agua_10[x], key="agua_c6")
             agua_obs6 = st.text_area("Observaciones de Trabajo en Equipo:", key="agua_obs6", height=60)
 
-        total_score_agua = agua_c1 + agua_c2 + agua_c3 + agua_c4 + agua_c5 + agua_c6
-        puntaje_agua_100 = round((total_score_agua / 60.0) * 100, 2)
+        total_score_agua = agua_c1 + agua_c3 + agua_c2 + agua_c4 + agua_c5 + agua_c6
 
-        st.metric(label="🎯 Puntaje Total Ponderado", value=f"{puntaje_agua_100:.2f} / 100.00 pts", delta=f"{total_score_agua:.1f}/60 pts base")
+        st.metric(label="🎯 Puntaje Total Ponderado", value=f"{total_score_agua:.2f} / 100.00 pts")
 
         if st.button("💧 Guardar Evaluación Desafíos del Agua", type="primary", key="btn_save_agua"):
             if not evaluador_agua.strip() or not equipo_agua.strip():
                 st.warning("⚠️ Por favor ingresa el Evaluador/a y el Equipo o Proyecto.")
             else:
                 eval_respuestas_agua = {
-                    "rigor_tecnico_pts": agua_c1, "rigor_tecnico_desc": map_rigor[agua_c1], "rigor_tecnico_obs": agua_obs1,
-                    "innovacion_pts": agua_c2, "innovacion_desc": map_innovacion[agua_c2], "innovacion_obs": agua_obs2,
-                    "viabilidad_pts": agua_c3, "viabilidad_desc": map_viabilidad[agua_c3], "viabilidad_obs": agua_obs3,
-                    "desarrollo_tecnologico_pts": agua_c4, "desarrollo_tecnologico_desc": map_desarrollo[agua_c4], "desarrollo_tecnologico_obs": agua_obs4,
-                    "comunicacion_pts": agua_c5, "comunicacion_desc": map_comunicacion[agua_c5], "comunicacion_obs": agua_obs5,
-                    "trabajo_en_equipo_pts": agua_c6, "trabajo_en_equipo_desc": map_equipo[agua_c6], "trabajo_en_equipo_obs": agua_obs6,
+                    "rigor_tecnico_pts": agua_c1, "rigor_tecnico_desc": map_agua_25[agua_c1], "rigor_tecnico_obs": agua_obs1,
+                    "viabilidad_pts": agua_c3, "viabilidad_desc": map_agua_25[agua_c3], "viabilidad_obs": agua_obs3,
+                    "innovacion_pts": agua_c2, "innovacion_desc": map_agua_15[agua_c2], "innovacion_obs": agua_obs2,
+                    "desarrollo_tecnologico_pts": agua_c4, "desarrollo_tecnologico_desc": map_agua_15[agua_c4], "desarrollo_tecnologico_obs": agua_obs4,
+                    "comunicacion_pts": agua_c5, "comunicacion_desc": map_agua_10[agua_c5], "comunicacion_obs": agua_obs5,
+                    "trabajo_en_equipo_pts": agua_c6, "trabajo_en_equipo_desc": map_agua_10[agua_c6], "trabajo_en_equipo_obs": agua_obs6,
                 }
 
                 doc_eval_agua = {
@@ -1011,7 +991,7 @@ with tab_agua:
                     "evaluador": evaluador_agua,
                     "equipo": equipo_agua,
                     "evento": "Desafíos Científicos del Agua",
-                    "promedio": puntaje_agua_100,
+                    "promedio": total_score_agua,
                     "respuestas": eval_respuestas_agua
                 }
                 db.collection("evaluaciones").add(doc_eval_agua)
