@@ -705,7 +705,7 @@ with tab_hackathon:
 
         st.subheader("📊 Indicadores de Evaluación CIREC (4 Niveles de Desempeño - Total: 100 pts)")
 
-        # MAPEOS EN 4 NIVELES PARA INDICADORES DE 10 PUNTOS MÁXIMOS (10, 7, 4, 1)
+        # MAPEOS EN 4 NIVELES PARA INDICADORES DE 10 PUNTOS MÁXIMOS
         map_hk_10 = {
             10.0: "Alto desempeño (10 pts): Coherencia total, alta rigurosidad técnica y adaptación completa al escenario.",
             7.0: "Desempeño medio (7 pts): Propuesta sólida con imprecisiones menores en la adaptación o ejecución.",
@@ -713,7 +713,7 @@ with tab_hackathon:
             1.0: "Bajo desempeño (1 pt): Propuesta incoherente, muy limitada o sin responder al criterio."
         }
 
-        # MAPEOS EN 4 NIVELES PARA INDICADORES DE 15 PUNTOS MÁXIMOS (15, 10.5, 6, 1.5)
+        # MAPEOS EN 4 NIVELES PARA INDICADORES DE 15 PUNTOS MÁXIMOS
         map_hk_15 = {
             15.0: "Alto desempeño (15 pts): Cobertura integral, diseño redundante de contingencia y enfoque amplio.",
             10.5: "Desempeño medio (10.5 pts): Respuesta operativa sólida con omisiones secundarias de respaldo.",
@@ -913,78 +913,85 @@ with tab_agua:
             with col2:
                 equipo_agua = st.text_input("Equipo / Proyecto*", placeholder="Ej. HydroTech", key="agua_equipo")
 
-        st.subheader("📋 Rúbrica de Evaluación — Desafíos del Agua")
+        st.subheader("📋 Rúbrica de Evaluación — Desafíos del Agua (4 Niveles)")
 
+        # MAPEO DE CRITERIOS EN 4 NIVELES (Alto=10, Medio=7.5, Regular=5, Bajo=2)
         map_rigor = {
-            10.0: "Alto desempeño (10 pts): Análisis científico correcto, bien fundamentado y viable",
-            6.0: "Desempeño medio (6 pts): Análisis correcto pero con fundamentos parciales",
-            2.0: "Inicial (2 pts): Análisis poco claro o sin sustento técnico"
+            10.0: "Alto desempeño (10 pts): Análisis científico correcto, bien fundamentado, viable y riguroso",
+            7.5: "Desempeño medio (7.5 pts): Análisis científico correcto pero con fundamentos parciales o leves imprecisiones",
+            5.0: "Desempeño regular (5 pts): Análisis poco claro, con sustento técnico limitado o vacíos conceptuales",
+            2.0: "Bajo desempeño (2 pts): Sin sustento técnico o análisis incorrecto"
         }
 
         map_innovacion = {
-            10.0: "Alto desempeño (10 pts): Propuesta original con integración interdisciplinaria clara",
-            6.0: "Desempeño medio (6 pts): Propuesta correcta con algunos elementos innovadores",
-            2.0: "Inicial (2 pts): Propuesta tradicional con escasa innovación"
+            10.0: "Alto desempeño (10 pts): Propuesta original con integración interdisciplinaria clara y novedosa",
+            7.5: "Desempeño medio (7.5 pts): Propuesta correcta con algunos elementos innovadores o creativos",
+            5.0: "Desempeño regular (5 pts): Propuesta tradicional con escasa innovación o integración técnica",
+            2.0: "Bajo desempeño (2 pts): Sin elementos innovadores ni enfoque interdisciplinario"
         }
 
         map_viabilidad = {
-            10.0: "Alto desempeño (10 pts): Proyecto realista con costos y recursos bien definidos",
-            6.0: "Desempeño medio (6 pts): Proyecto posible pero con planificación incompleta",
-            2.0: "Inicial (2 pts): Proyecto difícil de implementar"
+            10.0: "Alto desempeño (10 pts): Proyecto realista con costos, recursos y etapas bien definidos",
+            7.5: "Desempeño medio (7.5 pts): Proyecto viable pero con planificación o análisis de costos incompleto",
+            5.0: "Desempeño regular (5 pts): Proyecto con serias dificultades de implementación o recursos indefinidos",
+            2.0: "Bajo desempeño (2 pts): Proyecto inviable o sin consideración de costos y recursos"
         }
 
         map_desarrollo = {
-            10.0: "Alto desempeño (10 pts): Propuesta digital clara, útil y bien estructurada",
-            6.0: "Desempeño medio (6 pts): Propuesta funcional pero incompleta",
-            2.0: "Inicial (2 pts): Propuesta poco clara o sin desarrollo"
+            10.0: "Alto desempeño (10 pts): Propuesta digital o tecnológica clara, útil, funcional y bien estructurada",
+            7.5: "Desempeño medio (7.5 pts): Propuesta tecnológica funcional pero incompleta en sus componentes",
+            5.0: "Desempeño regular (5 pts): Propuesta poco clara, incipiente o con desarrollo mínimo",
+            2.0: "Bajo desempeño (2 pts): Sin desarrollo tecnológico ni prototipo digital"
         }
 
         map_comunicacion = {
-            10.0: "Alto desempeño (10 pts): Presentación clara, profesional y bien estructurada",
-            6.0: "Desempeño medio (6 pts): Presentación comprensible con algunos problemas",
-            2.0: "Inicial (2 pts): Presentación confusa"
+            10.0: "Alto desempeño (10 pts): Presentación oral y visual clara, profesional, fluida y bien estructurada",
+            7.5: "Desempeño medio (7.5 pts): Presentación comprensible con algunos problemas menores de estructura o claridad",
+            5.0: "Desempeño regular (5 pts): Presentación confusa, poco clara o con fallas en la exposición",
+            2.0: "Bajo desempeño (2 pts): Exposición deficiente o sin estructura comprensible"
         }
 
         map_equipo = {
-            10.0: "Alto desempeño (10 pts): Excelente integración interdisciplinaria",
-            6.0: "Desempeño medio (6 pts): Buena colaboración con algunas dificultades",
-            2.0: "Inicial (2 pts): Poca integración del equipo"
+            10.0: "Alto desempeño (10 pts): Excelente integración interdisciplinaria, articulación fluida y roles definidos",
+            7.5: "Desempeño medio (7.5 pts): Buena colaboración en equipo con algunas dificultades menores de coordinación",
+            5.0: "Desempeño regular (5 pts): Poca integración del equipo o participación muy desigual de sus miembros",
+            2.0: "Bajo desempeño (2 pts): Sin coordinación ni integración visible del equipo"
         }
 
         with st.container(border=True):
             st.markdown("#### 1. Rigor Técnico")
-            agua_c1 = st.radio("Nivel:", [10.0, 6.0, 2.0], format_func=lambda x: map_rigor[x], key="agua_c1")
+            agua_c1 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.0], format_func=lambda x: map_rigor[x], key="agua_c1")
             agua_obs1 = st.text_area("Observaciones de Rigor Técnico:", key="agua_obs1", height=60)
 
         with st.container(border=True):
             st.markdown("#### 2. Innovación")
-            agua_c2 = st.radio("Nivel:", [10.0, 6.0, 2.0], format_func=lambda x: map_innovacion[x], key="agua_c2")
+            agua_c2 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.0], format_func=lambda x: map_innovacion[x], key="agua_c2")
             agua_obs2 = st.text_area("Observaciones de Innovación:", key="agua_obs2", height=60)
 
         with st.container(border=True):
             st.markdown("#### 3. Viabilidad")
-            agua_c3 = st.radio("Nivel:", [10.0, 6.0, 2.0], format_func=lambda x: map_viabilidad[x], key="agua_c3")
+            agua_c3 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.0], format_func=lambda x: map_viabilidad[x], key="agua_c3")
             agua_obs3 = st.text_area("Observaciones de Viabilidad:", key="agua_obs3", height=60)
 
         with st.container(border=True):
             st.markdown("#### 4. Desarrollo Tecnológico")
-            agua_c4 = st.radio("Nivel:", [10.0, 6.0, 2.0], format_func=lambda x: map_desarrollo[x], key="agua_c4")
+            agua_c4 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.0], format_func=lambda x: map_desarrollo[x], key="agua_c4")
             agua_obs4 = st.text_area("Observaciones de Desarrollo Tecnológico:", key="agua_obs4", height=60)
 
         with st.container(border=True):
             st.markdown("#### 5. Comunicación")
-            agua_c5 = st.radio("Nivel:", [10.0, 6.0, 2.0], format_func=lambda x: map_comunicacion[x], key="agua_c5")
+            agua_c5 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.0], format_func=lambda x: map_comunicacion[x], key="agua_c5")
             agua_obs5 = st.text_area("Observaciones de Comunicación:", key="agua_obs5", height=60)
 
         with st.container(border=True):
             st.markdown("#### 6. Trabajo en Equipo")
-            agua_c6 = st.radio("Nivel:", [10.0, 6.0, 2.0], format_func=lambda x: map_equipo[x], key="agua_c6")
+            agua_c6 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.0], format_func=lambda x: map_equipo[x], key="agua_c6")
             agua_obs6 = st.text_area("Observaciones de Trabajo en Equipo:", key="agua_obs6", height=60)
 
         total_score_agua = agua_c1 + agua_c2 + agua_c3 + agua_c4 + agua_c5 + agua_c6
         puntaje_agua_100 = round((total_score_agua / 60.0) * 100, 2)
 
-        st.metric(label="🎯 Puntaje Total Ponderado", value=f"{puntaje_agua_100:.2f} / 100.00 pts", delta=f"{total_score_agua:.0f}/60 pts base")
+        st.metric(label="🎯 Puntaje Total Ponderado", value=f"{puntaje_agua_100:.2f} / 100.00 pts", delta=f"{total_score_agua:.1f}/60 pts base")
 
         if st.button("💧 Guardar Evaluación Desafíos del Agua", type="primary", key="btn_save_agua"):
             if not evaluador_agua.strip() or not equipo_agua.strip():
