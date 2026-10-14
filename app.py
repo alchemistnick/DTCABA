@@ -703,82 +703,82 @@ with tab_hackathon:
         else:
             escenario = escenario_sel
 
-        st.subheader("📊 Indicadores de Evaluación CIREC (Total: 100 pts)")
+        st.subheader("📊 Indicadores de Evaluación CIREC (4 Niveles de Desempeño - Total: 100 pts)")
 
-        map_10 = {
-            10.0: "10 pts (100% - Destacado): Coherencia total, alta rigurosidad técnica y adaptación completa al escenario.",
-            7.5: "7.5 pts (75% - Avanzado): Propuesta sólida con imprecisiones menores en la adaptación o ejecución.",
-            5.0: "5.0 pts (50% - Satisfactorio): Cumple con los aspectos generales, pero presenta vacíos funcionales.",
-            2.5: "2.5 pts (25% - En Desarrollo): Esbozo incipiente con serias dudas sobre su viabilidad técnica.",
-            0.0: "0.0 pts (0% - Inicial): No responde al criterio o no presenta el componente solicitado."
+        # MAPEOS EN 4 NIVELES PARA INDICADORES DE 10 PUNTOS MÁXIMOS (10, 7, 4, 1)
+        map_hk_10 = {
+            10.0: "Alto desempeño (10 pts): Coherencia total, alta rigurosidad técnica y adaptación completa al escenario.",
+            7.0: "Desempeño medio (7 pts): Propuesta sólida con imprecisiones menores en la adaptación o ejecución.",
+            4.0: "Desempeño regular (4 pts): Esquema básico o parcial, con vacíos funcionales o viabilidad técnica dudosa.",
+            1.0: "Bajo desempeño (1 pt): Propuesta incoherente, muy limitada o sin responder al criterio."
         }
 
-        map_15 = {
-            15.0: "15.0 pts (100% - Destacado): Cobertura integral, diseño redundante de contingencia y enfoque amplio.",
-            11.25: "11.25 pts (75% - Avanzado): Respuesta operativa sólida con omisiones secundarias de respaldo.",
-            7.5: "7.5 pts (50% - Satisfactorio): Esquema básico funcional, pero vulnerable ante situaciones extremas de crisis.",
-            3.75: "3.75 pts (25% - En Desarrollo): Mecanismos muy limitados, desorganizados o de difícil implementación.",
-            0.0: "0.0 pts (0% - Inicial): No contempla el suministro, la continuidad o la asistencia solicitada."
+        # MAPEOS EN 4 NIVELES PARA INDICADORES DE 15 PUNTOS MÁXIMOS (15, 10.5, 6, 1.5)
+        map_hk_15 = {
+            15.0: "Alto desempeño (15 pts): Cobertura integral, diseño redundante de contingencia y enfoque amplio.",
+            10.5: "Desempeño medio (10.5 pts): Respuesta operativa sólida con omisiones secundarias de respaldo.",
+            6.0: "Desempeño regular (6 pts): Esquema funcional básico pero vulnerable o desorganizado ante situaciones de crisis.",
+            1.5: "Bajo desempeño (1.5 pts): No contempla suministros esenciales, continuidad ni asistencia adecuada."
         }
 
         st.markdown("### 1. Diseño de infraestructura y energía (25 pts)")
         with st.container(border=True):
             st.markdown("#### Diseño conceptual del CIREC (Máx. 10 pts)")
             st.caption("El edificio/complejo y la organización de espacios funcionales responden de forma coherente al escenario climático y geográfico asignado.")
-            hk_c1 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.5, 0.0], format_func=lambda x: map_10[x], key="hk_c1")
+            hk_c1 = st.radio("Nivel:", [10.0, 7.0, 4.0, 1.0], format_func=lambda x: map_hk_10[x], key="hk_c1")
             hk_obs1 = st.text_area("Observaciones del Diseño Conceptual:", key="hk_obs1", height=60)
 
         with st.container(border=True):
             st.markdown("#### Energía y agua (Máx. 15 pts)")
             st.caption("Se define el abastecimiento de energía y agua, y la continuidad operativa de los servicios esenciales ante el corte de suministros habituales.")
-            hk_c2 = st.radio("Nivel:", [15.0, 11.25, 7.5, 3.75, 0.0], format_func=lambda x: map_15[x], key="hk_c2")
+            hk_c2 = st.radio("Nivel:", [15.0, 10.5, 6.0, 1.5], format_func=lambda x: map_hk_15[x], key="hk_c2")
             hk_obs2 = st.text_area("Observaciones de Energía y Agua:", key="hk_obs2", height=60)
 
         st.markdown("### 2. Comunicación y gestión de la información (20 pts)")
         with st.container(border=True):
             st.markdown("#### Monitoreo y comunicaciones (Máx. 10 pts)")
             st.caption("Existen sistemas de monitoreo permanente y de comunicación interna/externa robustos ante la caída de infraestructura habitual.")
-            hk_c3 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.5, 0.0], format_func=lambda x: map_10[x], key="hk_c3")
+            hk_c3 = st.radio("Nivel:", [10.0, 7.0, 4.0, 1.0], format_func=lambda x: map_hk_10[x], key="hk_c3")
             hk_obs3 = st.text_area("Observaciones de Monitoreo y Comunicaciones:", key="hk_obs3", height=60)
 
         with st.container(border=True):
             st.markdown("#### Interfaz digital (Máx. 10 pts)")
             st.caption("La interfaz propuesta para acceder a la información es clara, rápida e intuitiva, y está adaptada a quien debe usarla en una crisis.")
-            hk_c4 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.5, 0.0], format_func=lambda x: map_10[x], key="hk_c4")
+            hk_c4 = st.radio("Nivel:", [10.0, 7.0, 4.0, 1.0], format_func=lambda x: map_hk_10[x], key="hk_c4")
             hk_obs4 = st.text_area("Observaciones de Interfaz Digital:", key="hk_obs4", height=60)
 
         st.markdown("### 3. Coordinación y logística (20 pts)")
         with st.container(border=True):
             st.markdown("#### Coordinación interinstitucional (Máx. 10 pts)")
             st.caption("Se explicita cómo se coordina con los organismos de respuesta (bomberos, salud, defensa civil, etc.) y cómo se resuelven conflictos de prioridad.")
-            hk_c5 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.5, 0.0], format_func=lambda x: map_10[x], key="hk_c5")
+            hk_c5 = st.radio("Nivel:", [10.0, 7.0, 4.0, 1.0], format_func=lambda x: map_hk_10[x], key="hk_c5")
             hk_obs5 = st.text_area("Observaciones de Coordinación Interinstitucional:", key="hk_obs5", height=60)
 
         with st.container(border=True):
             st.markdown("#### Logística y distribución de recursos (Máx. 10 pts)")
             st.caption("El sistema de distribución de recursos es viable, considera el escenario geográfico y prioriza según necesidad.")
-            hk_c6 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.5, 0.0], format_func=lambda x: map_10[x], key="hk_c6")
+            hk_c6 = st.radio("Nivel:", [10.0, 7.0, 4.0, 1.0], format_func=lambda x: map_hk_10[x], key="hk_c6")
             hk_obs6 = st.text_area("Observaciones de Logística y Recursos:", key="hk_obs6", height=60)
 
         st.markdown("### 4. Atención a la población (15 pts)")
         with st.container(border=True):
             st.markdown("#### Asistencia a la población afectada (Máx. 15 pts)")
             st.caption("La propuesta contempla mecanismos concretos de asistencia y comunicación directa con la comunidad, incluyendo grupos vulnerables.")
-            hk_c7 = st.radio("Nivel:", [15.0, 11.25, 7.5, 3.75, 0.0], format_func=lambda x: map_15[x], key="hk_c7")
+            hk_c7 = st.radio("Nivel:", [15.0, 10.5, 6.0, 1.5], format_func=lambda x: map_hk_15[x], key="hk_c7")
             hk_obs7 = st.text_area("Observaciones de Asistencia a la Población:", key="hk_obs7", height=60)
 
         st.markdown("### 5. Operación durante la emergencia (10 pts)")
         with st.container(border=True):
             st.markdown("#### Funcionamiento dinámico del sistema (Máx. 10 pts)")
             st.caption("Se describe cómo el CIREC detecta, decide, prioriza y se adapta a medida que evoluciona el evento (no solo el diseño estático).")
-            hk_c8 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.5, 0.0], format_func=lambda x: map_10[x], key="hk_c8")
+            hk_c8 = st.radio("Nivel:", [10.0, 7.0, 4.0, 1.0], format_func=lambda x: map_hk_10[x], key="hk_c8")
             hk_obs8 = st.text_area("Observaciones del Funcionamiento Dinámico:", key="hk_obs8", height=60)
 
         st.markdown("### 6. Enfoque interdisciplinario y fundamentación (10 pts)")
         with st.container(border=True):
             st.markdown("#### Integración de especialidades y fundamentación técnica (Máx. 10 pts)")
             st.caption("Las distintas disciplinas están integradas de forma coherente y las decisiones se justifican con criterios técnicos, ambientales, sociales y económicos.")
-            hk_c9 = st.radio("Nivel:", [10.0, 7.5, 5.0, 2.5, 0.0], format_func=lambda x: map_10[x], key="hk_c9")
+            hk_c9 = st.radio("Nivel:", [10.0, 7.0, 4.0, 1.0], format_func=lambda x: map_hk_10[x], key="hk_c9")
             hk_obs9 = st.text_area("Observaciones de Integración y Fundamentación:", key="hk_obs9", height=60)
 
         total_score_hk = hk_c1 + hk_c2 + hk_c3 + hk_c4 + hk_c5 + hk_c6 + hk_c7 + hk_c8 + hk_c9
@@ -789,15 +789,15 @@ with tab_hackathon:
                 st.warning("⚠️ Por favor completa el Evaluador/a, el Equipo y selecciona el Escenario asignado.")
             else:
                 eval_respuestas_hk = {
-                    "diseno_conceptual_pts": hk_c1, "diseno_conceptual_desc": map_10[hk_c1], "diseno_conceptual_obs": hk_obs1,
-                    "energia_agua_pts": hk_c2, "energia_agua_desc": map_15[hk_c2], "energia_agua_obs": hk_obs2,
-                    "monitoreo_comunicaciones_pts": hk_c3, "monitoreo_comunicaciones_desc": map_10[hk_c3], "monitoreo_comunicaciones_obs": hk_obs3,
-                    "interfaz_digital_pts": hk_c4, "interfaz_digital_desc": map_10[hk_c4], "interfaz_digital_obs": hk_obs4,
-                    "coordinacion_interinstitucional_pts": hk_c5, "coordinacion_interinstitucional_desc": map_10[hk_c5], "coordinacion_interinstitucional_obs": hk_obs5,
-                    "logistica_recursos_pts": hk_c6, "logistica_recursos_desc": map_10[hk_c6], "logistica_recursos_obs": hk_obs6,
-                    "asistencia_poblacion_pts": hk_c7, "asistencia_poblacion_desc": map_15[hk_c7], "asistencia_poblacion_obs": hk_obs7,
-                    "funcionamiento_dinamico_pts": hk_c8, "funcionamiento_dinamico_desc": map_10[hk_c8], "funcionamiento_dinamico_obs": hk_obs8,
-                    "integracion_fundamentacion_pts": hk_c9, "integracion_fundamentacion_desc": map_10[hk_c9], "integracion_fundamentacion_obs": hk_obs9,
+                    "diseno_conceptual_pts": hk_c1, "diseno_conceptual_desc": map_hk_10[hk_c1], "diseno_conceptual_obs": hk_obs1,
+                    "energia_agua_pts": hk_c2, "energia_agua_desc": map_hk_15[hk_c2], "energia_agua_obs": hk_obs2,
+                    "monitoreo_comunicaciones_pts": hk_c3, "monitoreo_comunicaciones_desc": map_hk_10[hk_c3], "monitoreo_comunicaciones_obs": hk_obs3,
+                    "interfaz_digital_pts": hk_c4, "interfaz_digital_desc": map_hk_10[hk_c4], "interfaz_digital_obs": hk_obs4,
+                    "coordinacion_interinstitucional_pts": hk_c5, "coordinacion_interinstitucional_desc": map_hk_10[hk_c5], "coordinacion_interinstitucional_obs": hk_obs5,
+                    "logistica_recursos_pts": hk_c6, "logistica_recursos_desc": map_hk_10[hk_c6], "logistica_recursos_obs": hk_obs6,
+                    "asistencia_poblacion_pts": hk_c7, "asistencia_poblacion_desc": map_hk_15[hk_c7], "asistencia_poblacion_obs": hk_obs7,
+                    "funcionamiento_dinamico_pts": hk_c8, "funcionamiento_dinamico_desc": map_hk_10[hk_c8], "funcionamiento_dinamico_obs": hk_obs8,
+                    "integracion_fundamentacion_pts": hk_c9, "integracion_fundamentacion_desc": map_hk_10[hk_c9], "integracion_fundamentacion_obs": hk_obs9,
                 }
 
                 doc_eval_hk = {
