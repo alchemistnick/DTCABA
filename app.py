@@ -569,7 +569,7 @@ with tab_dtcaba:
                     "lamina_vistas_isometrica_pts": tdr2_c3, "lamina_vistas_isometrica_obs": tdr2_obs3,
                     "lamina_normas_acotacion_pts": tdr2_c4, "lamina_normas_acotacion_obs": tdr2_obs4,
                     "subtotal_tinkercad_60": pts_tinkercad,
-                    "subtotal_lamina_40": pts_lamina
+                    "subtotal_lamina_40": pts_lamina,
                 }
 
             st.metric(label="Puntaje Total Ponderado (sobre 100)", value=f"{puntaje_100} / 100 pts")
@@ -1147,7 +1147,7 @@ with tab_admin:
 
         evals_raw = [d.to_dict() for d in db.collection("evaluaciones").stream()]
         equipos_raw = [d.to_dict() for d in db.collection("equipos").stream()]
-        presentes_raw = [d.to_dict() for din db.collection("presentes").stream()]
+        presentes_raw = [d.to_dict() for d in db.collection("presentes").stream()]
 
         df_evals = pd.json_normalize(evals_raw) if evals_raw else pd.DataFrame()
         df_equipos = aplanar_equipos(equipos_raw) if equipos_raw else pd.DataFrame()
