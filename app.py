@@ -458,46 +458,75 @@ with tab_dtcaba:
 
             elif materia == "Tecnología de la Representación Nivel 1":
                 st.markdown("### ✏️ Rúbrica 1.er Año: 100% Analógico (Lámina en Papel)")
+                st.caption("Alineado estrictamente a la Lista de Cotejo y Rúbrica DTR (Análisis, Trazado, Normas e Integración).")
 
-                map_tdr1_niveis = {
-                    4: "4 - Destacado / Avanzado: Excelente dominio de la técnica, precisión y normas IRAM.",
-                    3: "3 - Satisfactorio: Correcta aplicación con mínimos detalles o pequeñas imprecisiones.",
-                    2: "2 - En desarrollo / Básico: Aplicación parcial, inconsistencias en trazos, acotaciones o centrado.",
-                    1: "1 - Inicial: Múltiples errores de representación, falta de normas o mala calidad gráfica."
+                map_tdr1_c1 = {
+                    4: "4 - Destacado / Avanzado: Excelente interpretación espacial. Identifica y representa con absoluta precisión todas las figuras geométricas y sus relaciones en la estructura.",
+                    3: "3 - Satisfactorio: Reconoce correctamente las figuras geométricas principales e interpreta adecuadamente sus relaciones espaciales.",
+                    2: "2 - En desarrollo / Básico: Reconoce algunas figuras geométricas, pero presenta imprecisiones o necesita asistencia para interpretar su espacialidad.",
+                    1: "1 - Inicial: Muestra serias dificultades para identificar las figuras y representar sus relaciones espaciales."
+                }
+
+                map_tdr1_c2 = {
+                    4: "4 - Destacado / Avanzado: Acotación impecable. Flechas, tipos de línea, posición y separación aplicados con total rigurosidad según norma.",
+                    3: "3 - Satisfactorio: Acotación correcta y legible. Mantiene flechas, líneas de cota y ubicación con mínimos detalles a corregir.",
+                    2: "2 - En desarrollo / Básico: Acotación parcial o incompleta. Presenta inconsistencias en tipos de línea, flechas o ubicación de cotas.",
+                    1: "1 - Inicial: Ausencia o aplicación errónea del sistema de acotado; dificulta la lectura métrica de la lámina."
+                }
+
+                map_tdr1_c3 = {
+                    4: "4 - Destacado / Avanzado: Dominio sobresaliente de los métodos de trazado (bisectriz, mediatriz, óvalos, ovoides) con cierres y empalmes perfectos.",
+                    3: "3 - Satisfactorio: Correcta resolución de construcciones geométricas y empalmes con buena precisión de trazado.",
+                    2: "2 - En desarrollo / Básico: Trazados con imprecisiones visibles; empalmes o cierres de figuras parcialmente resueltos.",
+                    1: "1 - Inicial: Errores graves en la aplicación de métodos geométricos; cierres y empalmes defectuosos o inexistentes."
+                }
+
+                map_tdr1_c4 = {
+                    4: "4 - Destacado / Avanzado: Aplicación rigurosa de Normas IRAM. Perfecta diferenciación y jerarquía de tipos de líneas y trazos.",
+                    3: "3 - Satisfactorio: Correcta diferenciación de líneas y trazos respetando los criterios normativos fundamentales.",
+                    2: "2 - En desarrollo / Básico: Inconsistencia en la jerarquía de trazos o uso confuso de los tipos de línea IRAM.",
+                    1: "1 - Inicial: Incumplimiento de las normas IRAM en el uso de líneas, espesores y trazos."
+                }
+
+                map_tdr1_c5 = {
+                    4: "4 - Destacado / Avanzado: Organización espacial simétrica y equilibrada. Caligrafía técnica perfecta en rótulo y plegado a 2 pliegues impecable.",
+                    3: "3 - Satisfactorio: Buena ubicación en el plano (centrado y proporción), caligrafía prolija y plegado a 2 pliegues correcto.",
+                    2: "2 - En desarrollo / Básico: Presentación con fallas de centrado, caligrafía irregular o plegado defectuoso.",
+                    1: "1 - Inicial: Lámina desorganizada, sin centrado ni proporción, caligrafía deficiente y plegado incorrecto."
                 }
 
                 st.markdown("#### BLOQUE 1: Análisis e Interpretación Geométrica (40%)")
                 with st.container(border=True):
                     st.markdown("##### 1.1 Identificación y Representación de Figuras (20%)")
-                    st.caption("Reconocimiento de figuras geométricas, relaciones espaciales y cantidad de figuras en el espacio.")
-                    tdr1_c1 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr1_niveis[x], key="tdr1_c1")
+                    st.caption("Reconocimiento de figuras geométricas, cantidad y relaciones espaciales en la estructura.")
+                    tdr1_c1 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr1_c1[x], key="tdr1_c1")
                     tdr1_obs1 = st.text_area("Observaciones:", key="tdr1_obs1", height=60)
 
                 with st.container(border=True):
                     st.markdown("##### 1.2 Acotaciones e Interpretación Espacial (20%)")
-                    st.caption("Flechas, tipos de línea, separación, posición adecuada y lectura de la espacialidad.")
-                    tdr1_c2 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr1_niveis[x], key="tdr1_c2")
+                    st.caption("Normas de acotado: flechas, tipos de línea, separación, posición y lectura métrica.")
+                    tdr1_c2 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr1_c2[x], key="tdr1_c2")
                     tdr1_obs2 = st.text_area("Observaciones:", key="tdr1_obs2", height=60)
 
                 st.markdown("#### BLOQUE 2: Método de Construcción y Trazado (20%)")
                 with st.container(border=True):
-                    st.markdown("##### 2.1 Métodos de Trazado y Empalmes (20%)")
-                    st.caption("Construcciones geométricas precisas (bisectriz, mediatriz, óvalos, ovoides) y empalmes/cierres correctos.")
-                    tdr1_c3 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr1_niveis[x], key="tdr1_c3")
+                    st.markdown("##### 2.1 Métodos de Trazado, Construcciones y Empalmes (20%)")
+                    st.caption("Precisión en métodos geométricos (bisectriz, mediatriz, óvalos, ovoides) y empalmes/cierres correctos.")
+                    tdr1_c3 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr1_c3[x], key="tdr1_c3")
                     tdr1_obs3 = st.text_area("Observaciones:", key="tdr1_obs3", height=60)
 
                 st.markdown("#### BLOQUE 3: Aplicación de Normas IRAM (20%)")
                 with st.container(border=True):
-                    st.markdown("##### 3.1 Normas IRAM, Líneas y Trazos (20%)")
-                    st.caption("Diferenciación y uso normado de tipos de líneas, jerarquías de trazos y precisión.")
-                    tdr1_c4 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr1_niveis[x], key="tdr1_c4")
+                    st.markdown("##### 3.1 Normas IRAM, Líneas y Jerarquía de Trazos (20%)")
+                    st.caption("Uso normado de tipos de líneas, intensidad de trazos y precisión técnica.")
+                    tdr1_c4 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr1_c4[x], key="tdr1_c4")
                     tdr1_obs4 = st.text_area("Observaciones:", key="tdr1_obs4", height=60)
 
                 st.markdown("#### BLOQUE 4: Presentación Técnica y Organización (20%)")
                 with st.container(border=True):
-                    st.markdown("##### 4.1 Ubicación, Caligrafía y Plegado (20%)")
-                    st.caption("Centrado, proporción, alineación, caligrafía técnica en rótulo, prolijidad y plegado a dos pliegues.")
-                    tdr1_c5 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr1_niveis[x], key="tdr1_c5")
+                    st.markdown("##### 4.1 Ubicación, Caligrafía, Rótulo y Plegado (20%)")
+                    st.caption("Centrado, proporción, equilibrio compositivo, caligrafía técnica (15%) y plegado a 2 pliegues (5%).")
+                    tdr1_c5 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr1_c5[x], key="tdr1_c5")
                     tdr1_obs5 = st.text_area("Observaciones:", key="tdr1_obs5", height=60)
 
                 promedio_base4 = (tdr1_c1 * 0.20) + (tdr1_c2 * 0.20) + (tdr1_c3 * 0.20) + (tdr1_c4 * 0.20) + (tdr1_c5 * 0.20)
@@ -513,43 +542,65 @@ with tab_dtcaba:
 
             elif materia == "Tecnología de la Representación Nivel 2":
                 st.markdown("### 🎛️ Rúbrica 2.º Año: Modalidad Híbrida (60% Tinkercad + 40% Lámina Técnica)")
+                st.caption("Estructurado según los Lineamientos DTR: 60% Modelado 3D Digital + 40% Lámina Técnica en Papel.")
 
-                map_tdr2_niveis = {
-                    4: "4 - Destacado / Avanzado: Reconstrucción volumétrica excelente, precisión métrica y vistas rigurosas.",
-                    3: "3 - Satisfactorio: Correcta resolución tridimensional con mínimos desajustes en encastres o normas.",
-                    2: "2 - En desarrollo / Básico: Modelado o representación parcial con errores de escala, acotación o alineación.",
-                    1: "1 - Inicial: Pieza tridimensional incompleta o lámina con severos fallos gráficos e interpretación mala."
+                map_tdr2_c1 = {
+                    4: "4 - Destacado / Avanzado: Medición exacta de la pieza física, boceto de análisis riguroso y reconstrucción completa del volumen faltante.",
+                    3: "3 - Satisfactorio: Correcta medición e interpretación con mínimos desajustes dimensionales en la reconstrucción.",
+                    2: "2 - En desarrollo / Básico: Medición imprecisa o reconstrucción volumétrica con inconsistencias geométricas visibles.",
+                    1: "1 - Inicial: Fallas graves en la lectura dimensional; no logra interpretar ni reconstruir el volumen faltante."
+                }
+
+                map_tdr2_c2 = {
+                    4: "4 - Destacado / Avanzado: Modelado 3D impecable. Correcta elección de formas, encastres perfectos y archivo (.stl/.obj) listo para producción.",
+                    3: "3 - Satisfactorio: Modelo 3D bien resuelto en Tinkercad con pequeñas imprecisiones en tolerancias de encastre.",
+                    2: "2 - En desarrollo / Básico: Modelo 3D incompleto, con errores de escala, desalineación o fallas en operaciones booleanas.",
+                    1: "1 - Inicial: No logra construir el modelo 3D digital o presenta una estructura tridimensional incoherente."
+                }
+
+                map_tdr2_c3 = {
+                    4: "4 - Destacado / Avanzado: Proyección rigurosa de vistas ortogonales alineadas e isométrica impecable con excelente coherencia espacial.",
+                    3: "3 - Satisfactorio: Representación correcta de vistas e isométrica que permiten comprender perfectamente la pieza.",
+                    2: "2 - En desarrollo / Básico: Vistas desalineadas o perspectiva isométrica con errores de trazado y proporción.",
+                    1: "1 - Inicial: Múltiples errores en el sistema de vistas e isométrica; falta de coherencia espacial entre proyecciones."
+                }
+
+                map_tdr2_c4 = {
+                    4: "4 - Destacado / Avanzado: Aplicación perfecta de normas IRAM (líneas, acotado), caligrafía técnica pulcra y plegado a 2 pliegues normado.",
+                    3: "3 - Satisfactorio: Correcta aplicación de tipos de línea, acotación legible, rótulo ordenado y plegado correcto.",
+                    2: "2 - En desarrollo / Básico: Errores en acotaciones o tipos de línea; presentación con falta de prolijidad gráfica.",
+                    1: "1 - Inicial: Incumplimiento de normas IRAM, caligrafía deficiente y desorganización general de la lámina."
                 }
 
                 st.markdown("---")
                 st.markdown("### 🖥️ PARTE 1: Modelado Digital 3D en Tinkercad (60%)")
                 
                 with st.container(border=True):
-                    st.markdown("##### 1. Reconstrucción y Medición Tridimensional (30%)")
-                    st.caption("Medición precisa de la pieza física entregada, resolución de encastres y reconstrucción digital del volumen faltante.")
-                    tdr2_c1 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr2_niveis[x], key="tdr2_c1")
-                    tdr2_obs1 = st.text_area("Observaciones Tinkercad - Modelado:", key="tdr2_obs1", height=60)
+                    st.markdown("##### 1. Medición, Bocetado e Interpretación de la Pieza (30%)")
+                    st.caption("Medición métrica de la pieza recuperada, boceto inicial de análisis y resolución del volumen faltante.")
+                    tdr2_c1 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr2_c1[x], key="tdr2_c1")
+                    tdr2_obs1 = st.text_area("Observaciones Tinkercad - Medición e Interpretación:", key="tdr2_obs1", height=60)
 
                 with st.container(border=True):
-                    st.markdown("##### 2. Correcta Elección y Operaciones en 3D (30%)")
-                    st.caption("Proporcionalidad, tolerancias de encastre y calidad del modelo tridimensional exportado (.obj / .stl).")
-                    tdr2_c2 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr2_niveis[x], key="tdr2_c2")
-                    tdr2_obs2 = st.text_area("Observaciones Tinkercad - Elección:", key="tdr2_obs2", height=60)
+                    st.markdown("##### 2. Modelado 3D, Operaciones y Encastres (30%)")
+                    st.caption("Proporcionalidad, resolución de encastres, tolerancia métrica y calidad del modelo digital exportado (.obj / .stl).")
+                    tdr2_c2 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr2_c2[x], key="tdr2_c2")
+                    tdr2_obs2 = st.text_area("Observaciones Tinkercad - Modelado y Encastres:", key="tdr2_obs2", height=60)
 
                 st.markdown("---")
                 st.markdown("### 📜 PARTE 2: Lámina Técnica en Papel (40%)")
 
                 with st.container(border=True):
-                    st.markdown("##### 3. Vistas Principales y Perspectiva Isométrica (20%)")
-                    st.caption("Representación ortogonal alineada de vistas, perspectiva isométrica precisa y coherencia espacial entre proyecciones.")
-                    tdr2_c3 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr2_niveis[x], key="tdr2_c3")
-                    tdr2_obs3 = st.text_area("Observaciones Lámina - Vistas / Isométrica:", key="tdr2_obs3", height=60)
+                    st.markdown("##### 3. Representación de Vistas y Perspectiva Isométrica (20%)")
+                    st.caption("Representación ortogonal alineada de vistas principales, perspectiva isométrica y coherencia espacial.")
+                    tdr2_c3 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr2_c3[x], key="tdr2_c3")
+                    tdr2_obs3 = st.text_area("Observaciones Lámina - Vistas e Isométrica:", key="tdr2_obs3", height=60)
 
                 with st.container(border=True):
-                    st.markdown("##### 4. Aplicación de Normas IRAM, Acotación y Presentación (20%)")
-                    st.caption("Tipos de línea IRAM, norma de acotado (flechas, posición, valores), caligrafía técnica y correcto plegado a dos pliegues.")
-                    tdr2_c4 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr2_niveis[x], key="tdr2_c4")
-                    tdr2_obs4 = st.text_area("Observaciones Lámina - Normas y Caligrafía:", key="tdr2_obs4", height=60)
+                    st.markdown("##### 4. Normas IRAM, Acotación, Caligrafía y Plegado (20%)")
+                    st.caption("Tipos de línea IRAM, acotación normada (flechas, posición, valores), caligrafía técnica y plegado a 2 pliegues.")
+                    tdr2_c4 = st.radio("Nivel:", [4, 3, 2, 1], format_func=lambda x: map_tdr2_c4[x], key="tdr2_c4")
+                    tdr2_obs4 = st.text_area("Observaciones Lámina - Normas y Presentación:", key="tdr2_obs4", height=60)
 
                 pts_tinkercad = round((((tdr2_c1 * 0.30) + (tdr2_c2 * 0.30)) / 4) * 100, 2)
                 pts_lamina = round((((tdr2_c3 * 0.20) + (tdr2_c4 * 0.20)) / 4) * 100, 2)
@@ -564,10 +615,10 @@ with tab_dtcaba:
                     st.metric(label="📜 Subtotal Lámina (40% Máx)", value=f"{pts_lamina} / 40 pts")
 
                 eval_respuestas = {
-                    "tinkercad_reconstruccion_pts": tdr2_c1, "tinkercad_reconstruccion_obs": tdr2_obs1,
-                    "tinkercad_operaciones_pts": tdr2_c2, "tinkercad_operaciones_obs": tdr2_obs2,
-                    "lamina_vistas_isometrica_pts": tdr2_c3, "lamina_vistas_isometrica_obs": tdr2_obs3,
-                    "lamina_normas_acotacion_pts": tdr2_c4, "lamina_normas_acotacion_obs": tdr2_obs4,
+                    "medicion_bocetado_pts": tdr2_c1, "medicion_bocetado_obs": tdr2_obs1,
+                    "modelado_encastres_pts": tdr2_c2, "modelado_encastres_obs": tdr2_obs2,
+                    "vistas_isometrica_pts": tdr2_c3, "vistas_isometrica_obs": tdr2_obs3,
+                    "normas_acotacion_plegado_pts": tdr2_c4, "normas_acotacion_plegado_obs": tdr2_obs4,
                     "subtotal_tinkercad_60": pts_tinkercad,
                     "subtotal_lamina_40": pts_lamina,
                 }
@@ -792,7 +843,6 @@ with tab_hackathon:
 
         st.subheader("📊 Indicadores de Evaluación CIREC (4 Niveles de Desempeño - Total: 100 pts)")
 
-        # MAPEOS EN 4 NIVELES PARA INDICADORES DE 10 PUNTOS MÁXIMOS
         map_hk_10 = {
             10.0: "Alto desempeño (10 pts): Coherencia total, alta rigurosidad técnica y adaptación completa al escenario.",
             7.0: "Desempeño medio (7 pts): Propuesta sólida con imprecisiones menores en la adaptación o ejecución.",
@@ -800,7 +850,6 @@ with tab_hackathon:
             1.0: "Bajo desempeño (1 pt): Propuesta incoherente, muy limitada o sin responder al criterio."
         }
 
-        # MAPEOS EN 4 NIVELES PARA INDICADORES DE 15 PUNTOS MÁXIMOS
         map_hk_15 = {
             15.0: "Alto desempeño (15 pts): Cobertura integral, diseño redundante de contingencia y enfoque amplio.",
             10.5: "Desempeño medio (10.5 pts): Respuesta operativa sólida con omisiones secundarias de respaldo.",
@@ -1014,15 +1063,13 @@ with tab_agua:
 
         st.subheader("📋 Rúbrica de Evaluación — Desafíos del Agua (Total: 100 pts)")
 
-        # PONDERACIÓN DE 25 PUNTOS MÁXIMOS (Rigor Técnico y Viabilidad)
         map_agua_25 = {
             25.0: "Alto desempeño (25 pts): Análisis riguroso, viabilidad completa y fundamentación científica sólida",
             18.75: "Desempeño medio (18.75 pts): Análisis correcto con fundamentos o planificación parciales",
             12.5: "Desempeño regular (12.5 pts): Análisis o viabilidad limitados, con vacíos técnicos significativos",
-            5.0: "Bajo desempeño (5 pts): Análisis incorrecto, sin sustento o inviable"
+            5.0: "Bajo desempeño (5 pts): Análisis incorrecto, sin sustento o invviable"
         }
 
-        # PONDERACIÓN DE 15 PUNTOS MÁXIMOS (Innovación y Desarrollo Tecnológico)
         map_agua_15 = {
             15.0: "Alto desempeño (15 pts): Propuesta original, bien estructurada y funcional",
             11.25: "Desempeño medio (11.25 pts): Propuesta funcional con algunos elementos innovadores o incompletos",
@@ -1030,7 +1077,6 @@ with tab_agua:
             3.0: "Bajo desempeño (3 pts): Sin innovación ni desarrollo tecnológico"
         }
 
-        # PONDERACIÓN DE 10 PUNTOS MÁXIMOS (Comunicación y Trabajo en Equipo)
         map_agua_10 = {
             10.0: "Alto desempeño (10 pts): Excelente presentación y/o trabajo en equipo interdisciplinario fluído",
             7.5: "Desempeño medio (7.5 pts): Presentación comprensible y/o buena colaboración con leves problemas",
