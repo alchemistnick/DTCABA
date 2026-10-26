@@ -13,8 +13,8 @@ from firebase_admin import credentials, firestore
 # Web App 1: Padrón principal de estudiantes
 WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwpYoAthfaViejGHAAThgQkAllbMrSsxfi-AC6vrcrtUtIeG-VtI5knuGPyGlGZhHl7tA/exec"
 
-# Web App 2: Respuestas del Google Forms con entregas STL
-WEBAPP_STL_URL = "https://script.google.com/macros/s/AKfycbxyrayo0Cdj01fcHhdK6TboLDUyve29JbvhAXx3Otq7LA2P10IpNZEY5AWh44lxQKrOAQ/exec"
+# Web App 2: Formulario de entregas de archivos STL / 3D
+WEBAPP_STL_URL = "https://script.google.com/macros/s/AKfycbzjKQ9HIk608L0jfmf_iwscnYsSY15u5JqrBAw7txKDKkwO7VdA6KWoo6QB8zEbNepEcw/exec"
 
 ADMIN_PASSWORD = "admin123"
 CARACTERES_SEGUROS = "BCDFGHJKLMNPQRSTVWXYZ0123456789"
@@ -157,9 +157,9 @@ def buscar_estudiantes_por_dni(dni):
     return []
 
 def buscar_stl_por_dnis_equipo(lista_dnis):
-    """Consulta la Web App 2 (Formulario de entregas STL)."""
+    """Consulta la Web App 2 (Formulario de entregas STL) con diagnóstico de respuesta."""
     if not lista_dnis:
-        return None
+        return None, "La lista de DNIs del equipo en Firebase está vacía."
     try:
         payload = {
             "action": "buscar_stl_por_dnis",
@@ -169,10 +169,12 @@ def buscar_stl_por_dnis_equipo(lista_dnis):
         if res.status_code == 200:
             data = res.json()
             if data.get("status") == "success":
-                return data.get("url_stl")
-    except Exception:
-        pass
-    return None
+                return data.get("url_stl"), None
+            else:
+                return None, f"Respuesta Apps Script: {data}"
+    except Exception as e:
+        return None, f"Error de conexión con Apps Script: {e}"
+    return None, "Sin respuesta válida del servidor."
 
 def obtener_datos_equipo_por_codigo(codigo):
     """Recupera los integrantes y datos de un equipo guardado en Firestore."""
@@ -574,14 +576,13 @@ with tab_dtcaba:
                 st.markdown("### 🎛️ Rúbrica 2.º Año: Modalidad Híbrida (60% Tinkercad + 40% Lámina Técnica)")
                 st.caption("Estructurado según los Lineamientos DTR: 60% Modelado 3D Digital + 40% Lámina Técnica en Papel.")
 
-                # CONSULTA INTEGRADA A LA WEB APP 2 (GOOGLE FORMS STL)
                 equipo_info = obtener_datos_equipo_por_codigo(codigo_unico)
                 if equipo_info:
                     integrantes = equipo_info.get("integrantes", [])
                     dnis_equipo = [str(m.get("dni", "")).strip().replace(".", "") for m in integrantes if m.get("dni")]
                     
-                    with st.spinner("🔍 Buscando archivo 3D (.stl) subido en Google Forms (Web App 2)..."):
-                        url_stl_encontrado = buscar_stl_por_dnis_equipo(dnis_equipo)
+                    with st.spinner("🔍 Buscando archivo 3D (.stl) subido en Google Forms..."):
+                        url_stl_encontrado, detalle_debug = buscar_stl_por_dnis_equipo(dnis_equipo)
                     
                     with st.container(border=True):
                         st.markdown("#### 📦 Entrega Digital 3D en Tinkercad (.stl / .obj)")
@@ -593,7 +594,13 @@ with tab_dtcaba:
                             with col_b2:
                                 st.caption("Puedes visualizar o descargar la pieza en 3D para evaluarla frente a la consigna.")
                         else:
-                            st.warning("⚠️ No se encontró ningún archivo STL subido en Google Forms que coincida con los DNIs de los integrantes de este equipo.")
+                            st.warning("⚠️ No se encontró ningún archivo STL subido en Google Forms que coincida con los DNIs de este equipo.")
+                            if detalle_debug:
+                                with st.expander("🔍 Ver detalles del matcheo de DNIs (Diagnóstico)"):
+                                    st.write(f"**DNIs del equipo en Firebase:** `{dnis_equipo}`")
+                                    st.write(f"**Respuesta del servidor:** `{detalle_debug}`")
+                else:
+                    st.info("💡 Este código no tiene integrantes asociados en Firebase aún.")
 
                 map_tdr2_c1 = {
                     4: "4 - Destacado / Avanzado: Medición exacta de la pieza física, boceto de análisis riguroso y reconstrucción completa del volumen faltante.",
@@ -843,7 +850,7 @@ with tab_hackathon:
     st.markdown(
         """
         <div class="app-header">
-            <h1>🏆 Rúbrica de Evaluación — Desafío CIREC</h1>
+            <h1>🏆 Rúbrica de Evaluación — Desafíos CIREC</h1>
             <p>Centro Integral de Respuesta ante Emergencias Climáticas</p>
         </div>
         """,
