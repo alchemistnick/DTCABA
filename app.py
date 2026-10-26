@@ -14,7 +14,7 @@ from firebase_admin import credentials, firestore
 WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwpYoAthfaViejGHAAThgQkAllbMrSsxfi-AC6vrcrtUtIeG-VtI5knuGPyGlGZhHl7tA/exec"
 
 # Web App 2: Respuestas del Google Forms con entregas STL
-WEBAPP_STL_URL = "https://script.google.com/macros/s/AKfycbxdW4LYM3EjmhZv5CVYQTLc6bSOREKs7nf-be5NIu0VkvgE86BtFkH6I_UvfLLxUY0xDw/exec"
+WEBAPP_STL_URL = "https://script.google.com/macros/s/AKfycbxyrayo0Cdj01fcHhdK6TboLDUyve29JbvhAXx3Otq7LA2P10IpNZEY5AWh44lxQKrOAQ/exec"
 
 ADMIN_PASSWORD = "admin123"
 CARACTERES_SEGUROS = "BCDFGHJKLMNPQRSTVWXYZ0123456789"
