@@ -10,9 +10,13 @@ from firebase_admin import credentials, firestore
 # ---------------------------------------------------------
 # CONFIGURACIÓN DE SERVIDORES Y FIREBASE
 # ---------------------------------------------------------
+# Web App 1: Padrón principal de estudiantes
 WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwpYoAthfaViejGHAAThgQkAllbMrSsxfi-AC6vrcrtUtIeG-VtI5knuGPyGlGZhHl7tA/exec"
-ADMIN_PASSWORD = "admin123"
 
+# Web App 2: Respuestas del Google Forms con entregas STL
+WEBAPP_STL_URL = "https://script.google.com/macros/s/AKfycbxdW4LYM3EjmhZv5CVYQTLc6bSOREKs7nf-be5NIu0VkvgE86BtFkH6I_UvfLLxUY0xDw/exec"
+
+ADMIN_PASSWORD = "admin123"
 CARACTERES_SEGUROS = "BCDFGHJKLMNPQRSTVWXYZ0123456789"
 
 st.set_page_config(
@@ -54,17 +58,14 @@ st.markdown(
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
 
-    /* OCULTAR COMPLETAMENTE LA BARRA SUPERIOR DE STREAMLIT */
     header[data-testid="stHeader"] {
         display: none !important;
     }
 
-    /* AJUSTE DEL ESPACIADO SUPERIOR PARA COMPENSAR LA BARRA OCULTA */
     .block-container {
         padding-top: 1.5rem !important;
     }
 
-    /* ESTILO DE LAS PESTAÑAS PRINCIPALES EN LA PANTALLA */
     button[data-baseweb="tab"] {
         font-size: 1.05rem !important;
         font-weight: 600 !important;
@@ -140,6 +141,7 @@ st.markdown(
 # ---------------------------------------------------------
 @st.cache_data(ttl=600, show_spinner=False)
 def buscar_estudiantes_por_dni(dni):
+    """Consulta la Web App 1 (Padrón)."""
     try:
         dni_limpio = str(dni).strip().replace(".", "").replace(" ", "")
         if not dni_limpio:
@@ -155,6 +157,7 @@ def buscar_estudiantes_por_dni(dni):
     return []
 
 def buscar_stl_por_dnis_equipo(lista_dnis):
+    """Consulta la Web App 2 (Formulario de entregas STL)."""
     if not lista_dnis:
         return None
     try:
@@ -162,7 +165,7 @@ def buscar_stl_por_dnis_equipo(lista_dnis):
             "action": "buscar_stl_por_dnis",
             "dnis": lista_dnis
         }
-        res = requests.post(WEBAPP_URL, json=payload, timeout=12)
+        res = requests.post(WEBAPP_STL_URL, json=payload, timeout=12)
         if res.status_code == 200:
             data = res.json()
             if data.get("status") == "success":
@@ -172,6 +175,7 @@ def buscar_stl_por_dnis_equipo(lista_dnis):
     return None
 
 def obtener_datos_equipo_por_codigo(codigo):
+    """Recupera los integrantes y datos de un equipo guardado en Firestore."""
     try:
         docs = db.collection("equipos").where("codigo_unico", "==", codigo).stream()
         for doc in docs:
@@ -570,26 +574,26 @@ with tab_dtcaba:
                 st.markdown("### 🎛️ Rúbrica 2.º Año: Modalidad Híbrida (60% Tinkercad + 40% Lámina Técnica)")
                 st.caption("Estructurado según los Lineamientos DTR: 60% Modelado 3D Digital + 40% Lámina Técnica en Papel.")
 
-                # MODULO DE BÚSQUEDA Y VISUALIZACIÓN DE ARCHIVO STL
+                # CONSULTA INTEGRADA A LA WEB APP 2 (GOOGLE FORMS STL)
                 equipo_info = obtener_datos_equipo_por_codigo(codigo_unico)
                 if equipo_info:
                     integrantes = equipo_info.get("integrantes", [])
                     dnis_equipo = [str(m.get("dni", "")).strip().replace(".", "") for m in integrantes if m.get("dni")]
                     
-                    with st.spinner("🔍 Buscando archivo 3D (.stl) subido en Google Forms..."):
+                    with st.spinner("🔍 Buscando archivo 3D (.stl) subido en Google Forms (Web App 2)..."):
                         url_stl_encontrado = buscar_stl_por_dnis_equipo(dnis_equipo)
                     
                     with st.container(border=True):
                         st.markdown("#### 📦 Entrega Digital 3D en Tinkercad (.stl / .obj)")
                         if url_stl_encontrado:
-                            st.success("✅ ¡Archivo 3D localizado exitosamente mediante el DNI de un integrante!")
+                            st.success("✅ ¡Archivo 3D localizado exitosamente mediante coincidencia de DNI!")
                             col_b1, col_b2 = st.columns([1, 2])
                             with col_b1:
                                 st.link_button("📥 Abrir / Descargar Modelo 3D", url_stl_encontrado, type="primary")
                             with col_b2:
                                 st.caption("Puedes visualizar o descargar la pieza en 3D para evaluarla frente a la consigna.")
                         else:
-                            st.warning("⚠️ No se encontró ningún archivo STL subido en Google Forms que coincida con los DNIs de este equipo.")
+                            st.warning("⚠️ No se encontró ningún archivo STL subido en Google Forms que coincida con los DNIs de los integrantes de este equipo.")
 
                 map_tdr2_c1 = {
                     4: "4 - Destacado / Avanzado: Medición exacta de la pieza física, boceto de análisis riguroso y reconstrucción completa del volumen faltante.",
