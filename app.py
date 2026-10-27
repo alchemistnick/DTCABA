@@ -13,9 +13,6 @@ from firebase_admin import credentials, firestore
 # Web App 1: Padrón principal de estudiantes
 WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwpYoAthfaViejGHAAThgQkAllbMrSsxfi-AC6vrcrtUtIeG-VtI5knuGPyGlGZhHl7tA/exec"
 
-# Web App 2: Formulario de entregas de archivos STL / 3D
-WEBAPP_STL_URL = "https://script.google.com/macros/s/AKfycbx4JOtFMVITGPVDCfAHs5km3i-h4xqfZ1ilb7CScvTiXtwzeTVvHIZVVBOwP8dDbW0vXQ/exec"
-
 ADMIN_PASSWORD = "admin123"
 CARACTERES_SEGUROS = "BCDFGHJKLMNPQRSTVWXYZ0123456789"
 
@@ -156,26 +153,6 @@ def buscar_estudiantes_por_dni(dni):
         pass
     return []
 
-def buscar_stl_por_dnis_equipo(lista_dnis):
-    """Consulta la Web App 2 (Formulario de entregas STL) mediante GET."""
-    if not lista_dnis:
-        return None, "La lista de DNIs del equipo en Firebase está vacía."
-    try:
-        dnis_str = ",".join([str(d).replace(".", "").strip() for d in lista_dnis if d])
-        url = f"{WEBAPP_STL_URL}?dnis={dnis_str}"
-        
-        res = requests.get(url, timeout=15)
-        if res.status_code == 200:
-            data = res.json()
-            if data.get("status") == "success":
-                return data.get("url_stl"), None
-            else:
-                return None, f"Respuesta Apps Script: {data}"
-        else:
-            return None, f"Código de estado HTTP: {res.status_code}"
-    except Exception as e:
-        return None, f"Error de conexión con Apps Script: {e}"
-
 def obtener_datos_equipo_por_codigo(codigo):
     """Recupera los integrantes y datos de un equipo guardado en Firestore."""
     try:
@@ -202,7 +179,8 @@ def aplanar_equipos(equipos_list):
             "codigo_unico": eq.get("codigo_unico", ""),
             "evento": eq.get("evento", ""),
             "materia": eq.get("materia", ""),
-            "especialidad": eq.get("especialidad", "")
+            "especialidad": eq.get("especialidad", ""),
+            "url_stl": eq.get("url_stl", "")
         }
         integrantes = eq.get("integrantes", [])
         if isinstance(integrantes, list):
@@ -578,27 +556,19 @@ with tab_dtcaba:
 
                 equipo_info = obtener_datos_equipo_por_codigo(codigo_unico)
                 if equipo_info:
-                    integrantes = equipo_info.get("integrantes", [])
-                    dnis_equipo = [str(m.get("dni", "")).strip().replace(".", "") for m in integrantes if m.get("dni")]
-                    
-                    with st.spinner("🔍 Buscando archivo 3D (.stl) subido en Google Forms..."):
-                        url_stl_encontrado, detalle_debug = buscar_stl_por_dnis_equipo(dnis_equipo)
+                    url_stl = equipo_info.get("url_stl", "").strip()
                     
                     with st.container(border=True):
                         st.markdown("#### 📦 Entrega Digital 3D en Tinkercad (.stl / .obj)")
-                        if url_stl_encontrado:
-                            st.success("✅ ¡Archivo 3D localizado exitosamente mediante coincidencia de DNI!")
+                        if url_stl:
+                            st.success("✅ El equipo tiene un modelo 3D registrado en el sistema:")
                             col_b1, col_b2 = st.columns([1, 2])
                             with col_b1:
-                                st.link_button("📥 Abrir / Descargar Modelo 3D", url_stl_encontrado, type="primary")
+                                st.link_button("📥 Abrir / Descargar Modelo 3D", url_stl, type="primary")
                             with col_b2:
-                                st.caption("Puedes visualizar o descargar la pieza en 3D para evaluarla frente a la consigna.")
+                                st.caption("Haz clic para abrir el archivo o diseño en una nueva pestaña y evaluarlo.")
                         else:
-                            st.warning("⚠️ No se encontró ningún archivo STL subido en Google Forms que coincida con los DNIs de este equipo.")
-                            if detalle_debug:
-                                with st.expander("🔍 Ver detalles del matcheo de DNIs (Diagnóstico)"):
-                                    st.write(f"**DNIs del equipo en Firebase:** `{dnis_equipo}`")
-                                    st.write(f"**Respuesta del servidor:** `{detalle_debug}`")
+                            st.warning("⚠️ Este equipo no tiene ningún enlace a archivo STL / 3D asociado en Firebase.")
                 else:
                     st.info("💡 Este código no tiene integrantes asociados en Firebase aún.")
 
@@ -714,6 +684,12 @@ with tab_dtcaba:
             cant_integrantes = st.number_input("Cantidad de Integrantes del Equipo", min_value=1, max_value=10, value=2, key="num_integ")
             prefijo = st.selectbox("Materia / Categoría", ["MAT", "LEN", "TDR1", "TDR2", "HACKATHON", "AGUA"], key="prefijo_mat")
 
+            url_stl_input = st.text_input(
+                "🔗 URL de Entrega 3D / STL (Opcional - Google Drive, Tinkercad, etc.)", 
+                placeholder="https://drive.google.com/file/d/...", 
+                key="input_url_stl_gen"
+            ).strip()
+
             datos_integrantes = []
             especialidad_detectada = "General"
 
@@ -768,6 +744,7 @@ with tab_dtcaba:
                     "materia": prefijo,
                     "especialidad": esp_final,
                     "evento": "DTCABA",
+                    "url_stl": url_stl_input,
                     "integrantes": datos_integrantes
                 }
                 db.collection("equipos").add(doc_equipo)
