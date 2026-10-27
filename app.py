@@ -14,7 +14,7 @@ from firebase_admin import credentials, firestore
 WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwpYoAthfaViejGHAAThgQkAllbMrSsxfi-AC6vrcrtUtIeG-VtI5knuGPyGlGZhHl7tA/exec"
 
 # Web App 2: Formulario de entregas de archivos STL / 3D
-WEBAPP_STL_URL = "https://script.google.com/macros/s/AKfycbwygkYWdbH_3HhZ2kLTTINRWXsSj91dVTAn5smhMfNKWfHKJvnrYenxuq0wwhgSV7YWrw/exec"
+WEBAPP_STL_URL = "https://script.google.com/macros/s/AKfycbyZcPkhf45vThUmS2g45TvmyU7EQxj01f_o2iSwny3uvmbPbtN8QH7tXxHBEvm6JuFFQg/exec"
 
 ADMIN_PASSWORD = "admin123"
 CARACTERES_SEGUROS = "BCDFGHJKLMNPQRSTVWXYZ0123456789"
