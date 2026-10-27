@@ -157,24 +157,26 @@ def buscar_estudiantes_por_dni(dni):
     return []
 
 def buscar_stl_por_dnis_equipo(lista_dnis):
-    """Consulta la Web App 2 (Formulario de entregas STL) con diagnóstico de respuesta."""
+    """Consulta la Web App 2 (Formulario de entregas STL) mediante GET sin bloqueos."""
     if not lista_dnis:
         return None, "La lista de DNIs del equipo en Firebase está vacía."
     try:
-        payload = {
-            "action": "buscar_stl_por_dnis",
-            "dnis": lista_dnis
-        }
-        res = requests.post(WEBAPP_STL_URL, json=payload, timeout=12)
+        # Convertir lista de DNIs a string separado por comas
+        dnis_str = ",".join([str(d).replace(".", "").strip() for d in lista_dnis if d])
+        url = f"{WEBAPP_STL_URL}?dnis={dnis_str}"
+        
+        # Requests maneja automáticamente los redireccionamientos HTTP (302) de Google
+        res = requests.get(url, timeout=15)
         if res.status_code == 200:
             data = res.json()
             if data.get("status") == "success":
                 return data.get("url_stl"), None
             else:
                 return None, f"Respuesta Apps Script: {data}"
+        else:
+            return None, f"Código de estado HTTP: {res.status_code}"
     except Exception as e:
         return None, f"Error de conexión con Apps Script: {e}"
-    return None, "Sin respuesta válida del servidor."
 
 def obtener_datos_equipo_por_codigo(codigo):
     """Recupera los integrantes y datos de un equipo guardado en Firestore."""
@@ -1191,155 +1193,3 @@ with tab_agua:
 
                 doc_eval_agua = {
                     "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    "evaluador": evaluador_agua,
-                    "equipo": equipo_agua,
-                    "evento": "Desafíos Científicos del Agua",
-                    "promedio": total_score_agua,
-                    "respuestas": eval_respuestas_agua
-                }
-                db.collection("evaluaciones").add(doc_eval_agua)
-                st.session_state["eval_agua_guardada_exito"] = True
-
-                keys_agua_limpiar = [
-                    "agua_eval", "agua_equipo",
-                    "agua_c1", "agua_obs1", "agua_c2", "agua_obs2",
-                    "agua_c3", "agua_obs3", "agua_c4", "agua_obs4",
-                    "agua_c5", "agua_obs5", "agua_c6", "agua_obs6"
-                ]
-                for k in keys_agua_limpiar:
-                    if k in st.session_state:
-                        del st.session_state[k]
-
-                st.rerun()
-
-    elif opcion_agua == "📌 Acreditación Desafíos del Agua":
-        st.header("📌 Módulo de Acreditación de Presentes (Desafíos del Agua)")
-        st.markdown("Busca al participante por DNI en el padrón o ingresa sus datos manualmente si no se encuentra registrado.")
-
-        dni_agua_acred = st.text_input("Ingresar DNI del Participante a Acreditar", placeholder="Ej: 39098198", key="acred_dni_agua").strip().replace(".", "")
-
-        if dni_agua_acred:
-            coincidencias = buscar_estudiantes_por_dni(dni_agua_acred)
-
-            if coincidencias:
-                st.success(f"✅ Participante Encontrado en Padrón ({len(coincidencias)} registro/s)")
-                idx_agua_sel = 0
-                if len(coincidencias) > 1:
-                    opciones_agua_acred = [f"Inscripción #{i+1}: {c.get('inscripcion', 'Sin datos')} ({c.get('escuela', '')})" for i, c in enumerate(coincidencias)]
-                    idx_agua_sel = st.selectbox("Seleccionar la inscripción a acreditar:", range(len(opciones_agua_acred)), format_func=lambda x: opciones_agua_acred[x], key="sel_agua_acred_multi")
-
-                participante = coincidencias[idx_agua_sel]
-                val_nom_ag = participante.get("nombre", "")
-                val_esc_ag = participante.get("escuela", "")
-                val_insc_ag = participante.get("inscripcion", "")
-                val_mail_ag = participante.get("email", "")
-                val_doc_ag = participante.get("email_docente", "")
-                if val_doc_ag == "Sin Datos":
-                    val_doc_ag = ""
-                val_esp_ag = participante.get("especialidad", "General")
-            else:
-                st.info("ℹ️ El DNI no figura en el padrón. Puedes ingresar los datos manualmente a continuación:")
-                val_nom_ag = ""
-                val_esc_ag = ""
-                val_insc_ag = ""
-                val_mail_ag = ""
-                val_doc_ag = ""
-                val_esp_ag = "General"
-
-            with st.container(border=True):
-                st.markdown("### ✏️ Datos del Registro Desafíos del Agua")
-                col1, col2 = st.columns(2)
-                with col1:
-                    nombre_agua = st.text_input("Nombre y Apellido*", value=val_nom_ag, key="agua_nom_sel")
-                    escuela_agua = st.text_input("Escuela / Institución*", value=val_esc_ag, key="agua_esc_sel")
-                    equipo_agua_acred = st.text_input("Proyecto / Inscripción", value=val_insc_ag, key="agua_insc_sel")
-                
-                with col2:
-                    email_agua = st.text_input("Email Participante", value=val_mail_ag, key="agua_mail_sel")
-                    email_doc_agua = st.text_input("Mail Tutor / Docente", value=val_doc_ag, placeholder="ejemplo@tutor.edu.ar", key="agua_mail_doc_sel")
-                    especialidad_agua_acred = st.text_input("Especialidad", value=val_esp_ag, key="agua_esp_acred_sel")
-
-            if st.button("💧 Confirmar Acreditación Desafíos del Agua", key="acred_agua_btn_sel", type="primary"):
-                if not nombre_agua.strip() or not escuela_agua.strip():
-                    st.warning("⚠️ Por favor completa el Nombre y la Escuela del participante.")
-                else:
-                    doc_agua_presente = {
-                        "fecha_acreditacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        "dni": dni_agua_acred,
-                        "estudiante": nombre_agua,
-                        "escuela": escuela_agua,
-                        "email_estudiante": email_agua,
-                        "email_docente": email_doc_agua if email_doc_agua.strip() else "Sin Datos",
-                        "inscripcion": equipo_agua_acred,
-                        "especialidad": especialidad_agua_acred,
-                        "evento": "Desafíos Científicos del Agua"
-                    }
-                    db.collection("presentes").add(doc_agua_presente)
-                    st.success(f"🎉 ¡{nombre_agua} ha sido acreditado/a en los Desafíos del Agua!")
-
-# =========================================================
-# ADMINISTRACIÓN Y REPORTES CONSOLIDADOS
-# =========================================================
-with tab_admin:
-    st.header("⚙️ Panel de Administración Consolidado")
-    clave = st.text_input("Contraseña Administrador", type="password", key="admin_pass_main")
-
-    if clave == ADMIN_PASSWORD:
-        st.success("🔓 Acceso de Administración concedido.")
-
-        evals_raw = [d.to_dict() for d in db.collection("evaluaciones").stream()]
-        equipos_raw = [d.to_dict() for d in db.collection("equipos").stream()]
-        presentes_raw = [d.to_dict() for d in db.collection("presentes").stream()]
-
-        df_evals = pd.json_normalize(evals_raw) if evals_raw else pd.DataFrame()
-        df_equipos = aplanar_equipos(equipos_raw) if equipos_raw else pd.DataFrame()
-        df_presentes = pd.DataFrame(presentes_raw) if presentes_raw else pd.DataFrame()
-
-        subtab1, subtab2, subtab3 = st.tabs(["📊 Evaluaciones Registradas", "🔑 Base de Códigos / Equipos", "📌 Lista de Presentes"])
-        
-        with subtab1:
-            if not df_evals.empty:
-                st.dataframe(df_evals, use_container_width=True)
-            else:
-                st.info("No hay evaluaciones registradas aún.")
-
-        with subtab2:
-            if not df_equipos.empty:
-                st.dataframe(df_equipos, use_container_width=True)
-            else:
-                st.info("No hay equipos guardados aún.")
-
-        with subtab3:
-            if not df_presentes.empty:
-                st.dataframe(df_presentes, use_container_width=True)
-            else:
-                st.info("No hay asistentes acreditados aún.")
-
-        st.markdown("---")
-        st.subheader("📥 Exportar Datos a Excel / CSV")
-
-        dict_export = {
-            "Evaluaciones": evals_raw,
-            "Equipos": equipos_raw,
-            "Presentes_Acreditados": presentes_raw
-        }
-        excel_bytes = generar_excel_descarga(dict_export)
-
-        col_d1, col_d2 = st.columns(2)
-        with col_d1:
-            st.download_button(
-                label="🟢 Descargar Libro Excel Completo (.xlsx)",
-                data=excel_bytes,
-                file_name=f"Reporte_Consolidado_Eventos_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                key="btn_down_excel"
-            )
-        with col_d2:
-            if not df_evals.empty:
-                st.download_button(
-                    label="📄 Descargar Evaluaciones (CSV)",
-                    data=df_evals.to_csv(index=False).encode("utf-8"),
-                    file_name="evaluaciones.csv",
-                    mime="text/csv",
-                    key="btn_down_csv"
-                )
